@@ -51,7 +51,7 @@ const About: React.FC = () => {
           <div className="flex items-center justify-center gap-3 mb-4">
             <BookOpen className="text-[#00C9FF] dark:text-[#00C9FF] text-cyan-500" size={40} />
             <h1 className="text-4xl font-bold font-['Inter','Segoe_UI',sans-serif] text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
-              About Project
+              About
             </h1>
           </div>
           <p className="text-xl text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 max-w-3xl mx-auto">
