@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun, Sparkles, Info } from 'lucide-react';
+import { Menu, X, Moon, Sun, Sparkles, BookOpen } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Header: React.FC = () => {
@@ -10,8 +10,8 @@ const Header: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
 
   const navItems = [
-    { id: 'generator', label: 'Visualization Generator', path: '/generator', icon: Sparkles },
-    { id: 'about', label: 'About Project', path: '/about', icon: Info },
+    { id: 'generator', label: 'Generator', path: '/generator', icon: Sparkles },
+    { id: 'about', label: 'About', path: '/about', icon: BookOpen },
   ];
 
   const handleNavigation = (item: { id: string; path: string }) => {
