@@ -1,0 +1,11 @@
+{
+  "name": "Map Chart Data",
+  "description": "Geographic coordinate data",
+  "data": [
+    { "lat": 40.7128, "lng": -74.0060, "value": 100, "label": "Point A" },
+    { "lat": 34.0522, "lng": -118.2437, "value": 85, "label": "Point B" },
+    { "lat": 41.8781, "lng": -87.6298, "value": 75, "label": "Point C" },
+    { "lat": 29.7604, "lng": -95.3698, "value": 90, "label": "Point D" },
+    { "lat": 33.4484, "lng": -112.0740, "value": 65, "label": "Point E" }
+  ]
+}

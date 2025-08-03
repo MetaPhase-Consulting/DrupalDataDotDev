@@ -1,0 +1,11 @@
+{
+  "name": "Bar Chart Data",
+  "description": "Generic categorical data with values",
+  "data": [
+    { "category": "Category A", "value": 23 },
+    { "category": "Category B", "value": 45 },
+    { "category": "Category C", "value": 56 },
+    { "category": "Category D", "value": 78 },
+    { "category": "Category E", "value": 32 }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Scatter Chart Data",
+  "description": "X-Y coordinate data points",
+  "data": [
+    { "x": 10, "y": 20, "size": 5 },
+    { "x": 25, "y": 35, "size": 8 },
+    { "x": 40, "y": 15, "size": 12 },
+    { "x": 55, "y": 45, "size": 6 },
+    { "x": 70, "y": 30, "size": 10 },
+    { "x": 85, "y": 50, "size": 15 }
+  ]
+}

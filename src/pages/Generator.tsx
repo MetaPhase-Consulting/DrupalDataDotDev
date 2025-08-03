@@ -132,30 +132,16 @@ const Generator: React.FC = () => {
     { id: 'html-snippet', name: 'HTML Snippet', description: 'Standalone HTML file' }
   ];
 
-  const sampleDatasets = [
-    {
-      id: 'sales',
-      name: 'Monthly Sales',
-      data: [
-        { month: 'Jan', sales: 1200 },
-        { month: 'Feb', sales: 1900 },
-        { month: 'Mar', sales: 3000 },
-        { month: 'Apr', sales: 5000 },
-        { month: 'May', sales: 2300 }
-      ]
-    },
-    {
-      id: 'demographics',
-      name: 'Age Demographics',
-      data: [
-        { age_group: '18-25', count: 450 },
-        { age_group: '26-35', count: 680 },
-        { age_group: '36-45', count: 520 },
-        { age_group: '46-55', count: 340 },
-        { age_group: '55+', count: 280 }
-      ]
+  // Sample data will be loaded dynamically based on selected chart type
+  const getSampleDataForChartType = async (chartType: string) => {
+    try {
+      const response = await import(`../data/sampleData/${chartType}.json`);
+      return response.default;
+    } catch (error) {
+      console.error(`No sample data found for chart type: ${chartType}`);
+      return null;
     }
-  ];
+  };
 
   const toggleAccordion = (section: string) => {
     setActiveAccordion(activeAccordion === section ? '' : section);
@@ -205,8 +191,8 @@ const Generator: React.FC = () => {
     }
   };
 
-  const handleSampleDataSelect = (datasetId: string) => {
-    const dataset = sampleDatasets.find(d => d.id === datasetId);
+  const handleSampleDataSelect = async (chartType: string) => {
+    const dataset = await getSampleDataForChartType(chartType);
     if (dataset) {
       setSampleData(dataset.data);
     }
@@ -573,12 +559,149 @@ console.log('Chart configuration:', chartConfig);`;
 
               {dataInputTab === 'sample' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {sampleDatasets.map((dataset) => (
+                  {chartTypes.map((chartType) => (
                     <button
-                      key={dataset.id}
-                      onClick={() => handleSampleDataSelect(dataset.id)}
-                      className="p-4 text-left border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg hover:border-[#0074BD] dark:hover:border-[#00C9FF] transition-colors duration-200"
+                      key={chartType.type}
+                      onClick={() => handleSampleDataSelect(chartType.type)}
+                      className={`p-4 text-left border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg hover:border-[#0074BD] dark:hover:border-[#00C9FF] transition-colors duration-200 ${
+                        selectedChartType === chartType.type ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10' : ''
+                      }`}
                     >
+                      <div className="flex items-center gap-3 mb-2">
+                        {React.createElement(getIconForChartType(chartType.type), {
+                          size: 20,
+                          className: selectedChartType === chartType.type ? 'text-[#0074BD] dark:text-[#00C9FF]' : 'text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80'
+                        })}
+                        <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
+                          {chartType.label} Sample
+                        </h4>
+                      </div>
+                      <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600">
+                        Generic {chartType.label.toLowerCase()} data structure
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {sampleData.length > 0 && (
+                <div className="mt-4 p-3 bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 mb-2">
+                    Sample Data Preview:
+                  </p>
+                  <pre className="text-xs text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-800 overflow-x-auto max-h-40 overflow-y-auto">
+                    {JSON.stringify(sampleData, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </AccordionSection>
+
+          {/* Step 6: Output Format */}
+          <AccordionSection id="output-format" title="Step 6: Output Format">
+            <div className="mt-4 space-y-3">
+              {outputFormats.map((format) => (
+                <label
+                  key={format.id}
+                  className="flex items-start gap-3 p-3 rounded-lg border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 hover:bg-[#1F2937]/10 dark:hover:bg-[#1F2937]/10 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+                >
+                  <input
+                    type="radio"
+                    name="outputFormat"
+                    value={format.id}
+                    checked={selectedOutputFormat === format.id}
+                    onChange={(e) => setSelectedOutputFormat(e.target.value)}
+                    className="mt-1 text-[#0074BD] dark:text-[#00C9FF]"
+                  />
+                  <div>
+                    <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
+                      {format.name}
+                    </h4>
+                    <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600">
+                      {format.description}
+                    </p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </AccordionSection>
+
+          {/* Step 7: Preview */}
+          <AccordionSection id="preview" title="Step 7: Preview">
+            <div className="mt-4">
+              <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
+                <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
+                  {selectedChartType && selectedSubtype ? (
+                    <>
+                      <div className="text-lg font-semibold mb-2">Chart Preview</div>
+                      <div className="text-sm">
+                        {chartTypes.find(c => c.type === selectedChartType)?.subtypes.find(s => s.id === selectedSubtype)?.label} chart using{' '}
+                        {libraries.find(l => l.id === selectedLibrary)?.name} would appear here
+                      </div>
+                    </>
+                  ) : (
+                    <div>Select chart type, subtype, and configure options to see preview</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </AccordionSection>
+
+          {/* Step 8: Download */}
+          <AccordionSection id="download" title="Step 8: Download">
+            <div className="mt-4 space-y-6">
+              {/* Code Output */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
+                    Generated Code
+                  </h4>
+                </div>
+                
+                <textarea
+                  value={generateCode()}
+                  readOnly
+                  rows={20}
+                  className="w-full p-4 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-gray-900 border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-700 rounded-lg text-sm text-[#E5F1FF] dark:text-[#E5F1FF] text-green-400 font-mono resize-y focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
+                />
+              </div>
+
+              {/* Download Options */}
+              <div>
+                <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-4">
+                  Download Options
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <button
+                    onClick={copyToClipboard}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-[#0074BD] dark:bg-[#00C9FF] text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
+                  >
+                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                    {copied ? 'Copied!' : 'Copy Code'}
+                  </button>
+                  
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1F2937] dark:bg-[#1F2937] bg-gray-600 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
+                    <Download size={16} />
+                    Download File
+                  </button>
+                  
+                  {(selectedOutputFormat === 'full-module' || selectedOutputFormat === 'drupal-controller') && (
+                    <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#0074BD] to-[#00C9FF] dark:from-[#0074BD] dark:to-[#00C9FF] from-blue-600 to-cyan-500 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
+                      <Download size={16} />
+                      Download ZIP
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </AccordionSection>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Generator;
                       <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-2">
                         {dataset.name}
                       </h4>

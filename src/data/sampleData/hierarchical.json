@@ -1,0 +1,34 @@
+{
+  "name": "Hierarchical Chart Data",
+  "description": "Tree structure and flow data",
+  "data": {
+    "name": "Root",
+    "value": 100,
+    "children": [
+      {
+        "name": "Branch A",
+        "value": 40,
+        "children": [
+          { "name": "Leaf A1", "value": 20 },
+          { "name": "Leaf A2", "value": 20 }
+        ]
+      },
+      {
+        "name": "Branch B",
+        "value": 35,
+        "children": [
+          { "name": "Leaf B1", "value": 15 },
+          { "name": "Leaf B2", "value": 20 }
+        ]
+      },
+      {
+        "name": "Branch C",
+        "value": 25,
+        "children": [
+          { "name": "Leaf C1", "value": 10 },
+          { "name": "Leaf C2", "value": 15 }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Pie Chart Data",
+  "description": "Proportional data segments",
+  "data": [
+    { "label": "Segment A", "value": 30 },
+    { "label": "Segment B", "value": 25 },
+    { "label": "Segment C", "value": 20 },
+    { "label": "Segment D", "value": 15 },
+    { "label": "Segment E", "value": 10 }
+  ]
+}

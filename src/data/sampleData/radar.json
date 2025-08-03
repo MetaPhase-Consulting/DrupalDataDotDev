@@ -1,0 +1,12 @@
+{
+  "name": "Radar Chart Data",
+  "description": "Multi-dimensional comparison data",
+  "data": [
+    { "axis": "Metric A", "value": 80 },
+    { "axis": "Metric B", "value": 65 },
+    { "axis": "Metric C", "value": 90 },
+    { "axis": "Metric D", "value": 75 },
+    { "axis": "Metric E", "value": 85 },
+    { "axis": "Metric F", "value": 70 }
+  ]
+}
