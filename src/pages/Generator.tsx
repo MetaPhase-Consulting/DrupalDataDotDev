@@ -171,50 +171,127 @@ const Generator: React.FC = () => {
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type === 'text/csv') {
-      Papa.parse(file, {
-        complete: (results) => {
-          setCsvData(results.data);
-        },
-        header: true,
-        skipEmptyLines: true
-      });
+    if (!file) return;
+    
+    // File size validation (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      console.error('File too large. Maximum size is 10MB.');
+      return;
     }
+    
+    // File type validation
+    const allowedTypes = ['text/csv', 'application/csv', 'text/plain'];
+    const fileExtension = file.name.toLowerCase().split('.').pop();
+    
+    if (!allowedTypes.includes(file.type) && fileExtension !== 'csv') {
+      console.error('Invalid file type. Please upload a CSV file.');
+      return;
+    }
+    
+    Papa.parse(file, {
+      complete: (results) => {
+        if (results.errors && results.errors.length > 0) {
+          console.error('CSV parsing errors:', results.errors);
+        }
+        if (results.data && Array.isArray(results.data)) {
+          setCsvData(results.data);
+        } else {
+          console.error('Invalid CSV data format');
+          setCsvData([]);
+        }
+      },
+      error: (error) => {
+        console.error('Failed to parse CSV:', error);
+        setCsvData([]);
+      },
+      header: true,
+      skipEmptyLines: true,
+      transformHeader: (header) => {
+        // Sanitize header names to prevent potential issues
+        return header.trim().replace(/[<>]/g, '');
+      }
+    });
+  };
+
+  const sanitizeForCodeGeneration = (obj: any): any => {
+    if (typeof obj === 'string') {
+      // Basic XSS prevention - remove script tags and javascript: protocols
+      return obj.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                .replace(/javascript:/gi, '');
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(sanitizeForCodeGeneration);
+    }
+    if (obj && typeof obj === 'object') {
+      const sanitized: any = {};
+      for (const [key, value] of Object.entries(obj)) {
+        // Sanitize object keys
+        const cleanKey = key.replace(/[<>]/g, '');
+        sanitized[cleanKey] = sanitizeForCodeGeneration(value);
+      }
+      return sanitized;
+    }
+    return obj;
   };
 
   const handleJsonInput = (value: string) => {
     setJsonData(value);
-    try {
-      JSON.parse(value);
-    } catch (error) {
-      console.error('Invalid JSON');
+    if (value.trim()) {
+      try {
+        const parsed = JSON.parse(value);
+        // Basic validation - ensure it's an object or array
+        if (typeof parsed !== 'object' || parsed === null) {
+          console.warn('JSON should be an object or array');
+        }
+      } catch (error) {
+        console.error('Invalid JSON format:', error);
+      }
     }
   };
 
   const handleSampleDataSelect = async (chartType: string) => {
-    const dataset = await getSampleDataForChartType(chartType);
-    if (dataset) {
-      setSampleData(dataset.data);
+    try {
+      const dataset = await getSampleDataForChartType(chartType);
+      if (dataset && dataset.data) {
+        setSampleData(dataset.data);
+      } else {
+        console.warn(`No valid data found for chart type: ${chartType}`);
+        setSampleData([]);
+      }
+    } catch (error) {
+      console.error(`Failed to load sample data for ${chartType}:`, error);
+      setSampleData([]);
     }
   };
 
   const generateCode = () => {
+    // Input validation
+    if (!selectedChartType) {
+      return '// Please select a chart type first';
+    }
+    
     const selectedChart = chartTypes.find(c => c.type === selectedChartType);
     const selectedSub = selectedChart?.subtypes.find(s => s.id === selectedSubtype);
     const selectedLib = libraries.find(l => l.id === selectedLibrary);
     const selectedThemeObj = themes.find(t => t.id === selectedTheme);
     
+    // Sanitize data before including in code
+    const currentData = sanitizeForCodeGeneration(getCurrentData());
+    const sanitizedOptions = sanitizeForCodeGeneration(selectedOptions);
+    
     return `// Generated ${selectedChart?.label} (${selectedSub?.label}) Chart using ${selectedLib?.name}
 // Theme: ${selectedThemeObj?.name}
 // Output Format: ${outputFormats.find(f => f.id === selectedOutputFormat)?.name}
+// Generated on: ${new Date().toISOString()}
 
 const chartConfig = {
   type: '${selectedChartType}',
   subtype: '${selectedSubtype}',
   library: '${selectedLibrary}',
   theme: '${selectedTheme}',
-  options: ${JSON.stringify(selectedOptions, null, 2)},
-  data: ${JSON.stringify(getCurrentData(), null, 2)}
+  options: ${JSON.stringify(sanitizedOptions, null, 2)},
+  data: ${JSON.stringify(currentData, null, 2)}
 };
 
 // Implementation code would be generated here based on selections
@@ -222,12 +299,15 @@ console.log('Chart configuration:', chartConfig);`;
   };
 
   const getCurrentData = () => {
+    let data;
     if (dataInputTab === 'csv' && csvData.length > 0) return csvData;
     if (dataInputTab === 'json' && jsonData) {
       try {
-        return JSON.parse(jsonData);
+        data = JSON.parse(jsonData);
+        return data;
       } catch {
-        return {};
+        console.error('Invalid JSON data');
+        return [];
       }
     }
     if (dataInputTab === 'sample' && sampleData.length > 0) return sampleData;
@@ -236,11 +316,29 @@ console.log('Chart configuration:', chartConfig);`;
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(generateCode());
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      const code = generateCode();
+      if (code && code.length > 0) {
+        await navigator.clipboard.writeText(code);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        console.error('No code to copy');
+      }
     } catch (error) {
-      console.error('Failed to copy to clipboard');
+      console.error('Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = generateCode();
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (fallbackError) {
+        console.error('Fallback copy also failed:', fallbackError);
+      }
     }
   };
 
@@ -551,6 +649,7 @@ console.log('Chart configuration:', chartConfig);`;
                     value={jsonData}
                     onChange={(e) => handleJsonInput(e.target.value)}
                     placeholder="Paste your JSON data here..."
+                    maxLength={100000}
                     rows={8}
                     className="w-full p-3 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 font-mono text-sm focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
                   />
@@ -661,6 +760,7 @@ console.log('Chart configuration:', chartConfig);`;
                 <textarea
                   value={generateCode()}
                   readOnly
+                  placeholder="Generated code will appear here..."
                   rows={20}
                   className="w-full p-4 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-gray-900 border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-700 rounded-lg text-sm text-[#E5F1FF] dark:text-[#E5F1FF] text-green-400 font-mono resize-y focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
                 />
