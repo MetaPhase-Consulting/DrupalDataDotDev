@@ -50,6 +50,7 @@ const Generator: React.FC = () => {
   const [activeAccordion, setActiveAccordion] = useState<string>('chart-type');
   const [selectedChartType, setSelectedChartType] = useState<string>('');
   const [selectedSubtype, setSelectedSubtype] = useState<string>('');
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, any>>({});
   const [selectedLibrary, setSelectedLibrary] = useState<string>('');
   const [selectedTheme, setSelectedTheme] = useState<string>('drupal-night');
   const [selectedOutputFormat, setSelectedOutputFormat] = useState<string>('raw-js');
@@ -173,6 +174,13 @@ const Generator: React.FC = () => {
     setSelectedSubtype(subtype);
   };
 
+  const handleOptionChange = (optionKey: string, value: any) => {
+    setSelectedOptions(prev => ({
+      ...prev,
+      [optionKey]: value
+    }));
+  };
+
   const handleLibrarySelect = (library: string) => {
     setSelectedLibrary(library);
   };
@@ -212,15 +220,17 @@ const Generator: React.FC = () => {
     const selectedLib = libraries.find(l => l.id === selectedLibrary);
     const selectedThemeObj = themes.find(t => t.id === selectedTheme);
     
-    return `// Generated ${selectedChart?.label} (${selectedSub?.label}) Chart using ${selectedLib?.name}
+    return `// Generated ${selectedChart?.label}${selectedSub ? ` (${selectedSub.label})` : ''} Chart using ${selectedLib?.name}
 // Theme: ${selectedThemeObj?.name}
 // Output Format: ${outputFormats.find(f => f.id === selectedOutputFormat)?.name}
+// Chart Options: ${JSON.stringify(selectedOptions)}
 
 const chartConfig = {
   type: '${selectedChartType}',
   subtype: '${selectedSubtype}',
   library: '${selectedLibrary}',
   theme: '${selectedTheme}',
+  options: ${JSON.stringify(selectedOptions, null, 2)},
   data: ${JSON.stringify(getCurrentData(), null, 2)}
 };
 
@@ -270,6 +280,48 @@ console.log('Chart configuration:', chartConfig);`;
       hierarchical: PieChart
     };
     return iconMap[type] || BarChart3;
+  };
+
+  const renderOptionControl = (optionKey: string, optionValue: any) => {
+    if (Array.isArray(optionValue)) {
+      // Dropdown for array options
+      return (
+        <div key={optionKey} className="mb-4">
+          <label className="block text-sm font-medium text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-700 mb-2 capitalize">
+            {optionKey.replace(/([A-Z])/g, ' $1').toLowerCase()}
+          </label>
+          <select
+            value={selectedOptions[optionKey] || optionValue[0]}
+            onChange={(e) => handleOptionChange(optionKey, e.target.value)}
+            className="w-full p-2 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 text-sm focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
+          >
+            {optionValue.map((option: any) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    } else if (typeof optionValue === 'object' && optionValue.min !== undefined) {
+      // Range slider for min/max options
+      return (
+        <div key={optionKey} className="mb-4">
+          <label className="block text-sm font-medium text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-700 mb-2 capitalize">
+            {optionKey.replace(/([A-Z])/g, ' $1').toLowerCase()}: {selectedOptions[optionKey] || optionValue.min}
+          </label>
+          <input
+            type="range"
+            min={optionValue.min}
+            max={optionValue.max}
+            value={selectedOptions[optionKey] || optionValue.min}
+            onChange={(e) => handleOptionChange(optionKey, parseInt(e.target.value))}
+            className="w-full h-2 bg-[#3E4C5E] dark:bg-[#3E4C5E] bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+          />
+        </div>
+      );
+    }
+    return null;
   };
 
   const AccordionSection: React.FC<{
@@ -357,37 +409,57 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 2: Chart Subtype */}
-          <AccordionSection id="subtype" title="Step 2: Chart Subtype" disabled={!selectedChartType}>
+          {/* Step 2: Chart Options */}
+          <AccordionSection id="chart-options" title="Step 2: Chart Options" disabled={!selectedChartType}>
             <div className="mt-4">
               {selectedChartType && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {chartTypes.find(c => c.type === selectedChartType)?.subtypes.map((subtype) => {
-                    const isSelected = selectedSubtype === subtype.id;
-                    
-                    return (
-                      <button
-                        key={subtype.id}
-                        onClick={() => handleSubtypeSelect(subtype.id)}
-                        className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${
-                          isSelected
-                            ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
-                            : 'border-[#3E4C5E] hover:border-[#0074BD]/50 dark:border-[#3E4C5E] dark:hover:border-[#00C9FF]/50'
-                        }`}
-                      >
-                        <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 text-sm">
-                          {subtype.label}
-                        </h4>
-                      </button>
-                    );
-                  })}
+                <div className="space-y-6">
+                  {/* Subtypes Section */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-3">
+                      Chart Subtype
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {chartTypes.find(c => c.type === selectedChartType)?.subtypes.map((subtype) => {
+                        const isSelected = selectedSubtype === subtype.id;
+                        
+                        return (
+                          <button
+                            key={subtype.id}
+                            onClick={() => handleSubtypeSelect(subtype.id)}
+                            className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${
+                              isSelected
+                                ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
+                                : 'border-[#3E4C5E] hover:border-[#0074BD]/50 dark:border-[#3E4C5E] dark:hover:border-[#00C9FF]/50'
+                            }`}
+                          >
+                            <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 text-sm">
+                              {subtype.label}
+                            </h4>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Formatting Options Section */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-3">
+                      Formatting Options
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {Object.entries(chartTypes.find(c => c.type === selectedChartType)?.options || {}).map(([key, value]) =>
+                        renderOptionControl(key, value)
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           </AccordionSection>
 
           {/* Step 3: Library */}
-          <AccordionSection id="library" title="Step 3: Charting Library" disabled={!selectedSubtype}>
+          <AccordionSection id="library" title="Step 3: Charting Library" disabled={!selectedChartType}>
             <div className="mt-4">
               <select
                 value={selectedLibrary}
@@ -404,8 +476,44 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 4: Data Input */}
-          <AccordionSection id="data-input" title="Step 4: Input Data" disabled={!selectedLibrary}>
+          {/* Step 4: Chart Style */}
+          <AccordionSection id="theme" title="Step 4: Chart Style" disabled={!selectedLibrary}>
+            <div className="mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {themes.map((theme) => {
+                  const isSelected = selectedTheme === theme.id;
+                  
+                  return (
+                    <button
+                      key={theme.id}
+                      onClick={() => setSelectedTheme(theme.id)}
+                      className={`p-4 rounded-lg border-2 text-left transition-all duration-200 ${
+                        isSelected
+                          ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
+                          : 'border-[#3E4C5E] hover:border-[#0074BD]/50 dark:border-[#3E4C5E] dark:hover:border-[#00C9FF]/50'
+                      }`}
+                    >
+                      <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-3">
+                        {theme.name}
+                      </h4>
+                      <div className="flex gap-2">
+                        {theme.colors.map((color, index) => (
+                          <div
+                            key={index}
+                            className="w-6 h-6 rounded-full border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </AccordionSection>
+
+          {/* Step 5: Data Input */}
+          <AccordionSection id="data-input" title="Step 5: Input Data" disabled={!selectedTheme}>
             <div className="mt-4">
               <div className="flex border-b border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 mb-4">
                 {[
@@ -485,44 +593,8 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 5: Theme */}
-          <AccordionSection id="theme" title="Step 5: Chart Style" disabled={!getCurrentData().length}>
-            <div className="mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {themes.map((theme) => {
-                  const isSelected = selectedTheme === theme.id;
-                  
-                  return (
-                    <button
-                      key={theme.id}
-                      onClick={() => setSelectedTheme(theme.id)}
-                      className={`p-4 rounded-lg border-2 text-left transition-all duration-200 ${
-                        isSelected
-                          ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
-                          : 'border-[#3E4C5E] hover:border-[#0074BD]/50 dark:border-[#3E4C5E] dark:hover:border-[#00C9FF]/50'
-                      }`}
-                    >
-                      <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-3">
-                        {theme.name}
-                      </h4>
-                      <div className="flex gap-2">
-                        {theme.colors.map((color, index) => (
-                          <div
-                            key={index}
-                            className="w-6 h-6 rounded-full border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300"
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </AccordionSection>
-
           {/* Step 6: Output Format */}
-          <AccordionSection id="output-format" title="Step 6: Code Output Format" disabled={!selectedTheme}>
+          <AccordionSection id="output-format" title="Step 6: Output Format" disabled={!getCurrentData().length}>
             <div className="mt-4 space-y-3">
               {outputFormats.map((format) => (
                 <label
@@ -550,8 +622,8 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 7: Preview & Output */}
-          <AccordionSection id="preview" title="Step 7: Preview & Download" disabled={!selectedOutputFormat}>
+          {/* Step 7: Preview */}
+          <AccordionSection id="preview" title="Step 7: Preview" disabled={!selectedOutputFormat}>
             <div className="mt-4 space-y-6">
               {/* Chart Preview Placeholder */}
               <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
@@ -569,36 +641,78 @@ console.log('Chart configuration:', chartConfig);`;
                   )}
                 </div>
               </div>
+            </div>
+          </AccordionSection>
 
+          {/* Step 8: Download */}
+          <AccordionSection id="download" title="Step 8: Download" disabled={!selectedOutputFormat}>
+            <div className="mt-4 space-y-6">
               {/* Code Output */}
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
                     Generated Code
                   </h4>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={copyToClipboard}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#0074BD] dark:bg-[#00C9FF] text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
-                    >
-                      {copied ? <Check size={16} /> : <Copy size={16} />}
-                      {copied ? 'Copied!' : 'Copy'}
-                    </button>
-                    {selectedOutputFormat === 'full-module' && (
-                      <button className="flex items-center gap-2 px-4 py-2 bg-[#1F2937] dark:bg-[#1F2937] bg-gray-600 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
-                        <Download size={16} />
-                        Download ZIP
-                      </button>
-                    )}
-                  </div>
                 </div>
                 
                 <textarea
                   value={generateCode()}
                   readOnly
                   rows={20}
-                  className="w-full p-4 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-gray-900 border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-700 rounded-lg text-sm text-[#E5F1FF] dark:text-[#E5F1FF] text-green-400 font-mono resize-y focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
+                  className="w-full p-4 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-gray-900 border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-700 rounded-lg text-sm text-[#E5F1FF] dark:text-[#E5F1FF] text-green-400 font-mono resize-y focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none mb-4"
                 />
+              </div>
+
+              {/* Download Options */}
+              <div>
+                <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-4">
+                  Download Options
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="bg-[#0E1B2A]/80 dark:bg-[#0E1B2A]/80 bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg p-4">
+                    <h5 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-2">
+                      Copy Code
+                    </h5>
+                    <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600 mb-3">
+                      Copy the generated code to your clipboard
+                    </p>
+                    <button
+                      onClick={copyToClipboard}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#0074BD] dark:bg-[#00C9FF] text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
+                    >
+                      {copied ? <Check size={16} /> : <Copy size={16} />}
+                      {copied ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+
+                  <div className="bg-[#0E1B2A]/80 dark:bg-[#0E1B2A]/80 bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg p-4">
+                    <h5 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-2">
+                      Download as File
+                    </h5>
+                    <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600 mb-3">
+                      Download code as a {selectedOutputFormat === 'raw-js' ? 'JavaScript' : selectedOutputFormat === 'html-snippet' ? 'HTML' : 'PHP'} file
+                    </p>
+                    <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#1F2937] dark:bg-[#1F2937] bg-gray-600 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
+                      <Download size={16} />
+                      Download File
+                    </button>
+                  </div>
+
+                  {(selectedOutputFormat === 'full-module' || selectedOutputFormat === 'drupal-controller') && (
+                    <div className="bg-[#0E1B2A]/80 dark:bg-[#0E1B2A]/80 bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg p-4">
+                      <h5 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-2">
+                        Download ZIP
+                      </h5>
+                      <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600 mb-3">
+                        Complete Drupal module with all files
+                      </p>
+                      <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0074BD] to-[#00C9FF] dark:from-[#0074BD] dark:to-[#00C9FF] from-blue-600 to-cyan-500 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
+                        <Download size={16} />
+                        Download ZIP
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </AccordionSection>
