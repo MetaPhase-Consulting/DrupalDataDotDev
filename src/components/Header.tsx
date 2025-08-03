@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, Sparkles, Info } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Header: React.FC = () => {
@@ -10,8 +10,8 @@ const Header: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
 
   const navItems = [
-    { id: 'generator', label: 'Generator', path: '/generator' },
-    { id: 'about', label: 'About', path: '/about' },
+    { id: 'generator', label: 'Visualization Generator', path: '/generator', icon: Sparkles },
+    { id: 'about', label: 'About Project', path: '/about', icon: Info },
   ];
 
   const handleNavigation = (item: { id: string; path: string }) => {
@@ -59,7 +59,10 @@ const Header: React.FC = () => {
                     : 'text-gray-700 hover:text-[#0074BD] dark:text-[#E5F1FF] dark:hover:text-[#00C9FF]'
                 }`}
               >
-                {item.label}
+                <span className="flex items-center gap-2">
+                  <item.icon size={18} />
+                  {item.label}
+                </span>
               </button>
             ))}
           </nav>
@@ -94,7 +97,10 @@ const Header: React.FC = () => {
                       : 'text-gray-700 hover:text-[#0074BD] hover:bg-gray-100 dark:text-[#E5F1FF] dark:hover:text-[#00C9FF] dark:hover:bg-[#1F2937]'
                   }`}
                 >
-                  {item.label}
+                  <span className="flex items-center gap-2">
+                    <item.icon size={18} />
+                    {item.label}
+                  </span>
                 </button>
               ))}
             </div>

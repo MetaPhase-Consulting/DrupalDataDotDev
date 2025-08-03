@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, BarChart3, LineChart, PieChart, Radar, ScatterChart as Scatter, Map, Upload, FileText, Database, Copy, Download, Check } from 'lucide-react';
+import { ChevronDown, ChevronRight, BarChart3, LineChart, PieChart, Radar, ScatterChart as Scatter, Map, Upload, FileText, Database, Copy, Download, Check, Sparkles } from 'lucide-react';
 import Papa from 'papaparse';
 import librariesData from '../data/libraries.json';
 import chartTypesData from '../data/chartTypes.json';
@@ -398,9 +398,12 @@ console.log('Chart configuration:', chartConfig);`;
     <div className="pt-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold font-['Inter','Segoe_UI',sans-serif] text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-4">
-            Generator
-          </h1>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Sparkles className="text-[#00C9FF] dark:text-[#00C9FF] text-cyan-500" size={40} />
+            <h1 className="text-4xl font-bold font-['Inter','Segoe_UI',sans-serif] text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
+              Visualization Generator
+            </h1>
+          </div>
           <p className="text-xl text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 max-w-3xl mx-auto">
             Create beautiful Drupal data visualizations in minutes
           </p>
