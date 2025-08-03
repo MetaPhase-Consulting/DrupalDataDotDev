@@ -151,16 +151,10 @@ const Generator: React.FC = () => {
   const handleChartTypeSelect = (chartType: string) => {
     setSelectedChartType(chartType);
     setSelectedLibrary(''); // Reset library when chart type changes
-    if (activeAccordion === 'chart-type') {
-      setActiveAccordion('library');
-    }
   };
 
   const handleLibrarySelect = (library: string) => {
     setSelectedLibrary(library);
-    if (activeAccordion === 'library') {
-      setActiveAccordion('data-input');
-    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -491,7 +485,7 @@ console.log('Chart configuration:', chartConfig);`;
           </AccordionSection>
 
           {/* Step 6: Preview & Output */}
-          <AccordionSection id="preview" title="Step 6: Preview & Output" disabled={!selectedOutputFormat}>
+          <AccordionSection id="preview" title="Step 6: Preview & Download" disabled={!selectedOutputFormat}>
             <div className="mt-4 space-y-6">
               {/* Chart Preview Placeholder */}
               <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
@@ -533,11 +527,12 @@ console.log('Chart configuration:', chartConfig);`;
                   </div>
                 </div>
                 
-                <div className="bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                  <pre className="text-sm text-[#E5F1FF] dark:text-[#E5F1FF] text-green-400 font-mono">
-                    {generateCode()}
-                  </pre>
-                </div>
+                <textarea
+                  value={generateCode()}
+                  readOnly
+                  rows={20}
+                  className="w-full p-4 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-gray-900 border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-700 rounded-lg text-sm text-[#E5F1FF] dark:text-[#E5F1FF] text-green-400 font-mono resize-y focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
+                />
               </div>
             </div>
           </AccordionSection>
