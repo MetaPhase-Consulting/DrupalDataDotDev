@@ -28,7 +28,7 @@ const Hero: React.FC = () => {
           
           <p className="text-lg text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-700 mb-12 max-w-3xl mx-auto">
             Generate embeddable chart code for Drupal from JSON, CSV, or manual input.
-            Supports Chart.js, Highcharts, ECharts, Leaflet, and more.
+            Supports all major, modern open source visualization libraries.
           </p>
 
           <button

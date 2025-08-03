@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Home from './pages/Home';
 import Generator from './pages/Generator';
+import About from './pages/About';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/generator" element={<Generator />} />
+              <Route path="/about" element={<About />} />
             </Routes>
           </main>
           <Footer />

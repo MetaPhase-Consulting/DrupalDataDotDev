@@ -11,21 +11,14 @@ const Header: React.FC = () => {
 
   const navItems = [
     { id: 'generator', label: 'Generator', path: '/generator' },
-    { id: 'about', label: 'About', path: '/#about' },
+    { id: 'about', label: 'About', path: '/about' },
   ];
 
   const handleNavigation = (item: { id: string; path: string }) => {
     if (item.id === 'generator') {
       navigate('/generator');
     } else if (item.id === 'about') {
-      if (location.pathname === '/') {
-        const element = document.getElementById('about');
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      } else {
-        navigate('/#about');
-      }
+      navigate('/about');
     }
     setIsOpen(false);
   };
@@ -33,6 +26,8 @@ const Header: React.FC = () => {
   const getActiveState = (itemId: string) => {
     if (itemId === 'generator') {
       return location.pathname === '/generator';
+    } else if (itemId === 'about') {
+      return location.pathname === '/about';
     }
     return false;
   };
