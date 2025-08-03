@@ -2,10 +2,24 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, BarChart3, LineChart, PieChart, Radar, ScatterChart as Scatter, Map, Upload, FileText, Database, Copy, Download, Check } from 'lucide-react';
 import Papa from 'papaparse';
 import librariesData from '../data/libraries.json';
+import chartTypesData from '../data/chartTypes.json';
 
 interface ChartType {
+  type: string;
+  label: string;
+  description: string;
+  subtypes: { id: string; label: string }[];
+  options: Record<string, any>;
+}
+
+interface ChartSubtype {
   id: string;
-  name: string;
+  label: string;
+}
+
+interface OldChartType {
+  id: string;
+  label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   description: string;
   supportedLibraries: string[];
@@ -35,6 +49,7 @@ interface OutputFormat {
 const Generator: React.FC = () => {
   const [activeAccordion, setActiveAccordion] = useState<string>('chart-type');
   const [selectedChartType, setSelectedChartType] = useState<string>('');
+  const [selectedSubtype, setSelectedSubtype] = useState<string>('');
   const [selectedLibrary, setSelectedLibrary] = useState<string>('');
   const [selectedTheme, setSelectedTheme] = useState<string>('drupal-night');
   const [selectedOutputFormat, setSelectedOutputFormat] = useState<string>('raw-js');
@@ -44,52 +59,53 @@ const Generator: React.FC = () => {
   const [sampleData, setSampleData] = useState<any[]>([]);
   const [copied, setCopied] = useState(false);
 
-  const chartTypes: ChartType[] = [
+  const chartTypes: ChartType[] = chartTypesData;
+
+  const oldChartTypes: OldChartType[] = [
     {
       id: 'bar',
-      name: 'Bar',
+      label: 'Bar',
       icon: BarChart3,
       description: 'Compare categories with vertical or horizontal bars',
       supportedLibraries: ['chartjs', 'highcharts', 'echarts', 'd3']
     },
     {
       id: 'line',
-      name: 'Line',
+      label: 'Line',
       icon: LineChart,
       description: 'Show trends and changes over time',
       supportedLibraries: ['chartjs', 'highcharts', 'echarts', 'd3']
     },
     {
       id: 'pie',
-      name: 'Pie',
+      label: 'Pie',
       icon: PieChart,
       description: 'Display proportions and percentages',
       supportedLibraries: ['chartjs', 'highcharts', 'echarts', 'd3']
     },
     {
       id: 'radar',
-      name: 'Radar',
+      label: 'Radar',
       icon: Radar,
       description: 'Multi-dimensional data comparison',
       supportedLibraries: ['chartjs', 'echarts', 'd3']
     },
     {
       id: 'scatter',
-      name: 'Scatter',
+      label: 'Scatter',
       icon: Scatter,
       description: 'Show relationships between variables',
       supportedLibraries: ['chartjs', 'highcharts', 'echarts', 'd3']
     },
     {
       id: 'map',
-      name: 'Map',
+      label: 'Map',
       icon: Map,
       description: 'Geographic data visualization',
       supportedLibraries: ['leaflet', 'echarts', 'd3']
     }
   ];
 
-  const libraries: Library[] = [
   const libraries: Library[] = librariesData;
 
   const themes: Theme[] = [
@@ -149,7 +165,12 @@ const Generator: React.FC = () => {
 
   const handleChartTypeSelect = (chartType: string) => {
     setSelectedChartType(chartType);
+    setSelectedSubtype(''); // Reset subtype when chart type changes
     setSelectedLibrary(''); // Reset library when chart type changes
+  };
+
+  const handleSubtypeSelect = (subtype: string) => {
+    setSelectedSubtype(subtype);
   };
 
   const handleLibrarySelect = (library: string) => {
@@ -186,16 +207,18 @@ const Generator: React.FC = () => {
   };
 
   const generateCode = () => {
-    const selectedChart = chartTypes.find(c => c.id === selectedChartType);
+    const selectedChart = chartTypes.find(c => c.type === selectedChartType);
+    const selectedSub = selectedChart?.subtypes.find(s => s.id === selectedSubtype);
     const selectedLib = libraries.find(l => l.id === selectedLibrary);
     const selectedThemeObj = themes.find(t => t.id === selectedTheme);
     
-    return `// Generated ${selectedChart?.name} Chart using ${selectedLib?.name}
+    return `// Generated ${selectedChart?.label} (${selectedSub?.label}) Chart using ${selectedLib?.name}
 // Theme: ${selectedThemeObj?.name}
 // Output Format: ${outputFormats.find(f => f.id === selectedOutputFormat)?.name}
 
 const chartConfig = {
   type: '${selectedChartType}',
+  subtype: '${selectedSubtype}',
   library: '${selectedLibrary}',
   theme: '${selectedTheme}',
   data: ${JSON.stringify(getCurrentData(), null, 2)}
@@ -231,6 +254,22 @@ console.log('Chart configuration:', chartConfig);`;
   const getFilteredLibraries = () => {
     if (!selectedChartType) return libraries;
     return libraries.filter(lib => lib.supports.includes(selectedChartType));
+  };
+
+  const getIconForChartType = (type: string) => {
+    const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+      bar: BarChart3,
+      line: LineChart,
+      pie: PieChart,
+      radar: Radar,
+      scatter: Scatter,
+      map: Map,
+      statistical: BarChart3,
+      mini: LineChart,
+      timeline: BarChart3,
+      hierarchical: PieChart
+    };
+    return iconMap[type] || BarChart3;
   };
 
   const AccordionSection: React.FC<{
@@ -287,13 +326,13 @@ console.log('Chart configuration:', chartConfig);`;
           <AccordionSection id="chart-type" title="Step 1: Chart Type">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
               {chartTypes.map((chart) => {
-                const IconComponent = chart.icon;
-                const isSelected = selectedChartType === chart.id;
+                const IconComponent = getIconForChartType(chart.type);
+                const isSelected = selectedChartType === chart.type;
                 
                 return (
                   <button
-                    key={chart.id}
-                    onClick={() => handleChartTypeSelect(chart.id)}
+                    key={chart.type}
+                    onClick={() => handleChartTypeSelect(chart.type)}
                     className={`p-4 rounded-lg border-2 text-left transition-all duration-200 ${
                       isSelected
                         ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
@@ -306,7 +345,7 @@ console.log('Chart configuration:', chartConfig);`;
                         className={isSelected ? 'text-[#0074BD] dark:text-[#00C9FF]' : 'text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80'} 
                       />
                       <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
-                        {chart.name}
+                        {chart.label}
                       </h4>
                     </div>
                     <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600">
@@ -318,8 +357,37 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 2: Library */}
-          <AccordionSection id="library" title="Step 2: Charting Library" disabled={!selectedChartType}>
+          {/* Step 2: Chart Subtype */}
+          <AccordionSection id="subtype" title="Step 2: Chart Subtype" disabled={!selectedChartType}>
+            <div className="mt-4">
+              {selectedChartType && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {chartTypes.find(c => c.type === selectedChartType)?.subtypes.map((subtype) => {
+                    const isSelected = selectedSubtype === subtype.id;
+                    
+                    return (
+                      <button
+                        key={subtype.id}
+                        onClick={() => handleSubtypeSelect(subtype.id)}
+                        className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${
+                          isSelected
+                            ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
+                            : 'border-[#3E4C5E] hover:border-[#0074BD]/50 dark:border-[#3E4C5E] dark:hover:border-[#00C9FF]/50'
+                        }`}
+                      >
+                        <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 text-sm">
+                          {subtype.label}
+                        </h4>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </AccordionSection>
+
+          {/* Step 3: Library */}
+          <AccordionSection id="library" title="Step 3: Charting Library" disabled={!selectedSubtype}>
             <div className="mt-4">
               <select
                 value={selectedLibrary}
@@ -336,8 +404,8 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 3: Data Input */}
-          <AccordionSection id="data-input" title="Step 3: Input Data" disabled={!selectedLibrary}>
+          {/* Step 4: Data Input */}
+          <AccordionSection id="data-input" title="Step 4: Input Data" disabled={!selectedLibrary}>
             <div className="mt-4">
               <div className="flex border-b border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 mb-4">
                 {[
@@ -417,8 +485,8 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 4: Theme */}
-          <AccordionSection id="theme" title="Step 4: Chart Style" disabled={!getCurrentData().length}>
+          {/* Step 5: Theme */}
+          <AccordionSection id="theme" title="Step 5: Chart Style" disabled={!getCurrentData().length}>
             <div className="mt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {themes.map((theme) => {
@@ -453,8 +521,8 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 5: Output Format */}
-          <AccordionSection id="output-format" title="Step 5: Code Output Format" disabled={!selectedTheme}>
+          {/* Step 6: Output Format */}
+          <AccordionSection id="output-format" title="Step 6: Code Output Format" disabled={!selectedTheme}>
             <div className="mt-4 space-y-3">
               {outputFormats.map((format) => (
                 <label
@@ -482,22 +550,22 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 6: Preview & Output */}
-          <AccordionSection id="preview" title="Step 6: Preview & Download" disabled={!selectedOutputFormat}>
+          {/* Step 7: Preview & Output */}
+          <AccordionSection id="preview" title="Step 7: Preview & Download" disabled={!selectedOutputFormat}>
             <div className="mt-4 space-y-6">
               {/* Chart Preview Placeholder */}
               <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
                 <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
-                  {selectedChartType ? (
+                  {selectedChartType && selectedSubtype ? (
                     <>
                       <div className="text-lg font-semibold mb-2">Chart Preview</div>
                       <div className="text-sm">
-                        {chartTypes.find(c => c.id === selectedChartType)?.name} chart using{' '}
+                        {chartTypes.find(c => c.type === selectedChartType)?.subtypes.find(s => s.id === selectedSubtype)?.label} chart using{' '}
                         {libraries.find(l => l.id === selectedLibrary)?.name} would appear here
                       </div>
                     </>
                   ) : (
-                    <div>Select chart type and configure options to see preview</div>
+                    <div>Select chart type, subtype, and configure options to see preview</div>
                   )}
                 </div>
               </div>

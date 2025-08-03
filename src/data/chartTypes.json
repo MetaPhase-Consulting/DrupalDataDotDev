@@ -1,0 +1,183 @@
+[
+  {
+    "type": "bar",
+    "label": "Bar Chart",
+    "description": "Compare discrete values across categories",
+    "subtypes": [
+      { "id": "vertical",   "label": "Vertical Bar" },
+      { "id": "horizontal", "label": "Horizontal Bar" },
+      { "id": "grouped",    "label": "Grouped Bar" },
+      { "id": "stacked",    "label": "Stacked Bar" },
+      { "id": "stacked100", "label": "100% Stacked Bar" },
+      { "id": "3d",         "label": "3D Bar" }
+    ],
+    "options": {
+      "orientation":      ["vertical", "horizontal"],
+      "stacking":         ["none", "normal", "percent"],
+      "roundedCorners":   [true, false],
+      "threeD":           [true, false],
+      "axisLabelRotation": ["auto", 0, 45, 90]
+    }
+  },
+  {
+    "type": "line",
+    "label": "Line Chart",
+    "description": "Display continuous data trends",
+    "subtypes": [
+      { "id": "basic",        "label": "Basic Line" },
+      { "id": "multi",        "label": "Multi-Series Line" },
+      { "id": "stepped",      "label": "Stepped Line" },
+      { "id": "spline",       "label": "Spline / Curved Line" },
+      { "id": "area",         "label": "Area Chart" },
+      { "id": "stackedArea",  "label": "Stacked Area" },
+      { "id": "range",        "label": "Range (Min-Max) Line" }
+    ],
+    "options": {
+      "showPoints": [true, false],
+      "areaFill":   ["none", "solid", "gradient"],
+      "lineStyle":  ["solid", "dashed"],
+      "smooth":     [true, false]
+    }
+  },
+  {
+    "type": "pie",
+    "label": "Pie / Donut",
+    "description": "Show proportional breakdown of a whole",
+    "subtypes": [
+      { "id": "pie",      "label": "Pie" },
+      { "id": "donut",    "label": "Donut" },
+      { "id": "semi",     "label": "Semi-Circle Pie" },
+      { "id": "polarArea","label": "Polar Area" },
+      { "id": "rose",     "label": "Rose / Coxcomb" }
+    ],
+    "options": {
+      "innerRadiusPercent": { "min": 0, "max": 90 },
+      "sortSlices":         [true, false],
+      "startAngle":         { "min": 0, "max": 360 },
+      "explodeIndex":       ["none", "single", "multi"]
+    }
+  },
+  {
+    "type": "radar",
+    "label": "Radar / Spider",
+    "description": "Multi-dimension comparison on radial axes",
+    "subtypes": [
+      { "id": "standard", "label": "Standard Radar" },
+      { "id": "filled",   "label": "Filled Radar" },
+      { "id": "markers",  "label": "Radar with Markers" },
+      { "id": "circular", "label": "Circular Axis Radar" }
+    ],
+    "options": {
+      "axisShape":   ["polygon", "circle"],
+      "fillOpacity": { "min": 0, "max": 1 },
+      "strokeWidth": { "min": 1, "max": 5 }
+    }
+  },
+  {
+    "type": "scatter",
+    "label": "Scatter / Bubble",
+    "description": "Plot numeric relationships",
+    "subtypes": [
+      { "id": "scatter", "label": "Basic Scatter" },
+      { "id": "bubble",  "label": "Bubble Chart" },
+      { "id": "time",    "label": "Time Series Scatter" },
+      { "id": "hexbin",  "label": "Hexbin Density" },
+      { "id": "threeD",  "label": "3D Scatter" }
+    ],
+    "options": {
+      "markerShape":  ["circle", "square", "triangle", "custom"],
+      "sizeByValue":  [true, false],
+      "axisScale":    ["linear", "log", "time"],
+      "regressionLine":[true, false]
+    }
+  },
+  {
+    "type": "map",
+    "label": "Map / Geo",
+    "description": "Spatial data visualization",
+    "subtypes": [
+      { "id": "choropleth","label": "Choropleth Map" },
+      { "id": "bubbleMap", "label": "Bubble Map" },
+      { "id": "point",     "label": "Point / Marker Map" },
+      { "id": "heatmap",   "label": "Heatmap Map" },
+      { "id": "tile",      "label": "Tile Map" },
+      { "id": "cluster",   "label": "Clustered Points" },
+      { "id": "vector",    "label": "Vector / GeoJSON" },
+      { "id": "globe",     "label": "3D Globe" }
+    ],
+    "options": {
+      "projection":  ["mercator", "albers", "geojsonNative"],
+      "tileSource":  ["osm", "carto", "custom"],
+      "zoomEnabled": [true, false],
+      "colorScale":  ["sequential", "diverging", "categorical"]
+    }
+  },
+  {
+    "type": "statistical",
+    "label": "Statistical / Distribution",
+    "description": "Display distributions, outliers, and ranges",
+    "subtypes": [
+      { "id": "boxplot",  "label": "Box Plot" },
+      { "id": "histogram","label": "Histogram" },
+      { "id": "violin",   "label": "Violin Plot" },
+      { "id": "pareto",   "label": "Pareto Chart" },
+      { "id": "errorBar", "label": "Error Bars" }
+    ],
+    "options": {
+      "showOutliers":       [true, false],
+      "binSize":            { "min": 1, "max": 50 },
+      "quartileMethod":     ["inclusive", "exclusive"],
+      "confidenceInterval": [null, 0.9, 0.95, 0.99]
+    }
+  },
+  {
+    "type": "mini",
+    "label": "Mini / Spark",
+    "description": "Tiny inline charts for dashboards",
+    "subtypes": [
+      { "id": "sparkline", "label": "Sparkline" },
+      { "id": "miniBar",   "label": "Mini Bar" },
+      { "id": "bullet",    "label": "Bullet Graph" },
+      { "id": "waffle",    "label": "Waffle Chart" },
+      { "id": "kpi",       "label": "KPI Indicator" }
+    ],
+    "options": {
+      "heightPx":    { "min": 20, "max": 60 },
+      "labelVisible":[true, false],
+      "threshold":   { "min": 0, "max": 100 },
+      "tooltip":     [true, false]
+    }
+  },
+  {
+    "type": "timeline",
+    "label": "Timeline / Gantt",
+    "description": "Visualize time-bound events and tasks",
+    "subtypes": [
+      { "id": "gantt",     "label": "Gantt Chart" },
+      { "id": "eventBand", "label": "Timeline Band" },
+      { "id": "strip",     "label": "Event Strip" }
+    ],
+    "options": {
+      "dateGranularity": ["day", "week", "month"],
+      "zoomable":        [true, false],
+      "taskColorBy":     ["status", "owner", "custom"]
+    }
+  },
+  {
+    "type": "hierarchical",
+    "label": "Hierarchical / Flow",
+    "description": "Part-to-whole and flow diagrams",
+    "subtypes": [
+      { "id": "treemap", "label": "Treemap" },
+      { "id": "sunburst","label": "Sunburst" },
+      { "id": "sankey",  "label": "Sankey Diagram" },
+      { "id": "chord",   "label": "Chord Diagram" },
+      { "id": "alluvial","label": "Alluvial Flow" }
+    ],
+    "options": {
+      "labelStyle": ["inside", "outside", "none"],
+      "colorBy":    ["value", "category", "level"],
+      "depth":      { "min": 1, "max": 5 }
+    }
+  }
+]
