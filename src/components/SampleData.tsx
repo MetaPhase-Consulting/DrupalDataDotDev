@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, FileText, MapPin, TrendingUp } from 'lucide-react';
 
 const SampleData: React.FC = () => {
+  const navigate = useNavigate();
+
   const sampleFiles = [
     {
       icon: TrendingUp,
@@ -30,8 +33,7 @@ const SampleData: React.FC = () => {
   ];
 
   const handlePreview = (filename: string) => {
-    // In a real app, this would go to the generator page
-    console.log(`Previewing ${filename}...`);
+    navigate('/generator');
   };
 
   return (

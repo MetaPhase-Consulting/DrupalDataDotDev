@@ -1,12 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Code, Database, Zap } from 'lucide-react';
 
 const Hero: React.FC = () => {
-  const scrollToGenerate = () => {
-    const element = document.getElementById('generate');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+  const navigate = useNavigate();
+
+  const goToGenerator = () => {
+    navigate('/generator');
   };
 
   return (
@@ -32,8 +32,8 @@ const Hero: React.FC = () => {
           </p>
 
           <button
-            onClick={scrollToGenerate}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#0074BD] to-[#00C9FF] dark:from-[#0074BD] dark:to-[#00C9FF] from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#0074BD]/25 dark:hover:shadow-[#0074BD]/25 hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 mb-12"
+            onClick={goToGenerator}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#0074BD] to-[#00C9FF] dark:from-[#0074BD] dark:to-[#00C9FF] from-blue-600 to-cyan-500 text-white text-xl font-semibold rounded-lg hover:shadow-lg hover:shadow-[#0074BD]/25 dark:hover:shadow-[#0074BD]/25 hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 mb-12"
           >
             Start Generating
             <ArrowRight size={20} />

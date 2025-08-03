@@ -1,51 +1,41 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
+  const navigate = useNavigate();
+  const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
 
   const navItems = [
-    { id: 'generate', label: 'Generator' },
-    { id: 'about', label: 'About' },
+    { id: 'generator', label: 'Generator', path: '/generator' },
+    { id: 'about', label: 'About', path: '/#about' },
   ];
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element || sectionId === 'home') {
-      if (sectionId === 'home') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleNavigation = (item: { id: string; path: string }) => {
+    if (item.id === 'generator') {
+      navigate('/generator');
+    } else if (item.id === 'about') {
+      if (location.pathname === '/') {
+        const element = document.getElementById('about');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
       } else {
-        element!.scrollIntoView({ behavior: 'smooth' });
+        navigate('/#about');
       }
-      setActiveSection(sectionId);
-      setIsOpen(false);
     }
+    setIsOpen(false);
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = navItems.map(item => item.id);
-      const scrollPosition = window.scrollY + 100;
-
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const section = document.getElementById(sections[i]);
-        if (section && section.offsetTop <= scrollPosition) {
-          setActiveSection(sections[i]);
-          break;
-        }
-      }
-
-      if (window.scrollY < 100) {
-        setActiveSection('home');
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const getActiveState = (itemId: string) => {
+    if (itemId === 'generator') {
+      return location.pathname === '/generator';
+    }
+    return false;
+  };
 
   return (
     <header className="fixed top-0 w-full z-50 bg-[#0E1B2A]/95 backdrop-blur-sm border-b border-[#1F2937] dark:bg-[#0E1B2A]/95 bg-white/95 dark:border-[#1F2937] border-gray-200 transition-colors duration-300">
@@ -53,7 +43,7 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <button
-              onClick={() => scrollToSection('home')}
+              onClick={() => navigate('/')}
               className="text-xl font-bold font-['Inter','Segoe_UI',sans-serif] hover:opacity-80 transition-opacity duration-200"
             >
               <span className="text-[#0074BD] dark:text-[#0074BD]">Drupal</span>
@@ -67,9 +57,9 @@ const Header: React.FC = () => {
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => scrollToSection(item.id)}
+                onClick={() => handleNavigation(item)}
                 className={`px-3 py-2 rounded-md text-lg font-medium transition-colors duration-200 ${
-                  activeSection === item.id
+                  getActiveState(item.id)
                     ? 'text-[#0074BD] bg-blue-100 dark:text-[#00C9FF] dark:bg-[#1F2937]'
                     : 'text-gray-700 hover:text-[#0074BD] dark:text-[#E5F1FF] dark:hover:text-[#00C9FF]'
                 }`}
@@ -102,9 +92,9 @@ const Header: React.FC = () => {
               {navItems.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => scrollToSection(item.id)}
+                  onClick={() => handleNavigation(item)}
                   className={`block w-full text-left px-3 py-2 rounded-md text-lg font-medium transition-colors duration-200 ${
-                    activeSection === item.id
+                    getActiveState(item.id)
                       ? 'text-[#0074BD] bg-blue-100 dark:text-[#00C9FF] dark:bg-[#1F2937]'
                       : 'text-gray-700 hover:text-[#0074BD] hover:bg-gray-100 dark:text-[#E5F1FF] dark:hover:text-[#00C9FF] dark:hover:bg-[#1F2937]'
                   }`}
