@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, BarChart3, LineChart, PieChart, Radar, ScatterChart as Scatter, Map, Upload, FileText, Database, Copy, Download, Check } from 'lucide-react';
 import Papa from 'papaparse';
+import librariesData from '../data/libraries.json';
 
 interface ChartType {
   id: string;
@@ -13,7 +14,10 @@ interface ChartType {
 interface Library {
   id: string;
   name: string;
-  description: string;
+  license: string;
+  homepage: string;
+  bestFor: string;
+  supports: string[];
 }
 
 interface Theme {
@@ -86,12 +90,7 @@ const Generator: React.FC = () => {
   ];
 
   const libraries: Library[] = [
-    { id: 'chartjs', name: 'Chart.js', description: 'Simple yet flexible JavaScript charting' },
-    { id: 'highcharts', name: 'Highcharts', description: 'Interactive charts for web applications' },
-    { id: 'echarts', name: 'ECharts', description: 'Powerful charting and visualization library' },
-    { id: 'd3', name: 'D3.js', description: 'Data-driven documents with full control' },
-    { id: 'leaflet', name: 'Leaflet', description: 'Open-source JavaScript library for maps' }
-  ];
+  const libraries: Library[] = librariesData;
 
   const themes: Theme[] = [
     {
@@ -231,8 +230,7 @@ console.log('Chart configuration:', chartConfig);`;
 
   const getFilteredLibraries = () => {
     if (!selectedChartType) return libraries;
-    const chartType = chartTypes.find(c => c.id === selectedChartType);
-    return libraries.filter(lib => chartType?.supportedLibraries.includes(lib.id));
+    return libraries.filter(lib => lib.supports.includes(selectedChartType));
   };
 
   const AccordionSection: React.FC<{
@@ -331,7 +329,7 @@ console.log('Chart configuration:', chartConfig);`;
                 <option value="">Select a library...</option>
                 {getFilteredLibraries().map((lib) => (
                   <option key={lib.id} value={lib.id}>
-                    {lib.name} - {lib.description}
+                    {lib.name} - {lib.bestFor}
                   </option>
                 ))}
               </select>
