@@ -15,7 +15,7 @@ const Hero: React.FC = () => {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center">
-          <h1 className="text-4xl font-bold font-['Inter','Segoe_UI',sans-serif] mb-6">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold font-['Inter','Segoe_UI',sans-serif] mb-6">
             <span className="text-[#0074BD] dark:text-[#0074BD]">Drupal</span>
             <span className="text-[#003D5C] dark:text-[#B3D9FF]">Data</span>
             <span className="text-[#B3D9FF] dark:text-[#4A90C2]">Dot</span>
