@@ -6,12 +6,12 @@ import About from '../components/About';
 
 const Home: React.FC = () => {
   return (
-    <>
+    <div className="pt-16 min-h-screen">
       <Hero />
       <ChartTypes />
       <SampleData />
       <About />
-    </>
+    </div>
   );
 };
 
