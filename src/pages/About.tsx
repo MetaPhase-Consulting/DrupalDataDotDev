@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Heart, Users, Zap, Shield, Code, AlertTriangle } from 'lucide-react';
+import { Github, Heart, Users, Zap, Shield, Code, AlertTriangle, BookOpen } from 'lucide-react';
 
 const About: React.FC = () => {
   const features = [
