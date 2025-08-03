@@ -167,6 +167,7 @@ const Generator: React.FC = () => {
   const handleChartTypeSelect = (chartType: string) => {
     setSelectedChartType(chartType);
     setSelectedSubtype(''); // Reset subtype when chart type changes
+    setSelectedOptions({}); // Reset options when chart type changes
     setSelectedLibrary(''); // Reset library when chart type changes
   };
 
@@ -220,10 +221,9 @@ const Generator: React.FC = () => {
     const selectedLib = libraries.find(l => l.id === selectedLibrary);
     const selectedThemeObj = themes.find(t => t.id === selectedTheme);
     
-    return `// Generated ${selectedChart?.label}${selectedSub ? ` (${selectedSub.label})` : ''} Chart using ${selectedLib?.name}
+    return `// Generated ${selectedChart?.label} (${selectedSub?.label}) Chart using ${selectedLib?.name}
 // Theme: ${selectedThemeObj?.name}
 // Output Format: ${outputFormats.find(f => f.id === selectedOutputFormat)?.name}
-// Chart Options: ${JSON.stringify(selectedOptions)}
 
 const chartConfig = {
   type: '${selectedChartType}',
@@ -280,48 +280,6 @@ console.log('Chart configuration:', chartConfig);`;
       hierarchical: PieChart
     };
     return iconMap[type] || BarChart3;
-  };
-
-  const renderOptionControl = (optionKey: string, optionValue: any) => {
-    if (Array.isArray(optionValue)) {
-      // Dropdown for array options
-      return (
-        <div key={optionKey} className="mb-4">
-          <label className="block text-sm font-medium text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-700 mb-2 capitalize">
-            {optionKey.replace(/([A-Z])/g, ' $1').toLowerCase()}
-          </label>
-          <select
-            value={selectedOptions[optionKey] || optionValue[0]}
-            onChange={(e) => handleOptionChange(optionKey, e.target.value)}
-            className="w-full p-2 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 text-sm focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
-          >
-            {optionValue.map((option: any) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-      );
-    } else if (typeof optionValue === 'object' && optionValue.min !== undefined) {
-      // Range slider for min/max options
-      return (
-        <div key={optionKey} className="mb-4">
-          <label className="block text-sm font-medium text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-700 mb-2 capitalize">
-            {optionKey.replace(/([A-Z])/g, ' $1').toLowerCase()}: {selectedOptions[optionKey] || optionValue.min}
-          </label>
-          <input
-            type="range"
-            min={optionValue.min}
-            max={optionValue.max}
-            value={selectedOptions[optionKey] || optionValue.min}
-            onChange={(e) => handleOptionChange(optionKey, parseInt(e.target.value))}
-            className="w-full h-2 bg-[#3E4C5E] dark:bg-[#3E4C5E] bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-          />
-        </div>
-      );
-    }
-    return null;
   };
 
   const AccordionSection: React.FC<{
@@ -411,13 +369,13 @@ console.log('Chart configuration:', chartConfig);`;
 
           {/* Step 2: Chart Options */}
           <AccordionSection id="chart-options" title="Step 2: Chart Options" disabled={!selectedChartType}>
-            <div className="mt-4">
+            <div className="mt-4 space-y-6">
               {selectedChartType && (
-                <div className="space-y-6">
-                  {/* Subtypes Section */}
+                <>
+                  {/* Subtypes */}
                   <div>
                     <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-3">
-                      Chart Subtype
+                      Chart Subtypes
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {chartTypes.find(c => c.type === selectedChartType)?.subtypes.map((subtype) => {
@@ -442,18 +400,56 @@ console.log('Chart configuration:', chartConfig);`;
                     </div>
                   </div>
 
-                  {/* Formatting Options Section */}
+                  {/* Formatting Options */}
                   <div>
                     <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-3">
                       Formatting Options
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {Object.entries(chartTypes.find(c => c.type === selectedChartType)?.options || {}).map(([key, value]) =>
-                        renderOptionControl(key, value)
-                      )}
+                      {Object.entries(chartTypes.find(c => c.type === selectedChartType)?.options || {}).map(([optionKey, optionValue]) => (
+                        <div key={optionKey} className="space-y-2">
+                          <label className="block text-sm font-medium text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-700 capitalize">
+                            {optionKey.replace(/([A-Z])/g, ' $1').trim()}
+                          </label>
+                          
+                          {Array.isArray(optionValue) ? (
+                            <select
+                              value={selectedOptions[optionKey] || ''}
+                              onChange={(e) => handleOptionChange(optionKey, e.target.value)}
+                              className="w-full p-2 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 text-sm focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
+                            >
+                              <option value="">Select {optionKey}...</option>
+                              {optionValue.map((value) => (
+                                <option key={String(value)} value={String(value)}>
+                                  {String(value)}
+                                </option>
+                              ))}
+                            </select>
+                          ) : typeof optionValue === 'object' && optionValue.min !== undefined && optionValue.max !== undefined ? (
+                            <div className="space-y-1">
+                              <input
+                                type="range"
+                                min={optionValue.min}
+                                max={optionValue.max}
+                                step={optionValue.step || 1}
+                                value={selectedOptions[optionKey] || optionValue.min}
+                                onChange={(e) => handleOptionChange(optionKey, Number(e.target.value))}
+                                className="w-full h-2 bg-[#3E4C5E] dark:bg-[#3E4C5E] bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                              />
+                              <div className="flex justify-between text-xs text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-500">
+                                <span>{optionValue.min}</span>
+                                <span className="font-medium text-[#00C9FF] dark:text-[#00C9FF] text-blue-600">
+                                  {selectedOptions[optionKey] || optionValue.min}
+                                </span>
+                                <span>{optionValue.max}</span>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
           </AccordionSection>
@@ -477,7 +473,7 @@ console.log('Chart configuration:', chartConfig);`;
           </AccordionSection>
 
           {/* Step 4: Chart Style */}
-          <AccordionSection id="theme" title="Step 4: Chart Style" disabled={!selectedLibrary}>
+          <AccordionSection id="chart-style" title="Step 4: Chart Style" disabled={!selectedLibrary}>
             <div className="mt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {themes.map((theme) => {
@@ -512,8 +508,8 @@ console.log('Chart configuration:', chartConfig);`;
             </div>
           </AccordionSection>
 
-          {/* Step 5: Data Input */}
-          <AccordionSection id="data-input" title="Step 5: Input Data" disabled={!selectedTheme}>
+          {/* Step 5: Input Data */}
+          <AccordionSection id="input-data" title="Step 5: Input Data" disabled={!selectedTheme}>
             <div className="mt-4">
               <div className="flex border-b border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 mb-4">
                 {[
@@ -624,8 +620,7 @@ console.log('Chart configuration:', chartConfig);`;
 
           {/* Step 7: Preview */}
           <AccordionSection id="preview" title="Step 7: Preview" disabled={!selectedOutputFormat}>
-            <div className="mt-4 space-y-6">
-              {/* Chart Preview Placeholder */}
+            <div className="mt-4">
               <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
                 <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
                   {selectedChartType && selectedSubtype ? (
@@ -659,7 +654,7 @@ console.log('Chart configuration:', chartConfig);`;
                   value={generateCode()}
                   readOnly
                   rows={20}
-                  className="w-full p-4 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-gray-900 border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-700 rounded-lg text-sm text-[#E5F1FF] dark:text-[#E5F1FF] text-green-400 font-mono resize-y focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none mb-4"
+                  className="w-full p-4 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-gray-900 border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-700 rounded-lg text-sm text-[#E5F1FF] dark:text-[#E5F1FF] text-green-400 font-mono resize-y focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
                 />
               </div>
 
@@ -668,49 +663,25 @@ console.log('Chart configuration:', chartConfig);`;
                 <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-4">
                   Download Options
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="bg-[#0E1B2A]/80 dark:bg-[#0E1B2A]/80 bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg p-4">
-                    <h5 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-2">
-                      Copy Code
-                    </h5>
-                    <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600 mb-3">
-                      Copy the generated code to your clipboard
-                    </p>
-                    <button
-                      onClick={copyToClipboard}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#0074BD] dark:bg-[#00C9FF] text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
-                    >
-                      {copied ? <Check size={16} /> : <Copy size={16} />}
-                      {copied ? 'Copied!' : 'Copy'}
-                    </button>
-                  </div>
-
-                  <div className="bg-[#0E1B2A]/80 dark:bg-[#0E1B2A]/80 bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg p-4">
-                    <h5 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-2">
-                      Download as File
-                    </h5>
-                    <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600 mb-3">
-                      Download code as a {selectedOutputFormat === 'raw-js' ? 'JavaScript' : selectedOutputFormat === 'html-snippet' ? 'HTML' : 'PHP'} file
-                    </p>
-                    <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#1F2937] dark:bg-[#1F2937] bg-gray-600 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
-                      <Download size={16} />
-                      Download File
-                    </button>
-                  </div>
-
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <button
+                    onClick={copyToClipboard}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-[#0074BD] dark:bg-[#00C9FF] text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
+                  >
+                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                    {copied ? 'Copied!' : 'Copy Code'}
+                  </button>
+                  
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1F2937] dark:bg-[#1F2937] bg-gray-600 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
+                    <Download size={16} />
+                    Download File
+                  </button>
+                  
                   {(selectedOutputFormat === 'full-module' || selectedOutputFormat === 'drupal-controller') && (
-                    <div className="bg-[#0E1B2A]/80 dark:bg-[#0E1B2A]/80 bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg p-4">
-                      <h5 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-2">
-                        Download ZIP
-                      </h5>
-                      <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600 mb-3">
-                        Complete Drupal module with all files
-                      </p>
-                      <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0074BD] to-[#00C9FF] dark:from-[#0074BD] dark:to-[#00C9FF] from-blue-600 to-cyan-500 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
-                        <Download size={16} />
-                        Download ZIP
-                      </button>
-                    </div>
+                    <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#0074BD] to-[#00C9FF] dark:from-[#0074BD] dark:to-[#00C9FF] from-blue-600 to-cyan-500 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
+                      <Download size={16} />
+                      Download ZIP
+                    </button>
                   )}
                 </div>
               </div>
