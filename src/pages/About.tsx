@@ -48,11 +48,14 @@ const About: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold font-['Inter','Segoe_UI',sans-serif] text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-4">
-            About Project
-          </h1>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <BookOpen className="text-[#00C9FF] dark:text-[#00C9FF] text-cyan-500" size={40} />
+            <h1 className="text-4xl font-bold font-['Inter','Segoe_UI',sans-serif] text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
+              About Project
+            </h1>
+          </div>
           <p className="text-xl text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 max-w-3xl mx-auto">
-            Empowering Drupal developers with simple, powerful data visualization tools
+            Learn about our mission and the technology behind DrupalDataDotDev
           </p>
         </div>
 
