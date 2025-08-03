@@ -8,27 +8,24 @@ const SampleData: React.FC = () => {
   const sampleFiles = [
     {
       icon: TrendingUp,
-      title: 'sample.csv',
-      description: 'Structured tabular data with multiple columns and rows for analysis',
-      type: 'CSV',
-      size: '2.3 KB',
-      chartType: 'Bar Chart'
+      title: 'sample-bar.json',
+      description: 'Generic categorical data with values for comparison',
+      type: 'JSON',
+      size: '0.2 KB'
     },
     {
       icon: FileText,
-      title: 'sample.json',
-      description: 'Hierarchical data structure with nested objects and arrays',
+      title: 'sample-pie.json',
+      description: 'Proportional data segments for part-to-whole visualization',
       type: 'JSON',
-      size: '4.1 KB',
-      chartType: 'Pie Chart'
+      size: '0.2 KB'
     },
     {
       icon: MapPin,
-      title: 'sample.geo.json',
-      description: 'Geographic coordinate data with properties for mapping visualizations',
-      type: 'GeoJSON',
-      size: '15.7 KB',
-      chartType: 'Interactive Map'
+      title: 'sample-map.json',
+      description: 'Geographic coordinate data with lat/lng points',
+      type: 'JSON',
+      size: '0.4 KB'
     }
   ];
 
@@ -77,9 +74,6 @@ const SampleData: React.FC = () => {
                 </p>
 
                 <div className="mb-4">
-                  <span className="inline-block px-3 py-1 bg-[#1F2937] dark:bg-[#1F2937] bg-gray-100 text-[#00C9FF] dark:text-[#00C9FF] text-blue-600 text-sm rounded-full">
-                    {file.chartType}
-                  </span>
                 </div>
 
                 <div className="flex justify-center mt-auto">
