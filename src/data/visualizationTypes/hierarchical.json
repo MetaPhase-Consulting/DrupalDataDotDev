@@ -1,0 +1,17 @@
+{
+  "type": "hierarchical",
+  "label": "Hierarchical / Flow Visualization",
+  "description": "Part-to-whole and flow diagrams",
+  "subtypes": [
+    { "id": "treemap", "label": "Treemap" },
+    { "id": "sunburst","label": "Sunburst" },
+    { "id": "sankey",  "label": "Sankey Diagram" },
+    { "id": "chord",   "label": "Chord Diagram" },
+    { "id": "alluvial","label": "Alluvial Flow" }
+  ],
+  "options": {
+    "labelStyle": ["inside", "outside", "none"],
+    "colorBy":    ["value", "category", "level"],
+    "depth":      { "min": 1, "max": 5 }
+  }
+} 
