@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, BarChart3, LineChart, PieChart, Radar, Scatter, Map, Upload, FileText, Database, Copy, Download, Check } from 'lucide-react';
+import { ChevronDown, ChevronRight, BarChart3, LineChart, PieChart, Radar, ScatterChart as Scatter, Map, Upload, FileText, Database, Copy, Download, Check } from 'lucide-react';
 import Papa from 'papaparse';
 
 interface ChartType {
