@@ -286,20 +286,14 @@ console.log('Chart configuration:', chartConfig);`;
     id: string;
     title: string;
     children: React.ReactNode;
-    disabled?: boolean;
-  }> = ({ id, title, children, disabled = false }) => {
+  }> = ({ id, title, children }) => {
     const isActive = activeAccordion === id;
     
     return (
       <div className="border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg mb-4">
         <button
-          onClick={() => !disabled && toggleAccordion(id)}
-          disabled={disabled}
-          className={`w-full px-6 py-4 text-left flex items-center justify-between ${
-            disabled 
-              ? 'opacity-50 cursor-not-allowed' 
-              : 'hover:bg-[#1F2937]/20 dark:hover:bg-[#1F2937]/20 hover:bg-gray-50'
-          } transition-colors duration-200`}
+          onClick={() => toggleAccordion(id)}
+          className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#1F2937]/20 dark:hover:bg-[#1F2937]/20 hover:bg-gray-50 transition-colors duration-200"
         >
           <h3 className="text-xl font-semibold font-['Inter','Segoe_UI',sans-serif] text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
             {title}
@@ -368,7 +362,7 @@ console.log('Chart configuration:', chartConfig);`;
           </AccordionSection>
 
           {/* Step 2: Chart Options */}
-          <AccordionSection id="chart-options" title="Step 2: Chart Options" disabled={!selectedChartType}>
+          <AccordionSection id="chart-options" title="Step 2: Chart Options">
             <div className="mt-4 space-y-6">
               {selectedChartType && (
                 <>
@@ -455,7 +449,7 @@ console.log('Chart configuration:', chartConfig);`;
           </AccordionSection>
 
           {/* Step 3: Library */}
-          <AccordionSection id="library" title="Step 3: Charting Library" disabled={!selectedChartType}>
+          <AccordionSection id="library" title="Step 3: Charting Library">
             <div className="mt-4">
               <select
                 value={selectedLibrary}
@@ -473,7 +467,7 @@ console.log('Chart configuration:', chartConfig);`;
           </AccordionSection>
 
           {/* Step 4: Chart Style */}
-          <AccordionSection id="chart-style" title="Step 4: Chart Style" disabled={!selectedLibrary}>
+          <AccordionSection id="chart-style" title="Step 4: Chart Style">
             <div className="mt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {themes.map((theme) => {
@@ -509,7 +503,7 @@ console.log('Chart configuration:', chartConfig);`;
           </AccordionSection>
 
           {/* Step 5: Input Data */}
-          <AccordionSection id="input-data" title="Step 5: Input Data" disabled={!selectedTheme}>
+          <AccordionSection id="input-data" title="Step 5: Input Data">
             <div className="mt-4">
               <div className="flex border-b border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 mb-4">
                 {[
@@ -590,7 +584,7 @@ console.log('Chart configuration:', chartConfig);`;
           </AccordionSection>
 
           {/* Step 6: Output Format */}
-          <AccordionSection id="output-format" title="Step 6: Output Format" disabled={!getCurrentData().length}>
+          <AccordionSection id="output-format" title="Step 6: Output Format">
             <div className="mt-4 space-y-3">
               {outputFormats.map((format) => (
                 <label
@@ -619,7 +613,7 @@ console.log('Chart configuration:', chartConfig);`;
           </AccordionSection>
 
           {/* Step 7: Preview */}
-          <AccordionSection id="preview" title="Step 7: Preview" disabled={!selectedOutputFormat}>
+          <AccordionSection id="preview" title="Step 7: Preview">
             <div className="mt-4">
               <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
                 <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
@@ -640,7 +634,7 @@ console.log('Chart configuration:', chartConfig);`;
           </AccordionSection>
 
           {/* Step 8: Download */}
-          <AccordionSection id="download" title="Step 8: Download" disabled={!selectedOutputFormat}>
+          <AccordionSection id="download" title="Step 8: Download">
             <div className="mt-4 space-y-6">
               {/* Code Output */}
               <div>
