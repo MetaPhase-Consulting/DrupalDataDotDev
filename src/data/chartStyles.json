@@ -168,5 +168,90 @@
       "textSecondary": "#696969"
     },
     "palette": ["#8B4513", "#556B2F", "#4682B4", "#CD853F", "#A0522D", "#B0C4DE"]
+  },
+  {
+    "id": "crimson-fire",
+    "name": "Crimson Fire",
+    "description": "Bold reds with warm orange and deep burgundy accents",
+    "mood": "Passionate and energetic, perfect for impactful presentations",
+    "fonts": ["Inter", "Roboto"],
+    "colors": {
+      "primary": "#DC2626",
+      "secondary": "#B91C1C",
+      "accent": "#F59E0B",
+      "background": "#FEF2F2",
+      "surface": "#FFFFFF",
+      "text": "#7F1D1D",
+      "textSecondary": "#991B1B"
+    },
+    "palette": ["#DC2626", "#EF4444", "#F87171", "#B91C1C", "#7F1D1D", "#F59E0B"]
+  },
+  {
+    "id": "forest-canopy",
+    "name": "Forest Canopy",
+    "description": "Rich greens from emerald to sage with natural earth tones",
+    "mood": "Organic and calming, ideal for environmental and growth data",
+    "fonts": ["Nunito", "Source Sans Pro"],
+    "colors": {
+      "primary": "#059669",
+      "secondary": "#10B981",
+      "accent": "#34D399",
+      "background": "#F0FDF4",
+      "surface": "#FFFFFF",
+      "text": "#064E3B",
+      "textSecondary": "#047857"
+    },
+    "palette": ["#059669", "#10B981", "#34D399", "#065F46", "#047857", "#6EE7B7"]
+  },
+  {
+    "id": "monochrome-elegance",
+    "name": "Monochrome Elegance",
+    "description": "Classic black and white with sophisticated grays",
+    "mood": "Timeless and professional, perfect for formal reports",
+    "fonts": ["Helvetica", "Georgia"],
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#374151",
+      "accent": "#6B7280",
+      "background": "#FFFFFF",
+      "surface": "#F9FAFB",
+      "text": "#111827",
+      "textSecondary": "#4B5563"
+    },
+    "palette": ["#000000", "#374151", "#6B7280", "#9CA3AF", "#D1D5DB", "#F3F4F6"]
+  },
+  {
+    "id": "royal-amethyst",
+    "name": "Royal Amethyst",
+    "description": "Deep purples with lavender and violet jewel tones",
+    "mood": "Luxurious and creative, perfect for premium presentations",
+    "fonts": ["Inter", "Playfair Display"],
+    "colors": {
+      "primary": "#7C3AED",
+      "secondary": "#A855F7",
+      "accent": "#C084FC",
+      "background": "#FAF5FF",
+      "surface": "#FFFFFF",
+      "text": "#581C87",
+      "textSecondary": "#7C2D92"
+    },
+    "palette": ["#7C3AED", "#A855F7", "#C084FC", "#8B5CF6", "#9333EA", "#DDD6FE"]
+  },
+  {
+    "id": "golden-harvest",
+    "name": "Golden Harvest",
+    "description": "Rich golds with amber and bronze warm tones",
+    "mood": "Warm and prosperous, ideal for financial and success metrics",
+    "fonts": ["Montserrat", "Source Sans Pro"],
+    "colors": {
+      "primary": "#D97706",
+      "secondary": "#F59E0B",
+      "accent": "#FBBF24",
+      "background": "#FFFBEB",
+      "surface": "#FFFFFF",
+      "text": "#92400E",
+      "textSecondary": "#B45309"
+    },
+    "palette": ["#D97706", "#F59E0B", "#FBBF24", "#FCD34D", "#FDE68A", "#B45309"]
   }
 ]

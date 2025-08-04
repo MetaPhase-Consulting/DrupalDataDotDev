@@ -45,12 +45,17 @@ const VisualizationTypeSelector: React.FC<VisualizationTypeSelectorProps> = ({
         return (
           <button
             key={visualization.type}
-            onClick={() => onTypeSelect(visualization.type)}
+            onClick={() => {
+              // Only allow selection of different types, prevent deselection
+              if (selectedType !== visualization.type) {
+                onTypeSelect(visualization.type);
+              }
+            }}
             className={`p-4 rounded-lg border-2 text-left transition-all duration-200 ${
               isSelected
                 ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
                 : 'border-[#3E4C5E] hover:border-[#0074BD]/50 dark:border-[#3E4C5E] dark:hover:border-[#00C9FF]/50'
-            }`}
+            } ${isSelected ? 'cursor-default' : 'cursor-pointer'}`}
           >
             <div className="flex items-center gap-3 mb-2">
               <IconComponent 

@@ -28,7 +28,13 @@ const VisualizationOptions: React.FC<VisualizationOptionsProps> = ({
   const currentVisualization = visualizationTypes.find(v => v.type === selectedType);
 
   if (!selectedType || !currentVisualization) {
-    return null;
+    return (
+      <div className="mt-4 p-6 bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 text-center">
+        <p className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-500">
+          Select a visualization type to show available options
+        </p>
+      </div>
+    );
   }
 
   return (

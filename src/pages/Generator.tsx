@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 import Papa from 'papaparse';
 
@@ -11,6 +11,7 @@ import ThemeSelector from '../components/generator/ThemeSelector';
 import DataInput from '../components/generator/DataInput';
 import OutputFormatSelector from '../components/generator/OutputFormatSelector';
 import CodeOutput from '../components/generator/CodeOutput';
+import ChartPreview from '../components/generator/ChartPreview';
 
 // Import services
 import { CodeGenerator } from '../services/CodeGenerator';
@@ -49,27 +50,26 @@ interface OutputFormat {
 
 const Generator: React.FC = () => {
   const [activeAccordion, setActiveAccordion] = useState<string>('visualization-type');
-  const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedType, setSelectedType] = useState<string>('bar');
   const [selectedSubtype, setSelectedSubtype] = useState<string>('');
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, any>>({});
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, unknown>>({});
   const [selectedLibrary, setSelectedLibrary] = useState<string>('');
   const [selectedTheme, setSelectedTheme] = useState<string>('drupal-night');
-  const [selectedOutputFormat, setSelectedOutputFormat] = useState<string>('raw-js');
+  const [selectedOutputFormat, setSelectedOutputFormat] = useState<string>('javascript-embed');
   const [dataInputTab, setDataInputTab] = useState<string>('sample');
-  const [csvData, setCsvData] = useState<any[]>([]);
+  const [csvData, setCsvData] = useState<unknown[]>([]);
   const [jsonData, setJsonData] = useState<string>('');
-  const [sampleData, setSampleData] = useState<any[]>([]);
+  const [sampleData, setSampleData] = useState<unknown[]>([]);
   const [copied, setCopied] = useState(false);
 
   const libraries: Library[] = librariesData;
   const themes: Theme[] = chartStylesData;
 
   const outputFormats: OutputFormat[] = [
-    { id: 'raw-js', name: 'Raw JS', description: 'Pure JavaScript code' },
-    { id: 'php-block', name: 'PHP Block', description: 'Drupal block plugin' },
-    { id: 'drupal-controller', name: 'Drupal Controller', description: 'Controller with route' },
-    { id: 'full-module', name: 'Full Module (ZIP)', description: 'Complete Drupal module' },
-    { id: 'html-snippet', name: 'HTML Snippet', description: 'Standalone HTML file' }
+    { id: 'javascript-embed', name: 'JavaScript Embed', description: 'Pure JS snippet with <div id="chart-container"> + <script>…' },
+    { id: 'static-html', name: 'Static HTML', description: 'Standalone HTML file for non-Drupal demos' },
+    { id: 'drupal-block', name: 'Drupal Block Plugin', description: 'PHP BlockBase class + libraries.yml + Twig wrapper' },
+    { id: 'drupal-controller', name: 'Drupal Controller', description: 'Route + Controller returning rendered markup (or JSON)' }
   ];
 
   // Sample data will be loaded dynamically based on selected visualization type
@@ -77,7 +77,7 @@ const Generator: React.FC = () => {
     try {
       const response = await import(`../data/sampleData/${visualizationType}.json`);
       return response.default;
-    } catch (error) {
+    } catch {
       console.error(`No sample data found for visualization type: ${visualizationType}`);
       return null;
     }
@@ -218,8 +218,6 @@ const Generator: React.FC = () => {
     }
     
     const selectedVisualization = visualizationTypes.find(v => v.type === selectedType);
-    const selectedSub = selectedVisualization?.subtypes.find(s => s.id === selectedSubtype);
-    const selectedLib = libraries.find(l => l.id === selectedLibrary);
     const selectedThemeObj = themes.find(t => t.id === selectedTheme);
     
     // Sanitize data before including in code
@@ -293,6 +291,12 @@ const Generator: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  // Initialize defaults on component mount
+  useEffect(() => {
+    handleVisualizationTypeSelect('bar');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="pt-16 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -309,10 +313,10 @@ const Generator: React.FC = () => {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          {/* Step 1: Visualization Type */}
+          {/* Step 1: Visualization */}
           <AccordionSection 
             id="visualization-type" 
-            title="Step 1: Visualization Type"
+            title="Step 1: Visualization"
             isActive={activeAccordion === 'visualization-type'}
             onToggle={() => toggleAccordion('visualization-type')}
           >
@@ -323,10 +327,10 @@ const Generator: React.FC = () => {
             />
           </AccordionSection>
 
-          {/* Step 2: Visualization Options */}
+          {/* Step 2: Options */}
           <AccordionSection 
             id="visualization-options" 
-            title="Step 2: Visualization Options"
+            title="Step 2: Options"
             isActive={activeAccordion === 'visualization-options'}
             onToggle={() => toggleAccordion('visualization-options')}
           >
@@ -343,7 +347,7 @@ const Generator: React.FC = () => {
           {/* Step 3: Library */}
           <AccordionSection 
             id="library" 
-            title="Step 3: Visualization Library"
+            title="Step 3: Library"
             isActive={activeAccordion === 'library'}
             onToggle={() => toggleAccordion('library')}
           >
@@ -355,10 +359,10 @@ const Generator: React.FC = () => {
             />
           </AccordionSection>
 
-          {/* Step 4: Visualization Style */}
+          {/* Step 4: Style */}
           <AccordionSection 
             id="visualization-style" 
-            title="Step 4: Visualization Style"
+            title="Step 4: Style"
             isActive={activeAccordion === 'visualization-style'}
             onToggle={() => toggleAccordion('visualization-style')}
           >
@@ -381,12 +385,10 @@ const Generator: React.FC = () => {
               csvData={csvData}
               jsonData={jsonData}
               sampleData={sampleData}
-              visualizationTypes={visualizationTypes}
               selectedType={selectedType}
               onTabChange={setDataInputTab}
               onFileUpload={handleFileUpload}
               onJsonInput={handleJsonInput}
-              onSampleDataSelect={handleSampleDataSelect}
             />
           </AccordionSection>
 
@@ -411,23 +413,14 @@ const Generator: React.FC = () => {
             isActive={activeAccordion === 'preview'}
             onToggle={() => toggleAccordion('preview')}
           >
-            <div className="mt-4">
-              <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
-                <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
-                  {selectedType && selectedSubtype ? (
-                    <>
-                      <div className="text-lg font-semibold mb-2">Visualization Preview</div>
-                      <div className="text-sm">
-                        {visualizationTypes.find(v => v.type === selectedType)?.subtypes.find(s => s.id === selectedSubtype)?.label} visualization using{' '}
-                        {libraries.find(l => l.id === selectedLibrary)?.name} would appear here
-                      </div>
-                    </>
-                  ) : (
-                    <div>Select visualization type, subtype, and configure options to see preview</div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <ChartPreview
+              selectedType={selectedType}
+              selectedSubtype={selectedSubtype}
+              selectedLibrary={selectedLibrary}
+              selectedTheme={selectedTheme}
+              data={getCurrentData()}
+              options={selectedOptions}
+            />
           </AccordionSection>
 
           {/* Step 8: Download */}
@@ -442,8 +435,9 @@ const Generator: React.FC = () => {
               copied={copied}
               selectedType={selectedType}
               selectedOutputFormat={selectedOutputFormat}
+              selectedLibrary={selectedLibrary}
+              selectedSubtype={selectedSubtype}
               onCopy={copyToClipboard}
-              onDownload={downloadFile}
             />
           </AccordionSection>
         </div>

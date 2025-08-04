@@ -1,13 +1,12 @@
-import React from 'react';
-import { Upload, FileText, Database } from 'lucide-react';
-import Papa from 'papaparse';
+import React, { useState } from 'react';
+import { Upload, FileText, Database, Copy, Check } from 'lucide-react';
 
 interface VisualizationType {
   type: string;
   label: string;
   description: string;
   subtypes: { id: string; label: string }[];
-  options: Record<string, any>;
+  options: Record<string, unknown>;
 }
 
 interface DataInputProps {
@@ -15,12 +14,10 @@ interface DataInputProps {
   csvData: any[];
   jsonData: string;
   sampleData: any[];
-  visualizationTypes: VisualizationType[];
   selectedType: string;
   onTabChange: (tab: string) => void;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onJsonInput: (value: string) => void;
-  onSampleDataSelect: (type: string) => void;
 }
 
 const DataInput: React.FC<DataInputProps> = ({
@@ -28,15 +25,26 @@ const DataInput: React.FC<DataInputProps> = ({
   csvData,
   jsonData,
   sampleData,
-  visualizationTypes,
   selectedType,
   onTabChange,
   onFileUpload,
-  onJsonInput,
-  onSampleDataSelect
+  onJsonInput
 }) => {
+  const [sampleDataCopied, setSampleDataCopied] = useState(false);
+  
+  const copySampleData = async () => {
+    try {
+      const dataString = JSON.stringify(sampleData, null, 2);
+      await navigator.clipboard.writeText(dataString);
+      setSampleDataCopied(true);
+      setTimeout(() => setSampleDataCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy sample data:', error);
+    }
+  };
+  
   const getIconForVisualizationType = (type: string) => {
-    const iconMap: Record<string, any> = {
+    const iconMap: Record<string, string> = {
       bar: '📊',
       line: '📈',
       pie: '🥧',
@@ -112,37 +120,62 @@ const DataInput: React.FC<DataInputProps> = ({
       )}
 
       {dataInputTab === 'sample' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {visualizationTypes.map((visualizationType) => (
-            <button
-              key={visualizationType.type}
-              onClick={() => onSampleDataSelect(visualizationType.type)}
-              className={`p-4 text-left border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg hover:border-[#0074BD] dark:hover:border-[#00C9FF] transition-colors duration-200 ${
-                selectedType === visualizationType.type ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10' : ''
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">{getIconForVisualizationType(visualizationType.type)}</span>
-                <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
-                  {visualizationType.label} Sample
-                </h4>
-              </div>
+        <div className="p-4 bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-2xl">{getIconForVisualizationType(selectedType)}</span>
+            <div>
+              <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
+                Sample Data for {selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Charts
+              </h4>
               <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600">
-                Generic {visualizationType.label.toLowerCase()} data structure
+                Using pre-loaded sample dataset for {selectedType} visualization
               </p>
-            </button>
-          ))}
+            </div>
+          </div>
         </div>
       )}
 
-      {sampleData.length > 0 && (
-        <div className="mt-4 p-3 bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg">
-          <p className="text-sm text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 mb-2">
-            Sample Data Preview:
-          </p>
-          <pre className="text-xs text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-800 overflow-x-auto max-h-40 overflow-y-auto">
-            {JSON.stringify(sampleData, null, 2)}
-          </pre>
+      {dataInputTab === 'sample' && sampleData.length > 0 && (
+        <div className="mt-4">
+          {/* IDE-Style Sample Data Preview */}
+          <div className="bg-[#1e1e1e] rounded-lg border border-[#3e3e3e] overflow-hidden">
+            {/* Header */}
+            <div className="bg-[#2d2d30] border-b border-[#3e3e3e] px-4 py-2 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="flex space-x-1">
+                  <div className="w-3 h-3 bg-[#ff5f57] rounded-full"></div>
+                  <div className="w-3 h-3 bg-[#ffbd2e] rounded-full"></div>
+                  <div className="w-3 h-3 bg-[#28ca42] rounded-full"></div>
+                </div>
+                <span className="text-[#cccccc] text-sm font-mono ml-4">
+                  sample-data-{selectedType}.json
+                </span>
+              </div>
+              
+              {/* Copy Button */}
+              <button
+                onClick={copySampleData}
+                className="flex items-center gap-2 px-3 py-1.5 bg-[#0e639c] hover:bg-[#1177bb] text-white text-sm rounded transition-colors duration-200"
+              >
+                {sampleDataCopied ? <Check size={14} /> : <Copy size={14} />}
+                {sampleDataCopied ? 'Copied!' : 'Copy Data'}
+              </button>
+            </div>
+
+            {/* Code Area */}
+            <div className="relative">
+              <div className="absolute left-0 top-0 bottom-0 w-12 bg-[#1e1e1e] border-r border-[#3e3e3e] flex flex-col text-[#858585] text-xs font-mono pt-2">
+                {JSON.stringify(sampleData, null, 2).split('\n').map((_, index) => (
+                  <div key={index} className="px-2 text-right leading-5">
+                    {index + 1}
+                  </div>
+                ))}
+              </div>
+              <pre className="pl-16 pr-4 py-2 bg-[#1e1e1e] text-[#d4d4d4] font-mono text-sm leading-5 overflow-x-auto max-h-60 overflow-y-auto">
+                {JSON.stringify(sampleData, null, 2)}
+              </pre>
+            </div>
+          </div>
         </div>
       )}
     </div>

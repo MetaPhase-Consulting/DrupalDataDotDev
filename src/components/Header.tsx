@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Moon, Sun, Sparkles, BookOpen } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
