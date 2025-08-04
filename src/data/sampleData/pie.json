@@ -1,11 +1,13 @@
 {
   "name": "Pie Chart Data",
-  "description": "Proportional data segments",
+  "description": "Proportional data segments with multiple categories",
   "data": [
-    { "label": "Segment A", "value": 30 },
-    { "label": "Segment B", "value": 25 },
-    { "label": "Segment C", "value": 20 },
-    { "label": "Segment D", "value": 15 },
-    { "label": "Segment E", "value": 10 }
+    { "label": "Electronics", "value": 35 },
+    { "label": "Clothing", "value": 25 },
+    { "label": "Books", "value": 20 },
+    { "label": "Home & Garden", "value": 15 },
+    { "label": "Sports", "value": 10 },
+    { "label": "Automotive", "value": 8 },
+    { "label": "Toys", "value": 7 }
   ]
 }

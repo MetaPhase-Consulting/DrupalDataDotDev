@@ -32,7 +32,7 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
         secondary: fallbackTheme.colors.secondary,
         accent: fallbackTheme.colors.text,
         background: fallbackTheme.colors.background,
-        colors: fallbackTheme.palette
+        colors: fallbackTheme.palette || fallbackTheme.colors
       };
     }
     
@@ -41,7 +41,7 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
       secondary: theme.colors.secondary,
       accent: theme.colors.text,
       background: theme.colors.background,
-      colors: theme.palette
+      colors: theme.palette || theme.colors
     };
   };
 
@@ -49,33 +49,38 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
   const transformData = () => {
     if (!data || data.length === 0) return null;
 
-    // Handle different data structures
     const firstItem = data[0];
     const keys = Object.keys(firstItem);
     
-    // Try to identify label and value fields
-    const labelField = keys.find(k => 
-      k.toLowerCase().includes('label') || 
-      k.toLowerCase().includes('name') || 
-      k.toLowerCase().includes('category') ||
-      k === keys[0] // fallback to first field
-    ) || keys[0];
-    
-    const valueFields = keys.filter(k => 
-      k !== labelField && 
-      (typeof firstItem[k] === 'number' || !isNaN(Number(firstItem[k])))
+    // Remove common non-data keys
+    const dataKeys = keys.filter(key => 
+      !['category', 'label', 'axis', 'month', 'x', 'y'].includes(key)
     );
 
-    return {
-      categories: data.map(item => item[labelField]),
-      series: valueFields.map(field => ({
-        name: field.charAt(0).toUpperCase() + field.slice(1),
-        data: data.map(item => Number(item[field]) || 0)
-      }))
-    };
+    if (dataKeys.length === 0) {
+      // Single series data
+      const xAxis = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
+      const series = [{
+        name: 'Data',
+        type: selectedType,
+        data: data.map(item => Number(item.value || item.y || 0))
+      }];
+      
+      return { xAxis, series };
+    }
+
+    // Multi-series data
+    const xAxis = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
+    const series = dataKeys.map(key => ({
+      name: key.charAt(0).toUpperCase() + key.slice(1),
+      type: selectedType,
+      data: data.map(item => Number(item[key]) || 0)
+    }));
+
+    return { xAxis, series };
   };
 
-  // Get chart type for ECharts
+  // Get chart type
   const getChartType = () => {
     switch (selectedType) {
       case 'bar':
@@ -100,59 +105,129 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
     // Clear previous content
     containerRef.current.innerHTML = '';
 
-    const transformedData = transformData();
-    if (!transformedData) return;
-
     const theme = getThemeColors();
-    const chartType = getChartType();
+    const transformedData = transformData();
 
     // Load ECharts dynamically
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
+    
     script.onload = () => {
       if (typeof (window as any).echarts !== 'undefined') {
         const echarts = (window as any).echarts;
         
-        const chartDom = containerRef.current;
-        const myChart = echarts.init(chartDom);
+        const chart = echarts.init(containerRef.current);
+        const chartType = getChartType();
         
-        const option = {
-          title: {
-            text: `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Chart Preview`,
+        let option: any = {
+          backgroundColor: theme.background,
+          color: theme.colors,
+          textStyle: {
+            color: theme.accent,
+            fontFamily: 'Roboto, system-ui, sans-serif'
+          },
+          legend: {
             textStyle: {
               color: theme.accent
             }
-          },
-          tooltip: {
-            trigger: 'axis'
-          },
-          xAxis: {
-            type: 'category',
-            data: transformedData.categories,
-            axisLabel: {
-              color: theme.accent
-            }
-          },
-          yAxis: {
-            type: 'value',
-            axisLabel: {
-              color: theme.accent
-            }
-          },
-          series: transformedData.series.map((series, index) => ({
-            name: series.name,
-            data: series.data,
-            type: chartType,
-            itemStyle: {
-              color: theme.colors[index % theme.colors.length]
-            }
-          })),
-          backgroundColor: theme.background
+          }
         };
+
+        if (chartType === 'pie') {
+          // Pie chart
+          option = {
+            ...option,
+            series: [{
+              type: 'pie',
+              radius: selectedSubtype === 'doughnut' ? ['40%', '70%'] : '50%',
+              data: transformedData.xAxis.map((name, index) => ({
+                name,
+                value: transformedData.series[0].data[index]
+              })),
+              label: {
+                color: theme.accent
+              }
+            }]
+          };
+        } else if (chartType === 'radar') {
+          // Radar chart
+          option = {
+            ...option,
+            radar: {
+              indicator: transformedData.xAxis.map(name => ({ name })),
+              axisName: {
+                color: theme.accent
+              },
+              splitLine: {
+                lineStyle: {
+                  color: theme.accent + '20'
+                }
+              },
+              splitArea: {
+                show: false
+              }
+            },
+            series: [{
+              type: 'radar',
+              data: transformedData.series.map(series => ({
+                name: series.name,
+                value: series.data
+              }))
+            }]
+          };
+        } else {
+          // Bar, line, scatter charts
+          option = {
+            ...option,
+            xAxis: {
+              type: 'category',
+              data: transformedData.xAxis,
+              axisLabel: {
+                color: theme.accent
+              },
+              axisLine: {
+                lineStyle: {
+                  color: theme.accent + '40'
+                }
+              }
+            },
+            yAxis: {
+              type: 'value',
+              axisLabel: {
+                color: theme.accent
+              },
+              axisLine: {
+                lineStyle: {
+                  color: theme.accent + '40'
+                }
+              },
+              splitLine: {
+                lineStyle: {
+                  color: theme.accent + '20'
+                }
+              }
+            },
+            series: transformedData.series.map(series => ({
+              ...series,
+              type: chartType,
+              areaStyle: selectedSubtype === 'area' ? {} : undefined
+            }))
+          };
+        }
+
+        chart.setOption(option);
         
-        myChart.setOption(option);
+        // Handle window resize
+        const handleResize = () => chart.resize();
+        window.addEventListener('resize', handleResize);
+        
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          chart.dispose();
+        };
       }
     };
+    
     document.head.appendChild(script);
 
     return () => {
@@ -178,6 +253,14 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
   return (
     <div className="h-full w-full">
       <div ref={containerRef} className="w-full h-full" style={{ height: '400px' }}></div>
+      <div className="mt-4 text-center">
+        <div className="text-sm text-gray-500">
+          ECharts Preview
+        </div>
+        <div className="text-xs text-gray-400 mt-1">
+          {selectedType} chart • {data.length} data points
+        </div>
+      </div>
     </div>
   );
 };

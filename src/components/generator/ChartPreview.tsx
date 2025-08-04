@@ -5,7 +5,8 @@ import ChartJSPreview from './previews/ChartJSPreview';
 import D3Preview from './previews/D3Preview';
 import HighchartsPreview from './previews/HighchartsPreview';
 import EChartsPreview from './previews/EChartsPreview';
-import MapPreview from './previews/MapPreview';
+import OpenLayersPreview from './previews/OpenLayersPreview';
+import LeafletPreview from './previews/LeafletPreview';
 
 // Import theme data
 import chartStylesData from '../../data/chartStyles.json';
@@ -68,10 +69,19 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
     }
 
     // Handle map libraries
-    if (selectedLibrary === 'openlayers' || selectedLibrary === 'leaflet') {
+    if (selectedLibrary === 'openlayers') {
       return (
-        <MapPreview
-          selectedLibrary={selectedLibrary}
+        <OpenLayersPreview
+          selectedTheme={selectedTheme}
+          data={data}
+          options={options}
+        />
+      );
+    }
+
+    if (selectedLibrary === 'leaflet') {
+      return (
+        <LeafletPreview
           selectedTheme={selectedTheme}
           data={data}
           options={options}

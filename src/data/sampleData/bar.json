@@ -1,11 +1,11 @@
 {
   "name": "Bar Chart Data",
-  "description": "Generic categorical data with values",
+  "description": "Multi-series categorical data with values",
   "data": [
-    { "category": "Category A", "value": 23 },
-    { "category": "Category B", "value": 45 },
-    { "category": "Category C", "value": 56 },
-    { "category": "Category D", "value": 78 },
-    { "category": "Category E", "value": 32 }
+    { "category": "Q1", "sales": 120, "profit": 45, "revenue": 180 },
+    { "category": "Q2", "sales": 150, "profit": 60, "revenue": 220 },
+    { "category": "Q3", "sales": 180, "profit": 75, "revenue": 260 },
+    { "category": "Q4", "sales": 200, "profit": 90, "revenue": 300 },
+    { "category": "Q5", "sales": 160, "profit": 65, "revenue": 240 }
   ]
 }

@@ -1,12 +1,16 @@
 {
   "name": "Scatter Chart Data",
-  "description": "X-Y coordinate data points",
+  "description": "X-Y coordinate data points with multiple categories",
   "data": [
-    { "x": 10, "y": 20, "size": 5 },
-    { "x": 25, "y": 35, "size": 8 },
-    { "x": 40, "y": 15, "size": 12 },
-    { "x": 55, "y": 45, "size": 6 },
-    { "x": 70, "y": 30, "size": 10 },
-    { "x": 85, "y": 50, "size": 15 }
+    { "x": 10, "y": 20, "size": 5, "category": "Group A" },
+    { "x": 25, "y": 35, "size": 8, "category": "Group A" },
+    { "x": 40, "y": 15, "size": 12, "category": "Group A" },
+    { "x": 55, "y": 45, "size": 6, "category": "Group B" },
+    { "x": 70, "y": 30, "size": 10, "category": "Group B" },
+    { "x": 85, "y": 50, "size": 15, "category": "Group B" },
+    { "x": 15, "y": 40, "size": 7, "category": "Group C" },
+    { "x": 30, "y": 25, "size": 9, "category": "Group C" },
+    { "x": 45, "y": 60, "size": 11, "category": "Group C" },
+    { "x": 60, "y": 10, "size": 13, "category": "Group C" }
   ]
 }

@@ -32,7 +32,7 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
         secondary: fallbackTheme.colors.secondary,
         accent: fallbackTheme.colors.text,
         background: fallbackTheme.colors.background,
-        colors: fallbackTheme.palette
+        colors: fallbackTheme.palette || fallbackTheme.colors
       };
     }
     
@@ -41,7 +41,7 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
       secondary: theme.colors.secondary,
       accent: theme.colors.text,
       background: theme.colors.background,
-      colors: theme.palette
+      colors: theme.palette || theme.colors
     };
   };
 
@@ -49,43 +49,47 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
   const transformData = () => {
     if (!data || data.length === 0) return null;
 
-    // Handle different data structures
     const firstItem = data[0];
     const keys = Object.keys(firstItem);
     
-    // Try to identify label and value fields
-    const labelField = keys.find(k => 
-      k.toLowerCase().includes('label') || 
-      k.toLowerCase().includes('name') || 
-      k.toLowerCase().includes('category') ||
-      k === keys[0] // fallback to first field
-    ) || keys[0];
-    
-    const valueFields = keys.filter(k => 
-      k !== labelField && 
-      (typeof firstItem[k] === 'number' || !isNaN(Number(firstItem[k])))
+    // Remove common non-data keys
+    const dataKeys = keys.filter(key => 
+      !['category', 'label', 'axis', 'month', 'x', 'y'].includes(key)
     );
 
-    return {
-      categories: data.map(item => item[labelField]),
-      series: valueFields.map(field => ({
-        name: field.charAt(0).toUpperCase() + field.slice(1),
-        data: data.map(item => Number(item[field]) || 0)
-      }))
-    };
+    if (dataKeys.length === 0) {
+      // Single series data
+      const categories = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
+      const values = data.map(item => Number(item.value || item.y || 0));
+      
+      return {
+        categories,
+        series: [{
+          name: 'Data',
+          data: values
+        }]
+      };
+    }
+
+    // Multi-series data
+    const categories = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
+    const series = dataKeys.map(key => ({
+      name: key.charAt(0).toUpperCase() + key.slice(1),
+      data: data.map(item => Number(item[key]) || 0)
+    }));
+
+    return { categories, series };
   };
 
-  // Get chart type for Highcharts
+  // Get chart type
   const getChartType = () => {
     switch (selectedType) {
       case 'bar':
-        return 'column';
+        return selectedSubtype === 'horizontal' ? 'bar' : 'column';
       case 'line':
         return 'line';
       case 'pie':
         return 'pie';
-      case 'radar':
-        return 'line';
       case 'scatter':
         return 'scatter';
       default:
@@ -100,67 +104,91 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
     // Clear previous content
     containerRef.current.innerHTML = '';
 
-    const transformedData = transformData();
-    if (!transformedData) return;
-
     const theme = getThemeColors();
-    const chartType = getChartType();
+    const transformedData = transformData();
 
     // Load Highcharts dynamically
     const script = document.createElement('script');
     script.src = 'https://code.highcharts.com/highcharts.js';
+    
     script.onload = () => {
       if (typeof (window as any).Highcharts !== 'undefined') {
         const Highcharts = (window as any).Highcharts;
         
-        Highcharts.chart(containerRef.current, {
-          chart: {
-            type: chartType,
-            backgroundColor: theme.background,
-            height: 400
-          },
-          title: {
-            text: `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Chart Preview`,
-            style: {
-              color: theme.accent
-            }
-          },
-          xAxis: {
-            categories: transformedData.categories,
-            labels: {
-              style: {
-                color: theme.accent
-              }
-            }
-          },
-          yAxis: {
+        const chartType = getChartType();
+        
+        if (chartType === 'pie') {
+          // Pie chart
+          Highcharts.chart(containerRef.current, {
+            chart: {
+              type: 'pie',
+              backgroundColor: theme.background
+            },
             title: {
-              text: 'Values',
-              style: {
-                color: theme.accent
+              text: '',
+              style: { color: theme.accent }
+            },
+            plotOptions: {
+              pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                  enabled: true,
+                  style: { color: theme.accent }
+                }
               }
             },
-            labels: {
-              style: {
-                color: theme.accent
+            series: [{
+              name: 'Data',
+              colorByPoint: true,
+              data: transformedData.series[0].data.map((value, index) => ({
+                name: transformedData.categories[index],
+                y: value,
+                color: theme.colors[index % theme.colors.length]
+              }))
+            }]
+          });
+        } else {
+          // Other chart types
+          Highcharts.chart(containerRef.current, {
+            chart: {
+              type: chartType,
+              backgroundColor: theme.background
+            },
+            title: {
+              text: '',
+              style: { color: theme.accent }
+            },
+            xAxis: {
+              categories: transformedData.categories,
+              labels: {
+                style: { color: theme.accent }
               }
-            }
-          },
-          series: transformedData.series.map((series, index) => ({
-            ...series,
-            color: theme.colors[index % theme.colors.length]
-          })),
-          credits: {
-            enabled: false
-          },
-          legend: {
-            itemStyle: {
-              color: theme.accent
-            }
-          }
-        });
+            },
+            yAxis: {
+              title: {
+                text: '',
+                style: { color: theme.accent }
+              },
+              labels: {
+                style: { color: theme.accent }
+              }
+            },
+            legend: {
+              itemStyle: { color: theme.accent },
+              itemHoverStyle: { color: theme.primary }
+            },
+            plotOptions: {
+              series: {
+                colors: theme.colors
+              }
+            },
+            series: transformedData.series
+          });
+        }
       }
     };
+    
     document.head.appendChild(script);
 
     return () => {
@@ -185,7 +213,15 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
 
   return (
     <div className="h-full w-full">
-      <div ref={containerRef} className="w-full h-full"></div>
+      <div ref={containerRef} className="w-full h-full" style={{ height: '400px' }}></div>
+      <div className="mt-4 text-center">
+        <div className="text-sm text-gray-500">
+          Highcharts Preview
+        </div>
+        <div className="text-xs text-gray-400 mt-1">
+          {selectedType} chart • {data.length} data points
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,12 +1,12 @@
 {
   "name": "Line Chart Data",
-  "description": "Time series data points",
+  "description": "Multi-series time series data points",
   "data": [
-    { "x": "2024-01", "y": 10 },
-    { "x": "2024-02", "y": 25 },
-    { "x": "2024-03", "y": 15 },
-    { "x": "2024-04", "y": 40 },
-    { "x": "2024-05", "y": 35 },
-    { "x": "2024-06", "y": 50 }
+    { "month": "Jan", "temperature": 15, "humidity": 65, "pressure": 1013 },
+    { "month": "Feb", "temperature": 18, "humidity": 70, "pressure": 1010 },
+    { "month": "Mar", "temperature": 22, "humidity": 75, "pressure": 1008 },
+    { "month": "Apr", "temperature": 25, "humidity": 80, "pressure": 1005 },
+    { "month": "May", "temperature": 28, "humidity": 85, "pressure": 1002 },
+    { "month": "Jun", "temperature": 30, "humidity": 90, "pressure": 1000 }
   ]
 }

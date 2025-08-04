@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import * as d3 from 'd3';
 
 // Import theme data
 import chartStylesData from '../../../data/chartStyles.json';
@@ -33,7 +32,7 @@ const D3Preview: React.FC<D3PreviewProps> = ({
         secondary: fallbackTheme.colors.secondary,
         accent: fallbackTheme.colors.text,
         background: fallbackTheme.colors.background,
-        colors: fallbackTheme.palette
+        colors: fallbackTheme.palette || fallbackTheme.colors
       };
     }
     
@@ -42,7 +41,7 @@ const D3Preview: React.FC<D3PreviewProps> = ({
       secondary: theme.colors.secondary,
       accent: theme.colors.text,
       background: theme.colors.background,
-      colors: theme.palette
+      colors: theme.palette || theme.colors
     };
   };
 
@@ -50,28 +49,29 @@ const D3Preview: React.FC<D3PreviewProps> = ({
   const transformData = () => {
     if (!data || data.length === 0) return null;
 
-    // Handle different data structures
     const firstItem = data[0];
     const keys = Object.keys(firstItem);
     
-    // Try to identify label and value fields
-    const labelField = keys.find(k => 
-      k.toLowerCase().includes('label') || 
-      k.toLowerCase().includes('name') || 
-      k.toLowerCase().includes('category') ||
-      k === keys[0] // fallback to first field
-    ) || keys[0];
-    
-    const valueFields = keys.filter(k => 
-      k !== labelField && 
-      (typeof firstItem[k] === 'number' || !isNaN(Number(firstItem[k])))
+    // Remove common non-data keys
+    const dataKeys = keys.filter(key => 
+      !['category', 'label', 'axis', 'month', 'x', 'y'].includes(key)
     );
 
-    return {
-      labels: data.map(item => item[labelField]),
-      values: data.map(item => Number(item[valueFields[0]]) || 0),
-      fields: valueFields
-    };
+    if (dataKeys.length === 0) {
+      // Single series data
+      return {
+        labels: data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`),
+        values: data.map(item => item.value || item.y || 0),
+        series: ['Data']
+      };
+    }
+
+    // Multi-series data
+    const labels = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
+    const series = dataKeys.map(key => key.charAt(0).toUpperCase() + key.slice(1));
+    const values = dataKeys.map(key => data.map(item => Number(item[key]) || 0));
+
+    return { labels, values, series };
   };
 
   // Render D3 chart
@@ -81,133 +81,211 @@ const D3Preview: React.FC<D3PreviewProps> = ({
     // Clear previous content
     containerRef.current.innerHTML = '';
 
-    const transformedData = transformData();
-    if (!transformedData) return;
-
     const theme = getThemeColors();
-    const { labels, values } = transformedData;
+    const transformedData = transformData();
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-    const width = 800 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    // Load D3.js dynamically
+    const script = document.createElement('script');
+    script.src = 'https://d3js.org/d3.v7.min.js';
+    
+    script.onload = () => {
+      if (typeof (window as any).d3 !== 'undefined') {
+        const d3 = (window as any).d3;
+        
+        const width = containerRef.current!.clientWidth;
+        const height = 400;
+        const margin = { top: 20, right: 20, bottom: 40, left: 60 };
 
-    const svg = d3.select(containerRef.current)
-      .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+        const svg = d3.select(containerRef.current)
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
 
-    // Create scales
-    const x = d3.scaleBand()
-      .range([0, width])
-      .domain(labels)
-      .padding(0.1);
+        if (selectedType === 'bar') {
+          // Bar chart
+          const x = d3.scaleBand()
+            .domain(transformedData.labels)
+            .range([margin.left, width - margin.right])
+            .padding(0.1);
 
-    const y = d3.scaleLinear()
-      .domain([0, d3.max(values) || 0])
-      .range([height, 0]);
+          const y = d3.scaleLinear()
+            .domain([0, d3.max(transformedData.values.flat()) || 0])
+            .range([height - margin.bottom, margin.top]);
 
-    // Add axes
-    svg.append('g')
-      .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(x))
-      .style('color', theme.accent);
+          // Add bars for each series
+          transformedData.values.forEach((seriesValues, seriesIndex) => {
+            svg.selectAll(`.bar-series-${seriesIndex}`)
+              .data(seriesValues)
+              .enter()
+              .append('rect')
+              .attr('class', `bar-series-${seriesIndex}`)
+              .attr('x', (d, i) => x(transformedData.labels[i])! + (x.bandwidth() / transformedData.values.length) * seriesIndex)
+              .attr('y', d => y(d))
+              .attr('width', x.bandwidth() / transformedData.values.length)
+              .attr('height', d => height - margin.bottom - y(d))
+              .attr('fill', theme.colors[seriesIndex % theme.colors.length])
+              .attr('opacity', 0.8);
+          });
 
-    svg.append('g')
-      .call(d3.axisLeft(y))
-      .style('color', theme.accent);
+          // Add axes
+          svg.append('g')
+            .attr('transform', `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x))
+            .selectAll('text')
+            .style('fill', theme.accent)
+            .style('font-family', 'Roboto, system-ui, sans-serif');
 
-    // Add bars or other chart elements based on type
-    switch (selectedType) {
-      case 'bar':
-        svg.selectAll('rect')
-          .data(values)
-          .enter()
-          .append('rect')
-          .attr('x', (d, i) => x(labels[i]) || 0)
-          .attr('y', d => y(d))
-          .attr('width', x.bandwidth())
-          .attr('height', d => height - y(d))
-          .attr('fill', (d, i) => theme.colors[i % theme.colors.length]);
-        break;
+          svg.append('g')
+            .attr('transform', `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y))
+            .selectAll('text')
+            .style('fill', theme.accent)
+            .style('font-family', 'Roboto, system-ui, sans-serif');
 
-      case 'line':
-        const line = d3.line<number>()
-          .x((d, i) => (x(labels[i]) || 0) + x.bandwidth() / 2)
-          .y(d => y(d))
-          .curve(d3.curveMonotoneX);
+        } else if (selectedType === 'line') {
+          // Line chart
+          const x = d3.scaleBand()
+            .domain(transformedData.labels)
+            .range([margin.left, width - margin.right]);
 
-        svg.append('path')
-          .datum(values)
-          .attr('fill', 'none')
-          .attr('stroke', theme.colors[0])
-          .attr('stroke-width', 2)
-          .attr('d', line);
-        break;
+          const y = d3.scaleLinear()
+            .domain([0, d3.max(transformedData.values.flat()) || 0])
+            .range([height - margin.bottom, margin.top]);
 
-      case 'pie':
-        const pie = d3.pie<number>();
-        const arc = d3.arc<d3.PieArcDatum<number>>()
-          .innerRadius(0)
-          .outerRadius(Math.min(width, height) / 2);
+          const line = d3.line()
+            .x((d, i) => x(transformedData.labels[i])! + x.bandwidth() / 2)
+            .y(d => y(d));
 
-        const pieData = pie(values);
-        const pieGroup = svg.append('g')
-          .attr('transform', `translate(${width / 2},${height / 2})`);
+          // Add lines for each series
+          transformedData.values.forEach((seriesValues, seriesIndex) => {
+            svg.append('path')
+              .datum(seriesValues)
+              .attr('fill', 'none')
+              .attr('stroke', theme.colors[seriesIndex % theme.colors.length])
+              .attr('stroke-width', 3)
+              .attr('d', line);
 
-        pieGroup.selectAll('path')
-          .data(pieData)
-          .enter()
-          .append('path')
-          .attr('d', arc)
-          .attr('fill', (d, i) => theme.colors[i % theme.colors.length]);
-        break;
+            // Add points
+            svg.selectAll(`.point-series-${seriesIndex}`)
+              .data(seriesValues)
+              .enter()
+              .append('circle')
+              .attr('class', `point-series-${seriesIndex}`)
+              .attr('cx', (d, i) => x(transformedData.labels[i])! + x.bandwidth() / 2)
+              .attr('cy', d => y(d))
+              .attr('r', 4)
+              .attr('fill', theme.colors[seriesIndex % theme.colors.length]);
+          });
 
-      case 'radar':
-        // Simple radar implementation
-        const radarRadius = Math.min(width, height) / 3;
-        const radarGroup = svg.append('g')
-          .attr('transform', `translate(${width / 2},${height / 2})`);
+          // Add axes
+          svg.append('g')
+            .attr('transform', `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x))
+            .selectAll('text')
+            .style('fill', theme.accent)
+            .style('font-family', 'Roboto, system-ui, sans-serif');
 
-        // Draw radar grid
-        for (let i = 1; i <= 3; i++) {
-          const radius = (radarRadius / 3) * i;
-          radarGroup.append('circle')
-            .attr('cx', 0)
-            .attr('cy', 0)
-            .attr('r', radius)
-            .attr('fill', 'none')
-            .attr('stroke', theme.accent + '20')
-            .attr('stroke-width', 1);
+          svg.append('g')
+            .attr('transform', `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y))
+            .selectAll('text')
+            .style('fill', theme.accent)
+            .style('font-family', 'Roboto, system-ui, sans-serif');
+
+        } else if (selectedType === 'pie') {
+          // Pie chart
+          const radius = Math.min(width, height) / 2 - margin.top;
+          const g = svg.append('g')
+            .attr('transform', `translate(${width / 2},${height / 2})`);
+
+          const pie = d3.pie()
+            .value(d => d);
+
+          const arc = d3.arc()
+            .innerRadius(selectedSubtype === 'doughnut' ? radius * 0.5 : 0)
+            .outerRadius(radius);
+
+          g.selectAll('path')
+            .data(pie(transformedData.values[0]))
+            .enter()
+            .append('path')
+            .attr('d', arc)
+            .attr('fill', (d, i) => theme.colors[i % theme.colors.length])
+            .attr('stroke', theme.background)
+            .attr('stroke-width', 2);
+
+        } else if (selectedType === 'radar') {
+          // Radar chart
+          const radius = Math.min(width, height) / 2 - margin.top;
+          const g = svg.append('g')
+            .attr('transform', `translate(${width / 2},${height / 2})`);
+
+          const angleSlice = (Math.PI * 2) / transformedData.labels.length;
+
+          // Draw radar grid
+          const levels = 5;
+          for (let level = 1; level <= levels; level++) {
+            const levelRadius = (radius / levels) * level;
+            g.append('circle')
+              .attr('r', levelRadius)
+              .attr('fill', 'none')
+              .attr('stroke', theme.accent + '20')
+              .attr('stroke-width', 1);
+          }
+
+          // Draw axis lines
+          transformedData.labels.forEach((label, i) => {
+            const angle = angleSlice * i - Math.PI / 2;
+            const x1 = Math.cos(angle) * radius;
+            const y1 = Math.sin(angle) * radius;
+            
+            g.append('line')
+              .attr('x1', 0)
+              .attr('y1', 0)
+              .attr('x2', x1)
+              .attr('y2', y1)
+              .attr('stroke', theme.accent + '40')
+              .attr('stroke-width', 1);
+          });
+
+          // Draw data lines for each series
+          transformedData.values.forEach((seriesValues, seriesIndex) => {
+            const lineGenerator = d3.lineRadial()
+              .radius(d => (d / Math.max(...seriesValues)) * radius)
+              .angle((d, i) => angleSlice * i - Math.PI / 2);
+
+            g.append('path')
+              .datum(seriesValues)
+              .attr('d', lineGenerator)
+              .attr('fill', 'none')
+              .attr('stroke', theme.colors[seriesIndex % theme.colors.length])
+              .attr('stroke-width', 3);
+
+            // Add points
+            seriesValues.forEach((value, i) => {
+              const angle = angleSlice * i - Math.PI / 2;
+              const r = (value / Math.max(...seriesValues)) * radius;
+              const x = Math.cos(angle) * r;
+              const y = Math.sin(angle) * r;
+
+              g.append('circle')
+                .attr('cx', x)
+                .attr('cy', y)
+                .attr('r', 4)
+                .attr('fill', theme.colors[seriesIndex % theme.colors.length]);
+            });
+          });
         }
+      }
+    };
+    
+    document.head.appendChild(script);
 
-        // Draw radar data
-        const radarLine = d3.lineRadial<number>()
-          .radius(d => (d / Math.max(...values)) * radarRadius)
-          .angle((d, i) => (i / labels.length) * 2 * Math.PI);
-
-        radarGroup.append('path')
-          .datum(values)
-          .attr('fill', theme.colors[0] + '20')
-          .attr('stroke', theme.colors[0])
-          .attr('stroke-width', 2)
-          .attr('d', radarLine);
-        break;
-
-      default:
-        // Default to bar chart
-        svg.selectAll('rect')
-          .data(values)
-          .enter()
-          .append('rect')
-          .attr('x', (d, i) => x(labels[i]) || 0)
-          .attr('y', d => y(d))
-          .attr('width', x.bandwidth())
-          .attr('height', d => height - y(d))
-          .attr('fill', (d, i) => theme.colors[i % theme.colors.length]);
-    }
-
+    return () => {
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
   }, [selectedType, selectedSubtype, selectedTheme, data, options]);
 
   if (!data || data.length === 0) {
@@ -225,7 +303,15 @@ const D3Preview: React.FC<D3PreviewProps> = ({
 
   return (
     <div className="h-full w-full">
-      <div ref={containerRef} className="w-full h-full"></div>
+      <div ref={containerRef} className="w-full h-full" style={{ height: '400px' }}></div>
+      <div className="mt-4 text-center">
+        <div className="text-sm text-gray-500">
+          D3.js Preview
+        </div>
+        <div className="text-xs text-gray-400 mt-1">
+          {selectedType} chart • {data.length} data points
+        </div>
+      </div>
     </div>
   );
 };
