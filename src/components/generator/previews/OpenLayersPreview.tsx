@@ -210,9 +210,7 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
         <div className="text-sm text-gray-500">
           OpenLayers Map Preview
         </div>
-        <div className="text-xs text-gray-400 mt-1">
-          Data points: {data.length}
-        </div>
+
       </div>
     </div>
   );

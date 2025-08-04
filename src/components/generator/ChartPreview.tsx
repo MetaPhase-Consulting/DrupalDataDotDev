@@ -161,14 +161,6 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
         <div className="h-96 w-full">
           {previewComponent}
         </div>
-        <div className="mt-4 text-center">
-          <p 
-            className="text-sm"
-            style={{ color: theme.accent + '80' }}
-          >
-            Live preview using {selectedLibrary} • {data.length} data points • <span style={{ color: theme.primary }}>{selectedTheme}</span> theme
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -191,14 +191,6 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
   return (
     <div className="h-full w-full">
       <canvas ref={canvasRef} className="w-full h-full"></canvas>
-      <div className="mt-4 text-center">
-        <div className="text-sm text-gray-500">
-          Chart.js Preview
-        </div>
-        <div className="text-xs text-gray-400 mt-1">
-          {selectedType} chart • {Array.isArray(data) ? data.length : (data.labels?.length || 0)} data points
-        </div>
-      </div>
     </div>
   );
 };

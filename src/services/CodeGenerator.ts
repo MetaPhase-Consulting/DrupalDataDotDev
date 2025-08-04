@@ -11,6 +11,37 @@ export interface CodeGeneratorConfig {
 }
 
 export class CodeGenerator {
+  // Helper function to normalize data format
+  private static normalizeDataFormat(data: any): { labels: string[], datasets: any[] } {
+    if (data && typeof data === 'object' && !Array.isArray(data) && 'labels' in data && 'datasets' in data) {
+      // Chart.js format data
+      return {
+        labels: data.labels,
+        datasets: data.datasets
+      };
+    } else if (Array.isArray(data)) {
+      // Array format data (legacy support)
+      const labels = data.map(item => item.category || item.label || item.name || 'Item');
+      const values = data.map(item => item.value || item.data || 0);
+      return {
+        labels,
+        datasets: [{
+          label: 'Values',
+          data: values
+        }]
+      };
+    } else {
+      // Fallback for empty or invalid data
+      return {
+        labels: ['No Data'],
+        datasets: [{
+          label: 'Values',
+          data: [0]
+        }]
+      };
+    }
+  }
+
   static generateCode(config: CodeGeneratorConfig): string {
     const { selectedType, selectedLibrary, selectedOutputFormat } = config;
     
@@ -186,8 +217,9 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 
   private static generateChartJSJavaScriptEmbed(config: CodeGeneratorConfig): string {
     const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
+    
+    // Normalize data format
+    const { labels, datasets } = this.normalizeDataFormat(data);
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
     
@@ -205,15 +237,14 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
   
   const chartData = {
     labels: ${JSON.stringify(labels)},
-    datasets: [{
-      label: 'Values',
-      data: ${JSON.stringify(values)},
-      backgroundColor: ${JSON.stringify(themeColors.slice(0, values.length))},
-      borderColor: ${JSON.stringify(themeColors.slice(0, values.length))},
-      borderWidth: 2,
-      borderRadius: ${selectedOptions.roundedCorners ? 8 : 0},
+    datasets: ${JSON.stringify(datasets.map((dataset, index) => ({
+      ...dataset,
+      backgroundColor: dataset.backgroundColor || themeColors[index % themeColors.length] + '80',
+      borderColor: dataset.borderColor || themeColors[index % themeColors.length],
+      borderWidth: dataset.borderWidth || 2,
+      borderRadius: selectedOptions.roundedCorners ? 8 : 0,
       borderSkipped: false,
-    }]
+    })))}
   };
 
   const config = {

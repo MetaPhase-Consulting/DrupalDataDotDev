@@ -314,9 +314,7 @@ const D3Preview: React.FC<D3PreviewProps> = ({
         <div className="text-sm text-gray-500">
           D3.js Preview
         </div>
-        <div className="text-xs text-gray-400 mt-1">
-          {selectedType} chart • {Array.isArray(data) ? data.length : (data.labels?.length || 0)} data points
-        </div>
+
       </div>
     </div>
   );
