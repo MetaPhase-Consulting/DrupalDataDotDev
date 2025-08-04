@@ -87,7 +87,16 @@ const Generator: React.FC = () => {
     // Set defaults for the selected visualization type
     const defaultConfig = DefaultConfigService.getDefaultConfig(visualizationType);
     setSelectedSubtype(defaultConfig.subtype || '');
-    setSelectedLibrary(defaultConfig.library || '');
+    
+    // Check if current library supports the new visualization type
+    const currentLibrary = libraries.find(lib => lib.id === selectedLibrary);
+    const supportsNewType = currentLibrary?.supports.includes(visualizationType);
+    
+    // Only change library if current library doesn't support the new type
+    if (!supportsNewType) {
+      setSelectedLibrary(defaultConfig.library || '');
+    }
+    
     setSelectedOptions(defaultConfig.options || {});
     
     // Auto-load sample data for the selected visualization type
@@ -357,10 +366,10 @@ const Generator: React.FC = () => {
             />
           </AccordionSection>
 
-          {/* Step 5: Input Data */}
+          {/* Step 5: Input */}
           <AccordionSection 
             id="input-data" 
-            title="Step 5: Input Data"
+            title="Step 5: Input"
             isActive={activeAccordion === 'input-data'}
             onToggle={() => toggleAccordion('input-data')}
           >
@@ -376,10 +385,10 @@ const Generator: React.FC = () => {
             />
           </AccordionSection>
 
-          {/* Step 6: Output Format */}
+          {/* Step 6: Output */}
           <AccordionSection 
             id="output-format" 
-            title="Step 6: Output Format"
+            title="Step 6: Output"
             isActive={activeAccordion === 'output-format'}
             onToggle={() => toggleAccordion('output-format')}
           >

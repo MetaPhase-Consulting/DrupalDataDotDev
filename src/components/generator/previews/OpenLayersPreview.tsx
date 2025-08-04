@@ -47,7 +47,10 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
     let processedData: any[] = [];
     
     if (data && typeof data === 'object' && !Array.isArray(data)) {
-      if (data.data && data.data.datasets) {
+      if (data.data && Array.isArray(data.data)) {
+        // Direct data array (like map sample data)
+        processedData = data.data;
+      } else if (data.data && data.data.datasets) {
         // Nested data structure (like sample data)
         processedData = data.data.datasets.flatMap((dataset: any) => dataset.data || []);
       } else if (data.datasets && !data.labels) {
@@ -141,7 +144,7 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
         ],
         view: new ol.View({
           center: ol.proj.fromLonLat([0, 0]),
-          zoom: 2
+          zoom: 1
         })
       });
 
@@ -181,11 +184,16 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
 
         // Fit the map to show all markers
         const extent = vectorLayer.getSource().getExtent();
-        if (extent[0] !== Infinity) {
+        if (extent[0] !== Infinity && extent[1] !== Infinity && extent[2] !== Infinity && extent[3] !== Infinity) {
           map.getView().fit(extent, {
             padding: [20, 20, 20, 20],
-            duration: 1000
+            duration: 1000,
+            maxZoom: 10
           });
+        } else {
+          // Fallback: set a reasonable view for the world
+          map.getView().setCenter(ol.proj.fromLonLat([-98.5795, 39.8283])); // Center of US
+          map.getView().setZoom(3);
         }
       }
     } else {
@@ -213,7 +221,7 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
             ],
             view: new ol.View({
               center: ol.proj.fromLonLat([0, 0]),
-              zoom: 2
+              zoom: 1
             })
           });
 
@@ -253,11 +261,16 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
 
             // Fit the map to show all markers
             const extent = vectorLayer.getSource().getExtent();
-            if (extent[0] !== Infinity) {
+            if (extent[0] !== Infinity && extent[1] !== Infinity && extent[2] !== Infinity && extent[3] !== Infinity) {
               map.getView().fit(extent, {
                 padding: [20, 20, 20, 20],
-                duration: 1000
+                duration: 1000,
+                maxZoom: 10
               });
+            } else {
+              // Fallback: set a reasonable view for the world
+              map.getView().setCenter(ol.proj.fromLonLat([-98.5795, 39.8283])); // Center of US
+              map.getView().setZoom(3);
             }
           }
         }
