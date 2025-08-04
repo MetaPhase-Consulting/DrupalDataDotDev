@@ -5,13 +5,13 @@
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://www.drupaldata.dev/)
-[![CivicTech](https://img.shields.io/badge/Civic-Tech-1f7a8c)](https://github.com/brianfunk/DrupalDataDotDev)
-[![Built by MetaPhase](https://img.shields.io/badge/Built%20by-MetaPhase-fb641f)](https://metaphase.tech)
-[![LinkedIn](https://img.shields.io/badge/Linked-In-0077b5)](https://www.linkedin.com/company/metaphase-consulting-llc/)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/04264f9f-bc5a-4b8a-af04-6dd613d67f7f/deploy-status)](https://app.netlify.com/projects/drupaldatadotdev/deploys)
 [![Accessibility](https://img.shields.io/badge/Accessibility-WCAG%202.1%20AA-green)](https://www.w3.org/WAI/WCAG21/quickref/)
 [![Security](https://img.shields.io/badge/Security-SOC%202-blue)](https://netlify.com/security)
+[![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://www.drupaldata.dev/)
+[![CivicTech](https://img.shields.io/badge/Civic-Tech-1f7a8c)](https://github.com/brianfunk/DrupalDataDotDev)
+[![LinkedIn](https://img.shields.io/badge/Linked-In-0077b5)](https://www.linkedin.com/company/metaphase-consulting-llc/)
+[![Built by MetaPhase](https://img.shields.io/badge/Built%20by-MetaPhase-fb641f)](https://metaphase.tech)
 
 **Free, fast, Drupal data visualization generator.** Create beautiful charts and maps from JSON, CSV, or manual input with Chart.js, Highcharts, ECharts, and more. Generate ready-to-use code for Drupal modules, blocks, controllers, or standalone HTML files.
 
