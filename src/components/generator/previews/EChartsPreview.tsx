@@ -32,7 +32,7 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
         secondary: fallbackTheme.colors.secondary,
         accent: fallbackTheme.colors.text,
         background: fallbackTheme.colors.background,
-        colors: fallbackTheme.palette || fallbackTheme.colors
+        colors: fallbackTheme.palette
       };
     }
     
@@ -41,7 +41,7 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
       secondary: theme.colors.secondary,
       accent: theme.colors.text,
       background: theme.colors.background,
-      colors: theme.palette || theme.colors
+      colors: theme.palette
     };
   };
 
