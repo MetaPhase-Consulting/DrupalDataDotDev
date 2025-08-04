@@ -228,6 +228,7 @@ const Generator: React.FC = () => {
       selectedType,
       selectedSubtype,
       selectedLibrary,
+      selectedOutputFormat,
       selectedTheme: selectedThemeObj!,
       selectedOptions: sanitizedOptions,
       data: currentData
@@ -438,6 +439,7 @@ const Generator: React.FC = () => {
               selectedLibrary={selectedLibrary}
               selectedSubtype={selectedSubtype}
               onCopy={copyToClipboard}
+              onGenerateCode={generateCode}
             />
           </AccordionSection>
         </div>

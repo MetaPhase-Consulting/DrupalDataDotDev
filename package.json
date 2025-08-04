@@ -1,8 +1,44 @@
 {
-  "name": "vite-react-typescript-starter",
-  "private": true,
-  "version": "0.0.0",
+  "name": "drupaldatadotdev",
+  "description": "A comprehensive data visualization generator for Drupal developers",
+  "version": "0.0.1",
   "type": "module",
+  "private": false,
+  "homepage": "https://www.drupaldata.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bfunk/DrupalDataDotDev.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bfunk/DrupalDataDotDev/issues"
+  },
+  "keywords": [
+    "drupal",
+    "data-visualization",
+    "charts",
+    "react",
+    "typescript",
+    "chartjs",
+    "d3",
+    "plotly",
+    "highcharts",
+    "apexcharts"
+  ],
+  "author": {
+    "name": "Brian Funk",
+    "organization": "MetaPhase",
+    "url": "https://metaphase.tech"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "public"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -11,6 +11,7 @@ interface CodeOutputProps {
   selectedLibrary: string;
   selectedSubtype: string;
   onCopy: () => void;
+  onGenerateCode: () => string;
 }
 
 const CodeOutput: React.FC<CodeOutputProps> = ({
@@ -20,7 +21,8 @@ const CodeOutput: React.FC<CodeOutputProps> = ({
   selectedOutputFormat,
   selectedLibrary,
   selectedSubtype,
-  onCopy
+  onCopy,
+  onGenerateCode
 }) => {
   const getFileExtension = () => {
     switch (selectedOutputFormat) {
@@ -43,7 +45,8 @@ const CodeOutput: React.FC<CodeOutputProps> = ({
 
   const downloadSingleFile = () => {
     const fileName = `${getFileName()}.${getFileExtension()}`;
-    const blob = new Blob([generatedCode], { type: 'text/plain' });
+    const currentCode = onGenerateCode(); // Regenerate code dynamically
+    const blob = new Blob([currentCode], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -60,7 +63,8 @@ const CodeOutput: React.FC<CodeOutputProps> = ({
     
     // Add main file
     const mainFileName = `${baseName}.${getFileExtension()}`;
-    zip.file(mainFileName, generatedCode);
+    const currentCode = onGenerateCode(); // Regenerate code dynamically
+    zip.file(mainFileName, currentCode);
     
     // Add README
     const readmeContent = `# ${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Chart - ${selectedLibrary}

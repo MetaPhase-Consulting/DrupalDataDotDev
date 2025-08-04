@@ -1,0 +1,3 @@
+# This file is for mobile app ad verification purposes
+# Currently no mobile ad networks are configured
+# Add mobile ad network entries here when needed 

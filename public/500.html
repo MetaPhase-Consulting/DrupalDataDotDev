@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - DrupalDataDotDev</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0E1B2A 0%, #1F2937 100%);
+            color: #E5F1FF;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            color: #DC2626;
+            margin: 0;
+            line-height: 1;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            margin: 1rem 0 2rem 0;
+            color: #B3D9FF;
+        }
+        .description {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            color: #E5F1FF;
+            opacity: 0.8;
+        }
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #0074BD 0%, #00C9FF 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 116, 189, 0.3);
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #0074BD;
+            color: #0074BD;
+        }
+        .btn-secondary:hover {
+            background: #0074BD;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="error-code">500</h1>
+        <h2 class="error-message">Server Error</h2>
+        <p class="description">
+            Something went wrong on our end. We're working to fix this issue.
+            Please try again in a few minutes.
+        </p>
+        <div class="actions">
+            <a href="/" class="btn">Go Home</a>
+            <a href="/generator" class="btn">Try Generator</a>
+            <a href="mailto:brian@metaphase.dev" class="btn btn-secondary">Report Issue</a>
+        </div>
+    </div>
+</body>
+</html> 
