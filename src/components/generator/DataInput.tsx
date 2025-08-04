@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, FileText, Database, Copy, Check } from 'lucide-react';
+import { FileText, Database, Copy, Check, AlertCircle } from 'lucide-react';
 
 interface VisualizationType {
   type: string;
@@ -11,23 +11,19 @@ interface VisualizationType {
 
 interface DataInputProps {
   dataInputTab: string;
-  csvData: any[];
   jsonData: string;
   sampleData: any[];
   selectedType: string;
   onTabChange: (tab: string) => void;
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onJsonInput: (value: string) => void;
 }
 
 const DataInput: React.FC<DataInputProps> = ({
   dataInputTab,
-  csvData,
   jsonData,
   sampleData,
   selectedType,
   onTabChange,
-  onFileUpload,
   onJsonInput
 }) => {
   const [sampleDataCopied, setSampleDataCopied] = useState(false);
@@ -59,11 +55,79 @@ const DataInput: React.FC<DataInputProps> = ({
     return iconMap[type] || '📊';
   };
 
+  const getDataFormatHelper = () => {
+    if (selectedType === 'map') {
+      return {
+        title: 'GeoJSON Format Required',
+        description: 'For map visualizations, paste valid GeoJSON data. This can be a FeatureCollection or individual Feature objects.',
+        example: `{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4194, 37.7749]
+      },
+      "properties": {
+        "name": "San Francisco",
+        "population": 873965
+      }
+    }
+  ]
+}`
+      };
+    } else {
+      return {
+        title: 'Chart.js JSON Format',
+        description: 'For charts, paste data in Chart.js format with labels and datasets, or use an array of objects. You can also paste Highcharts format data.',
+        example: `// Chart.js Format
+{
+  "labels": ["Jan", "Feb", "Mar", "Apr"],
+  "datasets": [
+    {
+      "label": "Sales",
+      "data": [65, 59, 80, 81]
+    },
+    {
+      "label": "Profit", 
+      "data": [28, 48, 40, 19]
+    }
+  ]
+}
+
+// Highcharts Format
+{
+  "categories": ["Jan", "Feb", "Mar", "Apr"],
+  "series": [
+    {
+      "name": "Sales",
+      "data": [65, 59, 80, 81]
+    },
+    {
+      "name": "Profit",
+      "data": [28, 48, 40, 19]
+    }
+  ]
+}
+
+// Array of Objects
+[
+  {"month": "Jan", "sales": 65, "profit": 28},
+  {"month": "Feb", "sales": 59, "profit": 48},
+  {"month": "Mar", "sales": 80, "profit": 40},
+  {"month": "Apr", "sales": 81, "profit": 19}
+]`
+      };
+    }
+  };
+
+  const helper = getDataFormatHelper();
+
   return (
     <div className="mt-4">
       <div className="flex border-b border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 mb-4">
         {[
-          { id: 'csv', label: 'Upload CSV', icon: Upload },
           { id: 'json', label: 'Paste JSON', icon: FileText },
           { id: 'sample', label: 'Sample Data', icon: Database }
         ].map((tab) => {
@@ -85,36 +149,41 @@ const DataInput: React.FC<DataInputProps> = ({
         })}
       </div>
 
-      {dataInputTab === 'csv' && (
-        <div>
-          <input
-            type="file"
-            accept=".csv"
-            onChange={onFileUpload}
-            className="w-full p-3 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900"
-          />
-          {csvData.length > 0 && (
-            <div className="mt-4 p-3 bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg">
-              <p className="text-sm text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 mb-2">
-                Preview ({csvData.length} rows):
-              </p>
-              <pre className="text-xs text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-800 overflow-x-auto">
-                {JSON.stringify(csvData.slice(0, 3), null, 2)}
-              </pre>
-            </div>
-          )}
-        </div>
-      )}
-
       {dataInputTab === 'json' && (
         <div>
+          <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-1">
+                  {helper.title}
+                </h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                  {helper.description}
+                </p>
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300">
+                    View Example Format
+                  </summary>
+                  <pre className="mt-2 p-3 bg-blue-100 dark:bg-blue-900/30 rounded text-xs text-blue-800 dark:text-blue-200 overflow-x-auto">
+                    {helper.example}
+                  </pre>
+                </details>
+              </div>
+            </div>
+          </div>
+          
           <textarea
             value={jsonData}
             onChange={(e) => onJsonInput(e.target.value)}
-            placeholder="Paste your JSON data here..."
+            placeholder={`Paste your ${selectedType === 'map' ? 'GeoJSON' : 'Chart.js JSON'} data here...`}
             maxLength={100000}
-            rows={8}
-            className="w-full p-3 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 font-mono text-sm focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
+            rows={12}
+            className="w-full p-3 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 font-mono text-sm focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none resize-y"
+            spellCheck="false"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
           />
         </div>
       )}

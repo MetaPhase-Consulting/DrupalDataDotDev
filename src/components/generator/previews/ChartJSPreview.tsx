@@ -10,7 +10,7 @@ interface ChartJSPreviewProps {
   selectedType: string;
   selectedSubtype: string;
   selectedTheme: string;
-  data: any[];
+  data: any;
   options: Record<string, any>;
 }
 
@@ -49,49 +49,6 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
     };
   };
 
-  // Transform data for Chart.js
-  const transformData = () => {
-    if (!data || data.length === 0) return null;
-
-    const firstItem = data[0];
-    const keys = Object.keys(firstItem);
-    
-    // Remove common non-data keys
-    const dataKeys = keys.filter(key => 
-      !['category', 'label', 'axis', 'month', 'x', 'y'].includes(key)
-    );
-
-    if (dataKeys.length === 0) {
-      // Single series data
-      const labels = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
-      const values = data.map(item => item.value || item.y || 0);
-      
-      return {
-        labels,
-        datasets: [{
-          label: 'Data',
-          data: values,
-          backgroundColor: getThemeColors().colors[0] + '80',
-          borderColor: getThemeColors().colors[0],
-          borderWidth: 2
-        }]
-      };
-    }
-
-    // Multi-series data
-    const labels = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
-    const datasets = dataKeys.map((key, index) => ({
-      label: key.charAt(0).toUpperCase() + key.slice(1),
-      data: data.map(item => Number(item[key]) || 0),
-      backgroundColor: getThemeColors().colors[index % getThemeColors().colors.length] + '80',
-      borderColor: getThemeColors().colors[index % getThemeColors().colors.length],
-      borderWidth: 2,
-      fill: selectedType === 'line' && selectedSubtype === 'area'
-    }));
-
-    return { labels, datasets };
-  };
-
   // Get chart type
   const getChartType = () => {
     switch (selectedType) {
@@ -112,15 +69,12 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
 
   // Render chart
   useEffect(() => {
-    if (!canvasRef.current || !data || data.length === 0) return;
+    if (!canvasRef.current || !data) return;
 
     // Destroy existing chart
     if (chartRef.current) {
       chartRef.current.destroy();
     }
-
-    const transformedData = transformData();
-    if (!transformedData) return;
 
     const theme = getThemeColors();
     const chartType = getChartType();
@@ -128,9 +82,43 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
 
+    // Prepare chart data
+    let chartData;
+    
+    // Check if data is already in Chart.js format
+    if (data.labels && data.datasets) {
+      chartData = {
+        labels: data.labels,
+        datasets: data.datasets.map((dataset: any, index: number) => ({
+          ...dataset,
+          backgroundColor: dataset.backgroundColor || theme.colors[index % theme.colors.length] + '80',
+          borderColor: dataset.borderColor || theme.colors[index % theme.colors.length],
+          borderWidth: dataset.borderWidth || 2,
+          fill: selectedType === 'line' && selectedSubtype === 'area'
+        }))
+      };
+    } else {
+      // Fallback for array data (legacy support)
+      const labels = data.map((item: any, index: number) => 
+        item.category || item.label || item.axis || item.month || item.x || `Item ${index}`
+      );
+      const values = data.map((item: any) => Number(item.value || item.y || 0));
+      
+      chartData = {
+        labels,
+        datasets: [{
+          label: 'Data',
+          data: values,
+          backgroundColor: theme.colors[0] + '80',
+          borderColor: theme.colors[0],
+          borderWidth: 2
+        }]
+      };
+    }
+
     chartRef.current = new Chart(ctx, {
       type: chartType,
-      data: transformedData,
+      data: chartData,
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -187,7 +175,7 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
     };
   }, [selectedType, selectedSubtype, selectedTheme, data, options]);
 
-  if (!data || data.length === 0) {
+  if (!data) {
     return (
       <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
         <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
@@ -208,7 +196,7 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
           Chart.js Preview
         </div>
         <div className="text-xs text-gray-400 mt-1">
-          {selectedType} chart • {data.length} data points
+          {selectedType} chart • {Array.isArray(data) ? data.length : (data.labels?.length || 0)} data points
         </div>
       </div>
     </div>

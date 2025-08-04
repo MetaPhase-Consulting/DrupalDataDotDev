@@ -7,7 +7,7 @@ interface HighchartsPreviewProps {
   selectedType: string;
   selectedSubtype: string;
   selectedTheme: string;
-  data: any[];
+  data: any;
   options: Record<string, any>;
 }
 
@@ -45,42 +45,6 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
     };
   };
 
-  // Transform data for Highcharts
-  const transformData = () => {
-    if (!data || data.length === 0) return null;
-
-    const firstItem = data[0];
-    const keys = Object.keys(firstItem);
-    
-    // Remove common non-data keys
-    const dataKeys = keys.filter(key => 
-      !['category', 'label', 'axis', 'month', 'x', 'y'].includes(key)
-    );
-
-    if (dataKeys.length === 0) {
-      // Single series data
-      const categories = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
-      const values = data.map(item => Number(item.value || item.y || 0));
-      
-      return {
-        categories,
-        series: [{
-          name: 'Data',
-          data: values
-        }]
-      };
-    }
-
-    // Multi-series data
-    const categories = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
-    const series = dataKeys.map(key => ({
-      name: key.charAt(0).toUpperCase() + key.slice(1),
-      data: data.map(item => Number(item[key]) || 0)
-    }));
-
-    return { categories, series };
-  };
-
   // Get chart type
   const getChartType = () => {
     switch (selectedType) {
@@ -99,13 +63,12 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
 
   // Render Highcharts chart
   useEffect(() => {
-    if (!containerRef.current || !data || data.length === 0) return;
+    if (!containerRef.current || !data) return;
 
     // Clear previous content
     containerRef.current.innerHTML = '';
 
     const theme = getThemeColors();
-    const transformedData = transformData();
 
     // Load Highcharts dynamically
     const script = document.createElement('script');
@@ -116,6 +79,45 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
         const Highcharts = (window as any).Highcharts;
         
         const chartType = getChartType();
+        
+        // Handle different data formats
+        let categories: string[];
+        let series: any[];
+
+        if (data.categories && data.series) {
+          // Highcharts format from conversion
+          categories = data.categories;
+          series = data.series;
+        } else if (data.labels && data.datasets) {
+          // Chart.js format
+          categories = data.labels;
+          series = data.datasets.map((dataset: any) => ({
+            name: dataset.label,
+            data: dataset.data
+          }));
+        } else if (Array.isArray(data)) {
+          // Legacy array format
+          const firstItem = data[0];
+          const keys = Object.keys(firstItem);
+          const dataKeys = keys.filter(key => 
+            !['category', 'label', 'axis', 'month', 'x', 'y'].includes(key)
+          );
+          
+          categories = data.map((item: any) => 
+            item.category || item.label || item.axis || item.month || item.x || `Item ${data.indexOf(item)}`
+          );
+          series = dataKeys.length > 0 
+            ? dataKeys.map(key => ({
+                name: key.charAt(0).toUpperCase() + key.slice(1),
+                data: data.map((item: any) => Number(item[key]) || 0)
+              }))
+            : [{
+                name: 'Data',
+                data: data.map((item: any) => Number(item.value || item.y || 0))
+              }];
+        } else {
+          return;
+        }
         
         if (chartType === 'pie') {
           // Pie chart
@@ -141,8 +143,8 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
             series: [{
               name: 'Data',
               colorByPoint: true,
-              data: transformedData.series[0].data.map((value, index) => ({
-                name: transformedData.categories[index],
+              data: series[0].data.map((value: number, index: number) => ({
+                name: categories[index],
                 y: value,
                 color: theme.colors[index % theme.colors.length]
               }))
@@ -160,7 +162,7 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
               style: { color: theme.accent }
             },
             xAxis: {
-              categories: transformedData.categories,
+              categories: categories,
               labels: {
                 style: { color: theme.accent }
               }
@@ -183,7 +185,7 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
                 colors: theme.colors
               }
             },
-            series: transformedData.series
+            series: series
           });
         }
       }
@@ -198,7 +200,7 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
     };
   }, [selectedType, selectedSubtype, selectedTheme, data, options]);
 
-  if (!data || data.length === 0) {
+  if (!data) {
     return (
       <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
         <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
@@ -219,7 +221,7 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
           Highcharts Preview
         </div>
         <div className="text-xs text-gray-400 mt-1">
-          {selectedType} chart • {data.length} data points
+          {selectedType} chart • {Array.isArray(data) ? data.length : (data.categories?.length || data.labels?.length || 0)} data points
         </div>
       </div>
     </div>

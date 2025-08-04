@@ -7,7 +7,7 @@ interface EChartsPreviewProps {
   selectedType: string;
   selectedSubtype: string;
   selectedTheme: string;
-  data: any[];
+  data: any;
   options: Record<string, any>;
 }
 
@@ -45,41 +45,6 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
     };
   };
 
-  // Transform data for ECharts
-  const transformData = () => {
-    if (!data || data.length === 0) return null;
-
-    const firstItem = data[0];
-    const keys = Object.keys(firstItem);
-    
-    // Remove common non-data keys
-    const dataKeys = keys.filter(key => 
-      !['category', 'label', 'axis', 'month', 'x', 'y'].includes(key)
-    );
-
-    if (dataKeys.length === 0) {
-      // Single series data
-      const xAxis = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
-      const series = [{
-        name: 'Data',
-        type: selectedType,
-        data: data.map(item => Number(item.value || item.y || 0))
-      }];
-      
-      return { xAxis, series };
-    }
-
-    // Multi-series data
-    const xAxis = data.map(item => item.category || item.label || item.axis || item.month || item.x || `Item ${item.index}`);
-    const series = dataKeys.map(key => ({
-      name: key.charAt(0).toUpperCase() + key.slice(1),
-      type: selectedType,
-      data: data.map(item => Number(item[key]) || 0)
-    }));
-
-    return { xAxis, series };
-  };
-
   // Get chart type
   const getChartType = () => {
     switch (selectedType) {
@@ -100,13 +65,12 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
 
   // Render ECharts chart
   useEffect(() => {
-    if (!containerRef.current || !data || data.length === 0) return;
+    if (!containerRef.current || !data) return;
 
     // Clear previous content
     containerRef.current.innerHTML = '';
 
     const theme = getThemeColors();
-    const transformedData = transformData();
 
     // Load ECharts dynamically
     const script = document.createElement('script');
@@ -118,6 +82,48 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
         
         const chart = echarts.init(containerRef.current);
         const chartType = getChartType();
+        
+        // Handle different data formats
+        let xAxis: string[];
+        let series: any[];
+
+        if (data.xAxis && data.series) {
+          // ECharts format from conversion
+          xAxis = data.xAxis;
+          series = data.series;
+        } else if (data.labels && data.datasets) {
+          // Chart.js format
+          xAxis = data.labels;
+          series = data.datasets.map((dataset: any) => ({
+            name: dataset.label,
+            type: chartType,
+            data: dataset.data
+          }));
+        } else if (Array.isArray(data)) {
+          // Legacy array format
+          const firstItem = data[0];
+          const keys = Object.keys(firstItem);
+          const dataKeys = keys.filter(key => 
+            !['category', 'label', 'axis', 'month', 'x', 'y'].includes(key)
+          );
+          
+          xAxis = data.map((item: any) => 
+            item.category || item.label || item.axis || item.month || item.x || `Item ${data.indexOf(item)}`
+          );
+          series = dataKeys.length > 0 
+            ? dataKeys.map(key => ({
+                name: key.charAt(0).toUpperCase() + key.slice(1),
+                type: chartType,
+                data: data.map((item: any) => Number(item[key]) || 0)
+              }))
+            : [{
+                name: 'Data',
+                type: chartType,
+                data: data.map((item: any) => Number(item.value || item.y || 0))
+              }];
+        } else {
+          return;
+        }
         
         let option: any = {
           backgroundColor: theme.background,
@@ -140,9 +146,9 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
             series: [{
               type: 'pie',
               radius: selectedSubtype === 'doughnut' ? ['40%', '70%'] : '50%',
-              data: transformedData.xAxis.map((name, index) => ({
+              data: xAxis.map((name: string, index: number) => ({
                 name,
-                value: transformedData.series[0].data[index]
+                value: series[0].data[index]
               })),
               label: {
                 color: theme.accent
@@ -154,7 +160,7 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
           option = {
             ...option,
             radar: {
-              indicator: transformedData.xAxis.map(name => ({ name })),
+              indicator: xAxis.map((name: string) => ({ name })),
               axisName: {
                 color: theme.accent
               },
@@ -169,9 +175,9 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
             },
             series: [{
               type: 'radar',
-              data: transformedData.series.map(series => ({
-                name: series.name,
-                value: series.data
+              data: series.map((s: any) => ({
+                name: s.name,
+                value: s.data
               }))
             }]
           };
@@ -181,7 +187,7 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
             ...option,
             xAxis: {
               type: 'category',
-              data: transformedData.xAxis,
+              data: xAxis,
               axisLabel: {
                 color: theme.accent
               },
@@ -207,10 +213,9 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
                 }
               }
             },
-            series: transformedData.series.map(series => ({
-              ...series,
-              type: chartType,
-              areaStyle: selectedSubtype === 'area' ? {} : undefined
+            series: series.map((s: any) => ({
+              ...s,
+              areaStyle: selectedType === 'line' && selectedSubtype === 'area' ? {} : undefined
             }))
           };
         }
@@ -237,7 +242,7 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
     };
   }, [selectedType, selectedSubtype, selectedTheme, data, options]);
 
-  if (!data || data.length === 0) {
+  if (!data) {
     return (
       <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
         <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
@@ -258,7 +263,7 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
           ECharts Preview
         </div>
         <div className="text-xs text-gray-400 mt-1">
-          {selectedType} chart • {data.length} data points
+          {selectedType} chart • {Array.isArray(data) ? data.length : (data.xAxis?.length || data.labels?.length || 0)} data points
         </div>
       </div>
     </div>

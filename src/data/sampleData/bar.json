@@ -1,11 +1,21 @@
 {
   "name": "Bar Chart Data",
   "description": "Multi-series categorical data with values",
-  "data": [
-    { "category": "Q1", "sales": 120, "profit": 45, "revenue": 180 },
-    { "category": "Q2", "sales": 150, "profit": 60, "revenue": 220 },
-    { "category": "Q3", "sales": 180, "profit": 75, "revenue": 260 },
-    { "category": "Q4", "sales": 200, "profit": 90, "revenue": 300 },
-    { "category": "Q5", "sales": 160, "profit": 65, "revenue": 240 }
-  ]
+  "data": {
+    "labels": ["Q1", "Q2", "Q3", "Q4", "Q5"],
+    "datasets": [
+      {
+        "label": "Sales",
+        "data": [120, 150, 180, 200, 160]
+      },
+      {
+        "label": "Profit",
+        "data": [45, 60, 75, 90, 65]
+      },
+      {
+        "label": "Revenue",
+        "data": [180, 220, 260, 300, 240]
+      }
+    ]
+  }
 }
