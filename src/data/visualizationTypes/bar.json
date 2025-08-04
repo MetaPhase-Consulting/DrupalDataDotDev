@@ -1,0 +1,20 @@
+{
+  "type": "bar",
+  "label": "Bar Chart",
+  "description": "Compare discrete values across categories",
+  "subtypes": [
+    { "id": "vertical",   "label": "Vertical Bar" },
+    { "id": "horizontal", "label": "Horizontal Bar" },
+    { "id": "grouped",    "label": "Grouped Bar" },
+    { "id": "stacked",    "label": "Stacked Bar" },
+    { "id": "stacked100", "label": "100% Stacked Bar" },
+    { "id": "3d",         "label": "3D Bar" }
+  ],
+  "options": {
+    "orientation":      ["vertical", "horizontal"],
+    "stacking":         ["none", "normal", "percent"],
+    "roundedCorners":   [true, false],
+    "threeD":           [true, false],
+    "axisLabelRotation": ["auto", 0, 45, 90]
+  }
+} 

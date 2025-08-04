@@ -1,0 +1,15 @@
+{
+  "subject": "acct:brian@metaphase.dev",
+  "links": [
+    {
+      "rel": "self",
+      "type": "application/activity+json",
+      "href": "https://metaphase.dev/brian"
+    },
+    {
+      "rel": "http://webfinger.net/rel/profile-page",
+      "type": "text/html",
+      "href": "https://metaphase.dev"
+    }
+  ]
+} 

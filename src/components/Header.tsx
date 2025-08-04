@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Moon, Sun, Sparkles, BookOpen } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -36,6 +36,7 @@ const Header: React.FC = () => {
     <header className="fixed top-0 w-full z-50 bg-[#0E1B2A]/95 backdrop-blur-sm border-b border-[#1F2937] dark:bg-[#0E1B2A]/95 bg-white/95 dark:border-[#1F2937] border-gray-200 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          {/* Logo - Left side */}
           <div className="flex items-center">
             <button
               onClick={() => navigate('/')}
@@ -48,26 +49,29 @@ const Header: React.FC = () => {
             </button>
           </div>
 
-          <nav className="hidden md:flex space-x-8">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNavigation(item)}
-                className={`px-3 py-2 rounded-md text-lg font-medium transition-colors duration-200 ${
-                  getActiveState(item.id)
-                    ? 'text-[#0074BD] bg-blue-100 dark:text-[#00C9FF] dark:bg-[#1F2937]'
-                    : 'text-gray-700 hover:text-[#0074BD] dark:text-[#E5F1FF] dark:hover:text-[#00C9FF]'
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  <item.icon size={18} />
-                  {item.label}
-                </span>
-              </button>
-            ))}
-          </nav>
-
+          {/* Navigation and Controls - Right side */}
           <div className="flex items-center space-x-4">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-4">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigation(item)}
+                  className={`px-3 py-2 rounded-md text-lg font-medium transition-colors duration-200 ${
+                    getActiveState(item.id)
+                      ? 'text-[#0074BD] bg-blue-100 dark:text-[#00C9FF] dark:bg-[#1F2937]'
+                      : 'text-gray-700 hover:text-[#0074BD] dark:text-[#E5F1FF] dark:hover:text-[#00C9FF]'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <item.icon size={18} />
+                    {item.label}
+                  </span>
+                </button>
+              ))}
+            </nav>
+
+            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-md text-gray-700 hover:text-[#0074BD] hover:bg-gray-100 dark:text-[#E5F1FF] dark:hover:text-[#00C9FF] dark:hover:bg-[#1F2937] transition-colors duration-200"
@@ -75,6 +79,7 @@ const Header: React.FC = () => {
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="md:hidden p-2 rounded-md text-gray-700 hover:text-[#0074BD] hover:bg-gray-100 dark:text-[#E5F1FF] dark:hover:text-[#00C9FF] dark:hover:bg-[#1F2937] transition-colors duration-200"
@@ -84,6 +89,7 @@ const Header: React.FC = () => {
           </div>
         </div>
 
+        {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-[#1F2937] dark:border-[#1F2937] border-gray-200">

@@ -1,12 +1,25 @@
 {
   "name": "Line Chart Data",
-  "description": "Time series data points",
-  "data": [
-    { "x": "2024-01", "y": 10 },
-    { "x": "2024-02", "y": 25 },
-    { "x": "2024-03", "y": 15 },
-    { "x": "2024-04", "y": 40 },
-    { "x": "2024-05", "y": 35 },
-    { "x": "2024-06", "y": 50 }
-  ]
+  "description": "Temperature data for different cities in Fahrenheit",
+  "data": {
+    "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    "datasets": [
+      {
+        "label": "New York",
+        "data": [32, 35, 45, 55, 65, 75, 80, 78, 70, 60, 48, 38]
+      },
+      {
+        "label": "Los Angeles",
+        "data": [58, 60, 63, 66, 70, 74, 77, 78, 76, 71, 64, 59]
+      },
+      {
+        "label": "Chicago",
+        "data": [25, 30, 42, 54, 65, 75, 79, 77, 69, 57, 43, 30]
+      },
+      {
+        "label": "Miami",
+        "data": [68, 70, 75, 79, 83, 86, 88, 88, 86, 82, 76, 71]
+      }
+    ]
+  }
 }

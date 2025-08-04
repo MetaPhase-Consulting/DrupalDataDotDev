@@ -1,12 +1,21 @@
 {
   "name": "Radar Chart Data",
-  "description": "Multi-dimensional comparison data",
-  "data": [
-    { "axis": "Metric A", "value": 80 },
-    { "axis": "Metric B", "value": 65 },
-    { "axis": "Metric C", "value": 90 },
-    { "axis": "Metric D", "value": 75 },
-    { "axis": "Metric E", "value": 85 },
-    { "axis": "Metric F", "value": 70 }
-  ]
+  "description": "Multi-dimensional comparison data with multiple datasets",
+  "data": {
+    "labels": ["Speed", "Accuracy", "Efficiency", "Quality", "Reliability", "Performance"],
+    "datasets": [
+      {
+        "label": "Current",
+        "data": [85, 75, 90, 80, 95, 70]
+      },
+      {
+        "label": "Target",
+        "data": [90, 80, 95, 85, 98, 85]
+      },
+      {
+        "label": "Baseline",
+        "data": [70, 65, 75, 70, 80, 60]
+      }
+    ]
+  }
 }

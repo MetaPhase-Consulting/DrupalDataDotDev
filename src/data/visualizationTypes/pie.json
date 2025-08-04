@@ -1,0 +1,18 @@
+{
+  "type": "pie",
+  "label": "Pie Chart",
+  "description": "Show proportional breakdown of a whole",
+  "subtypes": [
+    { "id": "pie",      "label": "Pie" },
+    { "id": "donut",    "label": "Donut" },
+    { "id": "semi",     "label": "Semi-Circle Pie" },
+    { "id": "polarArea","label": "Polar Area" },
+    { "id": "rose",     "label": "Rose / Coxcomb" }
+  ],
+  "options": {
+    "innerRadiusPercent": { "min": 0, "max": 90 },
+    "sortSlices":         [true, false],
+    "startAngle":         { "min": 0, "max": 360 },
+    "explodeIndex":       ["none", "single", "multi"]
+  }
+} 
