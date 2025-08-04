@@ -1,8 +1,44 @@
 {
-  "name": "vite-react-typescript-starter",
-  "private": true,
-  "version": "0.0.0",
+  "name": "drupaldatadotdev",
+  "description": "A comprehensive data visualization generator for Drupal developers",
+  "version": "0.0.1",
   "type": "module",
+  "private": false,
+  "homepage": "https://www.drupaldata.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bfunk/DrupalDataDotDev.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bfunk/DrupalDataDotDev/issues"
+  },
+  "keywords": [
+    "drupal",
+    "data-visualization",
+    "charts",
+    "react",
+    "typescript",
+    "chartjs",
+    "d3",
+    "plotly",
+    "highcharts",
+    "apexcharts"
+  ],
+  "author": {
+    "name": "Brian Funk",
+    "organization": "MetaPhase",
+    "url": "https://metaphase.tech"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "public"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,10 +46,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/jszip": "^3.4.0",
     "@types/papaparse": "^5.3.16",
+    "chart.js": "^4.5.0",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.344.0",
     "papaparse": "^5.5.3",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.7.1"
   },
@@ -31,6 +71,6 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",
-    "vite": "^5.4.2"
+    "vite": "^7.0.6"
   }
 }

@@ -1,0 +1,32 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.drupaldata.dev/sitemap.xml
+
+# Allow all crawlers to access everything
+# This is a public tool for developers, so we want maximum visibility
+
+# Allow access to all pages and resources
+Allow: /generator
+Allow: /about
+Allow: /api
+Allow: /assets
+Allow: /static
+
+# Allow access to all file types
+Allow: /*.js
+Allow: /*.css
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.gif
+Allow: /*.svg
+Allow: /*.ico
+Allow: /*.woff
+Allow: /*.woff2
+Allow: /*.ttf
+Allow: /*.eot
+
+# Crawl delay (optional, but good practice)
+Crawl-delay: 1 

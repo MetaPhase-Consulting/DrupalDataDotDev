@@ -1,0 +1,4 @@
+Contact: https://github.com/bfunk/DrupalDataDotDev/issues
+Expires: 2026-08-03T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://www.drupaldata.dev/.well-known/security.txt 

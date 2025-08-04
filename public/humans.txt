@@ -1,0 +1,33 @@
+/* TEAM */
+    Developer: Brian Funk
+    From: MetaPhase
+
+/* SITE */
+    Last update: 2025
+    Language: English
+    Doctype: HTML5
+    IDE: Cursor
+    Standards: HTML5, CSS3, JavaScript ES6+, TypeScript, React
+    Components: Tailwind CSS, Vite, Chart.js, D3.js, Plotly.js, Highcharts, ApexCharts
+    Software: Node.js, npm, Git
+
+/* PROJECT */
+    Name: DrupalDataDotDev
+    Description: A comprehensive data visualization generator for Drupal developers
+    URL: https://www.drupaldata.dev
+    Version: 0.0.1
+    License: MIT
+    Repository: https://github.com/bfunk/DrupalDataDotDev
+    Organization: https://metaphase.tech
+
+/* FEATURES */
+    - Interactive chart generator
+    - Multiple chart libraries support
+    - Drupal integration templates
+    - Real-time code preview
+    - Export functionality
+    - Responsive design
+    - Dark/Light theme support
+
+/* MADE WITH */
+    ❤️ by MetaPhase 

@@ -1,0 +1,20 @@
+{
+  "type": "line",
+  "label": "Line Visualization",
+  "description": "Display continuous data trends",
+  "subtypes": [
+    { "id": "basic",        "label": "Basic Line" },
+    { "id": "multi",        "label": "Multi-Series Line" },
+    { "id": "stepped",      "label": "Stepped Line" },
+    { "id": "spline",       "label": "Spline / Curved Line" },
+    { "id": "area",         "label": "Area Visualization" },
+    { "id": "stackedArea",  "label": "Stacked Area" },
+    { "id": "range",        "label": "Range (Min-Max) Line" }
+  ],
+  "options": {
+    "showPoints": [true, false],
+    "areaFill":   ["none", "solid", "gradient"],
+    "lineStyle":  ["solid", "dashed"],
+    "smooth":     [true, false]
+  }
+} 

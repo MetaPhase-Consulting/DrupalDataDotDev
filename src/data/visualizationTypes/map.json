@@ -1,0 +1,21 @@
+{
+  "type": "map",
+  "label": "Map / Geo Visualization",
+  "description": "Spatial data visualization",
+  "subtypes": [
+    { "id": "choropleth","label": "Choropleth Map" },
+    { "id": "bubbleMap", "label": "Bubble Map" },
+    { "id": "point",     "label": "Point / Marker Map" },
+    { "id": "heatmap",   "label": "Heatmap Map" },
+    { "id": "tile",      "label": "Tile Map" },
+    { "id": "cluster",   "label": "Clustered Points" },
+    { "id": "vector",    "label": "Vector / GeoJSON" },
+    { "id": "globe",     "label": "3D Globe" }
+  ],
+  "options": {
+    "projection":  ["mercator", "albers", "geojsonNative"],
+    "tileSource":  ["osm", "carto", "custom"],
+    "zoomEnabled": [true, false],
+    "colorScale":  ["sequential", "diverging", "categorical"]
+  }
+} 

@@ -1,29 +1,36 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, BarChart3, LineChart, PieChart, Radar, ScatterChart as Scatter, Map, Upload, FileText, Database, Copy, Download, Check, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import Papa from 'papaparse';
+
+// Import modular components
+import AccordionSection from '../components/generator/AccordionSection';
+import VisualizationTypeSelector from '../components/generator/VisualizationTypeSelector';
+import VisualizationOptions from '../components/generator/VisualizationOptions';
+import LibrarySelector from '../components/generator/LibrarySelector';
+import ThemeSelector from '../components/generator/ThemeSelector';
+import DataInput from '../components/generator/DataInput';
+import OutputFormatSelector from '../components/generator/OutputFormatSelector';
+import CodeOutput from '../components/generator/CodeOutput';
+import ChartPreview from '../components/generator/ChartPreview';
+
+// Import services
+import { CodeGenerator } from '../services/CodeGenerator';
+import { DefaultConfigService } from '../services/DefaultConfig';
+
+// Import data
+import visualizationTypes from '../data/visualizationTypes';
 import librariesData from '../data/libraries.json';
-import chartTypesData from '../data/chartTypes.json';
 import chartStylesData from '../data/chartStyles.json';
 
-interface ChartType {
+// Import types
+import { Theme } from '../types/Theme';
+
+interface VisualizationType {
   type: string;
   label: string;
   description: string;
   subtypes: { id: string; label: string }[];
   options: Record<string, any>;
-}
-
-interface ChartSubtype {
-  id: string;
-  label: string;
-}
-
-interface OldChartType {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-  description: string;
-  supportedLibraries: string[];
 }
 
 interface Library {
@@ -35,24 +42,6 @@ interface Library {
   supports: string[];
 }
 
-interface Theme {
-  id: string;
-  name: string;
-  description: string;
-  mood: string;
-  fonts: string[];
-  colors: {
-    primary: string;
-    secondary: string;
-    accent: string;
-    background: string;
-    surface: string;
-    text: string;
-    textSecondary: string;
-  };
-  palette: string[];
-}
-
 interface OutputFormat {
   id: string;
   name: string;
@@ -60,85 +49,36 @@ interface OutputFormat {
 }
 
 const Generator: React.FC = () => {
-  const [activeAccordion, setActiveAccordion] = useState<string>('chart-type');
-  const [selectedChartType, setSelectedChartType] = useState<string>('');
+  const [activeAccordion, setActiveAccordion] = useState<string>('visualization-type');
+  const [selectedType, setSelectedType] = useState<string>('bar');
   const [selectedSubtype, setSelectedSubtype] = useState<string>('');
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, any>>({});
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, unknown>>({});
   const [selectedLibrary, setSelectedLibrary] = useState<string>('');
   const [selectedTheme, setSelectedTheme] = useState<string>('drupal-night');
-  const [selectedOutputFormat, setSelectedOutputFormat] = useState<string>('raw-js');
+  const [selectedOutputFormat, setSelectedOutputFormat] = useState<string>('javascript-embed');
   const [dataInputTab, setDataInputTab] = useState<string>('sample');
-  const [csvData, setCsvData] = useState<any[]>([]);
+  const [csvData, setCsvData] = useState<unknown[]>([]);
   const [jsonData, setJsonData] = useState<string>('');
-  const [sampleData, setSampleData] = useState<any[]>([]);
+  const [sampleData, setSampleData] = useState<unknown[]>([]);
   const [copied, setCopied] = useState(false);
 
-  const chartTypes: ChartType[] = chartTypesData;
-
-  const oldChartTypes: OldChartType[] = [
-    {
-      id: 'bar',
-      label: 'Bar',
-      icon: BarChart3,
-      description: 'Compare categories with vertical or horizontal bars',
-      supportedLibraries: ['chartjs', 'highcharts', 'echarts', 'd3']
-    },
-    {
-      id: 'line',
-      label: 'Line',
-      icon: LineChart,
-      description: 'Show trends and changes over time',
-      supportedLibraries: ['chartjs', 'highcharts', 'echarts', 'd3']
-    },
-    {
-      id: 'pie',
-      label: 'Pie',
-      icon: PieChart,
-      description: 'Display proportions and percentages',
-      supportedLibraries: ['chartjs', 'highcharts', 'echarts', 'd3']
-    },
-    {
-      id: 'radar',
-      label: 'Radar',
-      icon: Radar,
-      description: 'Multi-dimensional data comparison',
-      supportedLibraries: ['chartjs', 'echarts', 'd3']
-    },
-    {
-      id: 'scatter',
-      label: 'Scatter',
-      icon: Scatter,
-      description: 'Show relationships between variables',
-      supportedLibraries: ['chartjs', 'highcharts', 'echarts', 'd3']
-    },
-    {
-      id: 'map',
-      label: 'Map',
-      icon: Map,
-      description: 'Geographic data visualization',
-      supportedLibraries: ['leaflet', 'echarts', 'd3']
-    }
-  ];
-
   const libraries: Library[] = librariesData;
-
   const themes: Theme[] = chartStylesData;
 
   const outputFormats: OutputFormat[] = [
-    { id: 'raw-js', name: 'Raw JS', description: 'Pure JavaScript code' },
-    { id: 'php-block', name: 'PHP Block', description: 'Drupal block plugin' },
-    { id: 'drupal-controller', name: 'Drupal Controller', description: 'Controller with route' },
-    { id: 'full-module', name: 'Full Module (ZIP)', description: 'Complete Drupal module' },
-    { id: 'html-snippet', name: 'HTML Snippet', description: 'Standalone HTML file' }
+    { id: 'javascript-embed', name: 'JavaScript Embed', description: 'Pure JS snippet with <div id="chart-container"> + <script>…' },
+    { id: 'static-html', name: 'Static HTML', description: 'Standalone HTML file for non-Drupal demos' },
+    { id: 'drupal-block', name: 'Drupal Block Plugin', description: 'PHP BlockBase class + libraries.yml + Twig wrapper' },
+    { id: 'drupal-controller', name: 'Drupal Controller', description: 'Route + Controller returning rendered markup (or JSON)' }
   ];
 
-  // Sample data will be loaded dynamically based on selected chart type
-  const getSampleDataForChartType = async (chartType: string) => {
+  // Sample data will be loaded dynamically based on selected visualization type
+  const getSampleDataForVisualizationType = async (visualizationType: string) => {
     try {
-      const response = await import(`../data/sampleData/${chartType}.json`);
+      const response = await import(`../data/sampleData/${visualizationType}.json`);
       return response.default;
-    } catch (error) {
-      console.error(`No sample data found for chart type: ${chartType}`);
+    } catch {
+      console.error(`No sample data found for visualization type: ${visualizationType}`);
       return null;
     }
   };
@@ -147,11 +87,17 @@ const Generator: React.FC = () => {
     setActiveAccordion(activeAccordion === section ? '' : section);
   };
 
-  const handleChartTypeSelect = (chartType: string) => {
-    setSelectedChartType(chartType);
-    setSelectedSubtype(''); // Reset subtype when chart type changes
-    setSelectedOptions({}); // Reset options when chart type changes
-    setSelectedLibrary(''); // Reset library when chart type changes
+  const handleVisualizationTypeSelect = (visualizationType: string) => {
+    setSelectedType(visualizationType);
+    
+    // Set defaults for the selected visualization type
+    const defaultConfig = DefaultConfigService.getDefaultConfig(visualizationType);
+    setSelectedSubtype(defaultConfig.subtype || '');
+    setSelectedLibrary(defaultConfig.library || '');
+    setSelectedOptions(defaultConfig.options || {});
+    
+    // Auto-load sample data for the selected visualization type
+    handleSampleDataSelect(visualizationType);
   };
 
   const handleSubtypeSelect = (subtype: string) => {
@@ -250,52 +196,43 @@ const Generator: React.FC = () => {
     }
   };
 
-  const handleSampleDataSelect = async (chartType: string) => {
+  const handleSampleDataSelect = async (visualizationType: string) => {
     try {
-      const dataset = await getSampleDataForChartType(chartType);
+      const dataset = await getSampleDataForVisualizationType(visualizationType);
       if (dataset && dataset.data) {
         setSampleData(dataset.data);
       } else {
-        console.warn(`No valid data found for chart type: ${chartType}`);
+        console.warn(`No valid data found for visualization type: ${visualizationType}`);
         setSampleData([]);
       }
     } catch (error) {
-      console.error(`Failed to load sample data for ${chartType}:`, error);
+      console.error(`Failed to load sample data for ${visualizationType}:`, error);
       setSampleData([]);
     }
   };
 
   const generateCode = () => {
     // Input validation
-    if (!selectedChartType) {
-      return '// Please select a chart type first';
+    if (!selectedType) {
+      return '// Please select a visualization type first';
     }
     
-    const selectedChart = chartTypes.find(c => c.type === selectedChartType);
-    const selectedSub = selectedChart?.subtypes.find(s => s.id === selectedSubtype);
-    const selectedLib = libraries.find(l => l.id === selectedLibrary);
+    const selectedVisualization = visualizationTypes.find(v => v.type === selectedType);
     const selectedThemeObj = themes.find(t => t.id === selectedTheme);
     
     // Sanitize data before including in code
     const currentData = sanitizeForCodeGeneration(getCurrentData());
     const sanitizedOptions = sanitizeForCodeGeneration(selectedOptions);
     
-    return `// Generated ${selectedChart?.label} (${selectedSub?.label}) Chart using ${selectedLib?.name}
-// Theme: ${selectedThemeObj?.name}
-// Output Format: ${outputFormats.find(f => f.id === selectedOutputFormat)?.name}
-// Generated on: ${new Date().toISOString()}
-
-const chartConfig = {
-  type: '${selectedChartType}',
-  subtype: '${selectedSubtype}',
-  library: '${selectedLibrary}',
-  theme: '${selectedTheme}',
-  options: ${JSON.stringify(sanitizedOptions, null, 2)},
-  data: ${JSON.stringify(currentData, null, 2)}
-};
-
-// Implementation code would be generated here based on selections
-console.log('Chart configuration:', chartConfig);`;
+    return CodeGenerator.generateCode({
+      selectedType,
+      selectedSubtype,
+      selectedLibrary,
+      selectedOutputFormat,
+      selectedTheme: selectedThemeObj!,
+      selectedOptions: sanitizedOptions,
+      data: currentData
+    });
   };
 
   const getCurrentData = () => {
@@ -342,57 +279,24 @@ console.log('Chart configuration:', chartConfig);`;
     }
   };
 
-  const getFilteredLibraries = () => {
-    if (!selectedChartType) return libraries;
-    return libraries.filter(lib => lib.supports.includes(selectedChartType));
+  const downloadFile = () => {
+    const code = generateCode();
+    const blob = new Blob([code], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `drupal-visualization-${selectedType}-${Date.now()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
-  const getIconForChartType = (type: string) => {
-    const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
-      bar: BarChart3,
-      line: LineChart,
-      pie: PieChart,
-      radar: Radar,
-      scatter: Scatter,
-      map: Map,
-      statistical: BarChart3,
-      mini: LineChart,
-      timeline: BarChart3,
-      hierarchical: PieChart
-    };
-    return iconMap[type] || BarChart3;
-  };
-
-  const AccordionSection: React.FC<{
-    id: string;
-    title: string;
-    children: React.ReactNode;
-  }> = ({ id, title, children }) => {
-    const isActive = activeAccordion === id;
-    
-    return (
-      <div className="border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg mb-4">
-        <button
-          onClick={() => toggleAccordion(id)}
-          className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#1F2937]/20 dark:hover:bg-[#1F2937]/20 hover:bg-gray-50 transition-colors duration-200"
-        >
-          <h3 className="text-xl font-semibold font-['Inter','Segoe_UI',sans-serif] text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
-            {title}
-          </h3>
-          {isActive ? (
-            <ChevronDown className="text-[#00C9FF] dark:text-[#00C9FF] text-blue-600" size={20} />
-          ) : (
-            <ChevronRight className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400" size={20} />
-          )}
-        </button>
-        {isActive && (
-          <div className="px-6 pb-6 border-t border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200">
-            {children}
-          </div>
-        )}
-      </div>
-    );
-  };
+  // Initialize defaults on component mount
+  useEffect(() => {
+    handleVisualizationTypeSelect('bar');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="pt-16 min-h-screen">
@@ -410,393 +314,133 @@ console.log('Chart configuration:', chartConfig);`;
         </div>
 
         <div className="max-w-4xl mx-auto">
-          {/* Step 1: Chart Type */}
-          <AccordionSection id="chart-type" title="Step 1: Chart Type">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-              {chartTypes.map((chart) => {
-                const IconComponent = getIconForChartType(chart.type);
-                const isSelected = selectedChartType === chart.type;
-                
-                return (
-                  <button
-                    key={chart.type}
-                    onClick={() => handleChartTypeSelect(chart.type)}
-                    className={`p-4 rounded-lg border-2 text-left transition-all duration-200 ${
-                      isSelected
-                        ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
-                        : 'border-[#3E4C5E] hover:border-[#0074BD]/50 dark:border-[#3E4C5E] dark:hover:border-[#00C9FF]/50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <IconComponent 
-                        size={24} 
-                        className={isSelected ? 'text-[#0074BD] dark:text-[#00C9FF]' : 'text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80'} 
-                      />
-                      <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
-                        {chart.label}
-                      </h4>
-                    </div>
-                    <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600">
-                      {chart.description}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
+          {/* Step 1: Visualization */}
+          <AccordionSection 
+            id="visualization-type" 
+            title="Step 1: Visualization"
+            isActive={activeAccordion === 'visualization-type'}
+            onToggle={() => toggleAccordion('visualization-type')}
+          >
+            <VisualizationTypeSelector
+              visualizationTypes={visualizationTypes}
+              selectedType={selectedType}
+              onTypeSelect={handleVisualizationTypeSelect}
+            />
           </AccordionSection>
 
-          {/* Step 2: Chart Options */}
-          <AccordionSection id="chart-options" title="Step 2: Chart Options">
-            <div className="mt-4 space-y-6">
-              {selectedChartType && (
-                <>
-                  {/* Subtypes */}
-                  <div>
-                    <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-3">
-                      Chart Subtypes
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {chartTypes.find(c => c.type === selectedChartType)?.subtypes.map((subtype) => {
-                        const isSelected = selectedSubtype === subtype.id;
-                        
-                        return (
-                          <button
-                            key={subtype.id}
-                            onClick={() => handleSubtypeSelect(subtype.id)}
-                            className={`p-3 rounded-lg border-2 text-left transition-all duration-200 ${
-                              isSelected
-                                ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
-                                : 'border-[#3E4C5E] hover:border-[#0074BD]/50 dark:border-[#3E4C5E] dark:hover:border-[#00C9FF]/50'
-                            }`}
-                          >
-                            <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 text-sm">
-                              {subtype.label}
-                            </h4>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Formatting Options */}
-                  <div>
-                    <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-3">
-                      Formatting Options
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {Object.entries(chartTypes.find(c => c.type === selectedChartType)?.options || {}).map(([optionKey, optionValue]) => (
-                        <div key={optionKey} className="space-y-2">
-                          <label className="block text-sm font-medium text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-700 capitalize">
-                            {optionKey.replace(/([A-Z])/g, ' $1').trim()}
-                          </label>
-                          
-                          {Array.isArray(optionValue) ? (
-                            <select
-                              value={selectedOptions[optionKey] || ''}
-                              onChange={(e) => handleOptionChange(optionKey, e.target.value)}
-                              className="w-full p-2 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 text-sm focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
-                            >
-                              <option value="">Select {optionKey}...</option>
-                              {optionValue.map((value) => (
-                                <option key={String(value)} value={String(value)}>
-                                  {String(value)}
-                                </option>
-                              ))}
-                            </select>
-                          ) : typeof optionValue === 'object' && optionValue.min !== undefined && optionValue.max !== undefined ? (
-                            <div className="space-y-1">
-                              <input
-                                type="range"
-                                min={optionValue.min}
-                                max={optionValue.max}
-                                step={optionValue.step || 1}
-                                value={selectedOptions[optionKey] || optionValue.min}
-                                onChange={(e) => handleOptionChange(optionKey, Number(e.target.value))}
-                                className="w-full h-2 bg-[#3E4C5E] dark:bg-[#3E4C5E] bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                              />
-                              <div className="flex justify-between text-xs text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-500">
-                                <span>{optionValue.min}</span>
-                                <span className="font-medium text-[#00C9FF] dark:text-[#00C9FF] text-blue-600">
-                                  {selectedOptions[optionKey] || optionValue.min}
-                                </span>
-                                <span>{optionValue.max}</span>
-                              </div>
-                            </div>
-                          ) : null}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+          {/* Step 2: Options */}
+          <AccordionSection 
+            id="visualization-options" 
+            title="Step 2: Options"
+            isActive={activeAccordion === 'visualization-options'}
+            onToggle={() => toggleAccordion('visualization-options')}
+          >
+            <VisualizationOptions
+              selectedType={selectedType}
+              selectedSubtype={selectedSubtype}
+              selectedOptions={selectedOptions}
+              visualizationTypes={visualizationTypes}
+              onSubtypeSelect={handleSubtypeSelect}
+              onOptionChange={handleOptionChange}
+            />
           </AccordionSection>
 
           {/* Step 3: Library */}
-          <AccordionSection id="library" title="Step 3: Charting Library">
-            <div className="mt-4">
-              <select
-                value={selectedLibrary}
-                onChange={(e) => handleLibrarySelect(e.target.value)}
-                className="w-full p-3 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
-              >
-                <option value="">Select a library...</option>
-                {getFilteredLibraries().map((lib) => (
-                  <option key={lib.id} value={lib.id}>
-                    {lib.name} - {lib.bestFor}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <AccordionSection 
+            id="library" 
+            title="Step 3: Library"
+            isActive={activeAccordion === 'library'}
+            onToggle={() => toggleAccordion('library')}
+          >
+            <LibrarySelector
+              libraries={libraries}
+              selectedLibrary={selectedLibrary}
+              selectedType={selectedType}
+              onLibrarySelect={handleLibrarySelect}
+            />
           </AccordionSection>
 
-          {/* Step 4: Chart Style */}
-          <AccordionSection id="chart-style" title="Step 4: Chart Style">
-            <div className="mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {themes.map((theme) => {
-                  const isSelected = selectedTheme === theme.id;
-                  
-                  return (
-                    <button
-                      key={theme.id}
-                      onClick={() => setSelectedTheme(theme.id)}
-                      className={`p-5 rounded-lg border-2 text-left transition-all duration-200 ${
-                        isSelected
-                          ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10'
-                          : 'border-[#3E4C5E] hover:border-[#0074BD]/50 dark:border-[#3E4C5E] dark:hover:border-[#00C9FF]/50'
-                      }`}
-                    >
-                      <h4 className="font-bold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-2">
-                        {theme.name}
-                      </h4>
-                      <p className="text-sm text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 mb-2">
-                        {theme.description}
-                      </p>
-                      <p className="text-xs text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-500 mb-3 italic">
-                        {theme.mood}
-                      </p>
-                      <div className="mb-3">
-                        <p className="text-xs text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-500 mb-1">
-                          Fonts: {theme.fonts.join(', ')}
-                        </p>
-                      </div>
-                      <div className="flex gap-1 flex-wrap">
-                        {theme.palette.map((color, index) => (
-                          <div
-                            key={index}
-                            className="w-5 h-5 rounded-full border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 shadow-sm"
-                            style={{ backgroundColor: color }}
-                            title={color}
-                          />
-                        ))}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          {/* Step 4: Style */}
+          <AccordionSection 
+            id="visualization-style" 
+            title="Step 4: Style"
+            isActive={activeAccordion === 'visualization-style'}
+            onToggle={() => toggleAccordion('visualization-style')}
+          >
+            <ThemeSelector
+              themes={themes}
+              selectedTheme={selectedTheme}
+              onThemeSelect={setSelectedTheme}
+            />
           </AccordionSection>
 
           {/* Step 5: Input Data */}
-          <AccordionSection id="input-data" title="Step 5: Input Data">
-            <div className="mt-4">
-              <div className="flex border-b border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 mb-4">
-                {[
-                  { id: 'csv', label: 'Upload CSV', icon: Upload },
-                  { id: 'json', label: 'Paste JSON', icon: FileText },
-                  { id: 'sample', label: 'Sample Data', icon: Database }
-                ].map((tab) => {
-                  const IconComponent = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setDataInputTab(tab.id)}
-                      className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors duration-200 ${
-                        dataInputTab === tab.id
-                          ? 'border-[#0074BD] text-[#0074BD] dark:border-[#00C9FF] dark:text-[#00C9FF]'
-                          : 'border-transparent text-[#E5F1FF]/70 hover:text-[#E5F1FF] dark:text-[#E5F1FF]/70 dark:hover:text-[#E5F1FF]'
-                      }`}
-                    >
-                      <IconComponent size={16} />
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {dataInputTab === 'csv' && (
-                <div>
-                  <input
-                    type="file"
-                    accept=".csv"
-                    onChange={handleFileUpload}
-                    className="w-full p-3 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900"
-                  />
-                  {csvData.length > 0 && (
-                    <div className="mt-4 p-3 bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 mb-2">
-                        Preview ({csvData.length} rows):
-                      </p>
-                      <pre className="text-xs text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-800 overflow-x-auto">
-                        {JSON.stringify(csvData.slice(0, 3), null, 2)}
-                      </pre>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {dataInputTab === 'json' && (
-                <div>
-                  <textarea
-                    value={jsonData}
-                    onChange={(e) => handleJsonInput(e.target.value)}
-                    placeholder="Paste your JSON data here..."
-                    maxLength={100000}
-                    rows={8}
-                    className="w-full p-3 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 font-mono text-sm focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
-                  />
-                </div>
-              )}
-
-              {dataInputTab === 'sample' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {chartTypes.map((chartType) => (
-                    <button
-                      key={chartType.type}
-                      onClick={() => handleSampleDataSelect(chartType.type)}
-                      className={`p-4 text-left border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 rounded-lg hover:border-[#0074BD] dark:hover:border-[#00C9FF] transition-colors duration-200 ${
-                        selectedChartType === chartType.type ? 'border-[#0074BD] bg-[#0074BD]/10 dark:border-[#00C9FF] dark:bg-[#00C9FF]/10' : ''
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 mb-2">
-                        {React.createElement(getIconForChartType(chartType.type), {
-                          size: 20,
-                          className: selectedChartType === chartType.type ? 'text-[#0074BD] dark:text-[#00C9FF]' : 'text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80'
-                        })}
-                        <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
-                          {chartType.label} Sample
-                        </h4>
-                      </div>
-                      <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600">
-                        Generic {chartType.label.toLowerCase()} data structure
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {sampleData.length > 0 && (
-                <div className="mt-4 p-3 bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 mb-2">
-                    Sample Data Preview:
-                  </p>
-                  <pre className="text-xs text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-800 overflow-x-auto max-h-40 overflow-y-auto">
-                    {JSON.stringify(sampleData, null, 2)}
-                  </pre>
-                </div>
-              )}
-            </div>
+          <AccordionSection 
+            id="input-data" 
+            title="Step 5: Input Data"
+            isActive={activeAccordion === 'input-data'}
+            onToggle={() => toggleAccordion('input-data')}
+          >
+            <DataInput
+              dataInputTab={dataInputTab}
+              csvData={csvData}
+              jsonData={jsonData}
+              sampleData={sampleData}
+              selectedType={selectedType}
+              onTabChange={setDataInputTab}
+              onFileUpload={handleFileUpload}
+              onJsonInput={handleJsonInput}
+            />
           </AccordionSection>
 
           {/* Step 6: Output Format */}
-          <AccordionSection id="output-format" title="Step 6: Output Format">
-            <div className="mt-4 space-y-3">
-              {outputFormats.map((format) => (
-                <label
-                  key={format.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 hover:bg-[#1F2937]/10 dark:hover:bg-[#1F2937]/10 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
-                >
-                  <input
-                    type="radio"
-                    name="outputFormat"
-                    value={format.id}
-                    checked={selectedOutputFormat === format.id}
-                    onChange={(e) => setSelectedOutputFormat(e.target.value)}
-                    className="mt-1 text-[#0074BD] dark:text-[#00C9FF]"
-                  />
-                  <div>
-                    <h4 className="font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
-                      {format.name}
-                    </h4>
-                    <p className="text-sm text-[#E5F1FF]/70 dark:text-[#E5F1FF]/70 text-gray-600">
-                      {format.description}
-                    </p>
-                  </div>
-                </label>
-              ))}
-            </div>
+          <AccordionSection 
+            id="output-format" 
+            title="Step 6: Output Format"
+            isActive={activeAccordion === 'output-format'}
+            onToggle={() => toggleAccordion('output-format')}
+          >
+            <OutputFormatSelector
+              outputFormats={outputFormats}
+              selectedFormat={selectedOutputFormat}
+              onFormatSelect={setSelectedOutputFormat}
+            />
           </AccordionSection>
 
           {/* Step 7: Preview */}
-          <AccordionSection id="preview" title="Step 7: Preview">
-            <div className="mt-4">
-              <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
-                <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
-                  {selectedChartType && selectedSubtype ? (
-                    <>
-                      <div className="text-lg font-semibold mb-2">Chart Preview</div>
-                      <div className="text-sm">
-                        {chartTypes.find(c => c.type === selectedChartType)?.subtypes.find(s => s.id === selectedSubtype)?.label} chart using{' '}
-                        {libraries.find(l => l.id === selectedLibrary)?.name} would appear here
-                      </div>
-                    </>
-                  ) : (
-                    <div>Select chart type, subtype, and configure options to see preview</div>
-                  )}
-                </div>
-              </div>
-            </div>
+          <AccordionSection 
+            id="preview" 
+            title="Step 7: Preview"
+            isActive={activeAccordion === 'preview'}
+            onToggle={() => toggleAccordion('preview')}
+          >
+            <ChartPreview
+              selectedType={selectedType}
+              selectedSubtype={selectedSubtype}
+              selectedLibrary={selectedLibrary}
+              selectedTheme={selectedTheme}
+              data={getCurrentData()}
+              options={selectedOptions}
+            />
           </AccordionSection>
 
           {/* Step 8: Download */}
-          <AccordionSection id="download" title="Step 8: Download">
-            <div className="mt-4 space-y-6">
-              {/* Code Output */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
-                    Generated Code
-                  </h4>
-                </div>
-                
-                <textarea
-                  value={generateCode()}
-                  readOnly
-                  placeholder="Generated code will appear here..."
-                  rows={20}
-                  className="w-full p-4 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-gray-900 border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-700 rounded-lg text-sm text-[#E5F1FF] dark:text-[#E5F1FF] text-green-400 font-mono resize-y focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
-                />
-              </div>
-
-              {/* Download Options */}
-              <div>
-                <h4 className="text-lg font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-4">
-                  Download Options
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <button
-                    onClick={copyToClipboard}
-                    className="flex items-center justify-center gap-2 px-4 py-3 bg-[#0074BD] dark:bg-[#00C9FF] text-white rounded-lg hover:opacity-90 transition-opacity duration-200"
-                  >
-                    {copied ? <Check size={16} /> : <Copy size={16} />}
-                    {copied ? 'Copied!' : 'Copy Code'}
-                  </button>
-                  
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1F2937] dark:bg-[#1F2937] bg-gray-600 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
-                    <Download size={16} />
-                    Download File
-                  </button>
-                  
-                  {(selectedOutputFormat === 'full-module' || selectedOutputFormat === 'drupal-controller') && (
-                    <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#0074BD] to-[#00C9FF] dark:from-[#0074BD] dark:to-[#00C9FF] from-blue-600 to-cyan-500 text-white rounded-lg hover:opacity-90 transition-opacity duration-200">
-                      <Download size={16} />
-                      Download ZIP
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
+          <AccordionSection 
+            id="download" 
+            title="Step 8: Download"
+            isActive={activeAccordion === 'download'}
+            onToggle={() => toggleAccordion('download')}
+          >
+            <CodeOutput
+              generatedCode={generateCode()}
+              copied={copied}
+              selectedType={selectedType}
+              selectedOutputFormat={selectedOutputFormat}
+              selectedLibrary={selectedLibrary}
+              selectedSubtype={selectedSubtype}
+              onCopy={copyToClipboard}
+              onGenerateCode={generateCode}
+            />
           </AccordionSection>
         </div>
       </div>
