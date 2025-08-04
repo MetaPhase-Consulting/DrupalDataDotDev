@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Github } from 'lucide-react';
 
 const About: React.FC = () => {
   const navigate = useNavigate();
@@ -23,19 +22,9 @@ const About: React.FC = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a
-              href="https://github.com/brianfunk/DrupalDataDotDev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0074BD] to-[#00C9FF] dark:from-[#0074BD] dark:to-[#00C9FF] from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#0074BD]/25 dark:hover:shadow-[#0074BD]/25 hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300"
-            >
-              <Github size={20} />
-              View on GitHub
-            </a>
-            
             <button
               onClick={() => navigate('/about')}
-              className="inline-flex items-center gap-2 px-6 py-3 ml-4 bg-transparent border-2 border-[#0074BD] dark:border-[#00C9FF] text-[#0074BD] dark:text-[#00C9FF] font-semibold rounded-lg hover:bg-[#0074BD] hover:text-white dark:hover:bg-[#00C9FF] dark:hover:text-[#0E1B2A] transform hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#0074BD] dark:border-[#00C9FF] text-[#0074BD] dark:text-[#00C9FF] font-semibold rounded-lg hover:bg-[#0074BD] hover:text-white dark:hover:bg-[#00C9FF] dark:hover:text-[#0E1B2A] transform hover:scale-105 transition-all duration-300"
             >
               Learn More
             </button>

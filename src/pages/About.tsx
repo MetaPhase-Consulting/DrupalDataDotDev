@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Heart, Users, Zap, Shield, Code, AlertTriangle, BookOpen } from 'lucide-react';
+import { Heart, Users, Zap, Shield, Code, AlertTriangle, BookOpen } from 'lucide-react';
 
 const About: React.FC = () => {
   const features = [
@@ -73,16 +73,6 @@ const About: React.FC = () => {
               Our tool generates clean, production-ready code that you can customize, extend, and deploy without 
               dependencies on external services. It's built by the community, for the community.
             </p>
-            
-            <a
-              href="https://github.com/brianfunk/DrupalDataDotDev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0074BD] to-[#00C9FF] dark:from-[#0074BD] dark:to-[#00C9FF] from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-[#0074BD]/25 dark:hover:shadow-[#0074BD]/25 hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300"
-            >
-              <Github size={20} />
-              View on GitHub
-            </a>
           </div>
 
           <div className="grid grid-cols-1 gap-6">
