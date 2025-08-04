@@ -32,7 +32,7 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
         secondary: fallbackTheme.colors.secondary,
         accent: fallbackTheme.colors.text,
         background: fallbackTheme.colors.background,
-        colors: fallbackTheme.palette || fallbackTheme.colors
+        colors: fallbackTheme.palette
       };
     }
     
@@ -41,7 +41,7 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
       secondary: theme.colors.secondary,
       accent: theme.colors.text,
       background: theme.colors.background,
-      colors: theme.palette || theme.colors
+      colors: theme.palette
     };
   };
 
@@ -138,7 +138,10 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
           Highcharts.chart(containerRef.current, {
             chart: {
               type: 'pie',
-              backgroundColor: theme.background
+              backgroundColor: theme.background,
+              style: {
+                fontFamily: 'Roboto, system-ui, sans-serif'
+              }
             },
             title: {
               text: '',
@@ -169,7 +172,10 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
           Highcharts.chart(containerRef.current, {
             chart: {
               type: chartType,
-              backgroundColor: theme.background
+              backgroundColor: theme.background,
+              style: {
+                fontFamily: 'Roboto, system-ui, sans-serif'
+              }
             },
             title: {
               text: '',
@@ -179,7 +185,9 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
               categories: categories,
               labels: {
                 style: { color: theme.accent }
-              }
+              },
+              lineColor: theme.accent + '40',
+              tickColor: theme.accent + '40'
             },
             yAxis: {
               title: {
@@ -188,7 +196,10 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
               },
               labels: {
                 style: { color: theme.accent }
-              }
+              },
+              lineColor: theme.accent + '40',
+              tickColor: theme.accent + '40',
+              gridLineColor: theme.accent + '20'
             },
             legend: {
               itemStyle: { color: theme.accent },
@@ -197,9 +208,32 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
             plotOptions: {
               series: {
                 colors: theme.colors
+              },
+              column: {
+                borderColor: theme.primary,
+                borderWidth: 1
+              },
+              bar: {
+                borderColor: theme.primary,
+                borderWidth: 1
+              },
+              line: {
+                marker: {
+                  lineColor: theme.primary,
+                  fillColor: theme.primary
+                }
+              },
+              scatter: {
+                marker: {
+                  lineColor: theme.primary,
+                  fillColor: theme.primary
+                }
               }
             },
-            series: series
+            series: series.map((s: any, index: number) => ({
+              ...s,
+              color: theme.colors[index % theme.colors.length]
+            }))
           });
         }
       }
