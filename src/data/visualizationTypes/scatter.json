@@ -1,6 +1,6 @@
 {
   "type": "scatter",
-  "label": "Scatter / Bubble Visualization",
+  "label": "Scatter Plot",
   "description": "Plot numeric relationships",
   "subtypes": [
     { "id": "scatter", "label": "Basic Scatter" },

@@ -99,6 +99,22 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
             type: chartType,
             data: dataset.data
           }));
+        } else if (data.data && data.data.datasets) {
+          // Nested data structure (like sample data)
+          xAxis = data.data.labels || [];
+          series = data.data.datasets.map((dataset: any) => ({
+            name: dataset.label,
+            type: chartType,
+            data: dataset.data
+          }));
+        } else if (data.datasets && !data.labels) {
+          // Datasets-only format (like scatter charts)
+          xAxis = [];
+          series = data.datasets.map((dataset: any) => ({
+            name: dataset.label,
+            type: chartType,
+            data: dataset.data
+          }));
         } else if (Array.isArray(data)) {
           // Legacy array format
           const firstItem = data[0];
@@ -258,12 +274,6 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
   return (
     <div className="h-full w-full">
       <div ref={containerRef} className="w-full h-full" style={{ height: '400px' }}></div>
-      <div className="mt-4 text-center">
-        <div className="text-sm text-gray-500">
-          ECharts Preview
-        </div>
-
-      </div>
     </div>
   );
 };

@@ -19,6 +19,18 @@ export class CodeGenerator {
         labels: data.labels,
         datasets: data.datasets
       };
+    } else if (data && typeof data === 'object' && !Array.isArray(data) && 'data' in data && data.data && 'datasets' in data.data) {
+      // Nested data structure (like sample data)
+      return {
+        labels: data.data.labels || [],
+        datasets: data.data.datasets
+      };
+    } else if (data && typeof data === 'object' && !Array.isArray(data) && 'datasets' in data && !data.labels) {
+      // Datasets-only format (like scatter charts)
+      return {
+        labels: [],
+        datasets: data.datasets
+      };
     } else if (Array.isArray(data)) {
       // Array format data (legacy support)
       const labels = data.map(item => item.category || item.label || item.name || 'Item');
@@ -296,8 +308,11 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 
   private static generateChartJSStaticHTML(config: CodeGeneratorConfig): string {
     const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
+    
+    // Normalize data format to handle nested structures
+    const normalizedData = this.normalizeDataFormat(data);
+    const labels = normalizedData.labels;
+    const values = normalizedData.datasets[0]?.data || [];
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
     const chartType = this.getChartType(selectedType, selectedSubtype);
@@ -411,8 +426,11 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 
   private static generateD3JavaScriptEmbed(config: CodeGeneratorConfig): string {
     const { selectedType, data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
+    
+    // Normalize data format to handle nested structures
+    const normalizedData = this.normalizeDataFormat(data);
+    const labels = normalizedData.labels;
+    const values = normalizedData.datasets[0]?.data || [];
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
     
@@ -469,8 +487,11 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 
   private static generateHighchartsJavaScriptEmbed(config: CodeGeneratorConfig): string {
     const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
+    
+    // Normalize data format to handle nested structures
+    const normalizedData = this.normalizeDataFormat(data);
+    const labels = normalizedData.labels;
+    const values = normalizedData.datasets[0]?.data || [];
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
     const chartType = this.getHighchartsChartType(selectedType, selectedSubtype);
@@ -533,8 +554,11 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 
   private static generateEChartsJavaScriptEmbed(config: CodeGeneratorConfig): string {
     const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
+    
+    // Normalize data format to handle nested structures
+    const normalizedData = this.normalizeDataFormat(data);
+    const labels = normalizedData.labels;
+    const values = normalizedData.datasets[0]?.data || [];
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
     const chartType = this.getEChartsChartType(selectedType, selectedSubtype);
@@ -666,8 +690,11 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 
   private static generateD3StaticHTML(config: CodeGeneratorConfig): string {
     const { data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
+    
+    // Normalize data format to handle nested structures
+    const normalizedData = this.normalizeDataFormat(data);
+    const labels = normalizedData.labels;
+    const values = normalizedData.datasets[0]?.data || [];
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
     
@@ -752,8 +779,11 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 
   private static generateHighchartsStaticHTML(config: CodeGeneratorConfig): string {
     const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
+    
+    // Normalize data format to handle nested structures
+    const normalizedData = this.normalizeDataFormat(data);
+    const labels = normalizedData.labels;
+    const values = normalizedData.datasets[0]?.data || [];
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
     const chartType = this.getHighchartsChartType(selectedType, selectedSubtype);
@@ -844,8 +874,11 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 
   private static generateEChartsStaticHTML(config: CodeGeneratorConfig): string {
     const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
+    
+    // Normalize data format to handle nested structures
+    const normalizedData = this.normalizeDataFormat(data);
+    const labels = normalizedData.labels;
+    const values = normalizedData.datasets[0]?.data || [];
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
     const chartType = this.getEChartsChartType(selectedType, selectedSubtype);

@@ -1,6 +1,6 @@
 {
   "type": "statistical",
-  "label": "Statistical / Distribution Visualization",
+  "label": "Statistical Chart",
   "description": "Display distributions, outliers, and ranges",
   "subtypes": [
     { "id": "boxplot",  "label": "Box Plot" },

@@ -1,6 +1,6 @@
 {
   "type": "timeline",
-  "label": "Timeline / Gantt Visualization",
+  "label": "Timeline",
   "description": "Visualize time-bound events and tasks",
   "subtypes": [
     { "id": "gantt",     "label": "Gantt Visualization" },

@@ -1,6 +1,6 @@
 {
   "type": "hierarchical",
-  "label": "Hierarchical / Flow Visualization",
+  "label": "Hierarchical Chart",
   "description": "Part-to-whole and flow diagrams",
   "subtypes": [
     { "id": "treemap", "label": "Treemap" },

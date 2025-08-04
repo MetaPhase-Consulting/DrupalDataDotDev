@@ -129,23 +129,5 @@
       "quartileMethod":     ["inclusive", "exclusive"],
       "confidenceInterval": [null, 0.9, 0.95, 0.99]
     }
-  },
-  {
-    "type": "mini",
-    "label": "Mini / Spark",
-    "description": "Tiny inline charts for dashboards",
-    "subtypes": [
-      { "id": "sparkline", "label": "Sparkline" },
-      { "id": "miniBar",   "label": "Mini Bar" },
-      { "id": "bullet",    "label": "Bullet Graph" },
-      { "id": "waffle",    "label": "Waffle Chart" },
-      { "id": "kpi",       "label": "KPI Indicator" }
-    ],
-    "options": {
-      "heightPx":    { "min": 20, "max": 60 },
-      "labelVisible":[true, false],
-      "threshold":   { "min": 0, "max": 100 },
-      "tooltip":     [true, false]
-    }
   }
 ]

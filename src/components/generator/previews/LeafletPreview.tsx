@@ -43,10 +43,31 @@ const LeafletPreview: React.FC<LeafletPreviewProps> = ({
 
   // Transform data for map
   const transformData = () => {
-    if (!data || data.length === 0) return null;
+    // Handle different data formats
+    let processedData: any[] = [];
+    
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      if (data.data && data.data.datasets) {
+        // Nested data structure (like sample data)
+        processedData = data.data.datasets.flatMap((dataset: any) => dataset.data || []);
+      } else if (data.datasets && !data.labels) {
+        // Datasets-only format (like scatter charts)
+        processedData = data.datasets.flatMap((dataset: any) => dataset.data || []);
+      } else if (Array.isArray(data)) {
+        processedData = data;
+      } else {
+        return null;
+      }
+    } else if (Array.isArray(data)) {
+      processedData = data;
+    } else {
+      return null;
+    }
+    
+    if (processedData.length === 0) return null;
 
     // Handle different data structures
-    const firstItem = data[0];
+    const firstItem = processedData[0];
     const keys = Object.keys(firstItem);
     
     // Try to identify coordinate fields
@@ -65,7 +86,7 @@ const LeafletPreview: React.FC<LeafletPreviewProps> = ({
 
     // If we have lat/lng fields, use them
     if (latField && lngField) {
-      return data.map(item => ({
+      return processedData.map(item => ({
         lat: Number(item[latField]) || 0,
         lng: Number(item[lngField]) || 0,
         name: item.name || item.label || 'Point',
@@ -79,7 +100,7 @@ const LeafletPreview: React.FC<LeafletPreviewProps> = ({
     );
 
     if (numericFields.length >= 2) {
-      return data.map(item => ({
+      return processedData.map(item => ({
         lat: Number(item[numericFields[0]]) || 0,
         lng: Number(item[numericFields[1]]) || 0,
         name: item.name || item.label || 'Point',
@@ -88,7 +109,7 @@ const LeafletPreview: React.FC<LeafletPreviewProps> = ({
     }
 
     // Default: create sample points around the world
-    return data.map((item, index) => ({
+    return processedData.map((item, index) => ({
       lat: (Math.random() - 0.5) * 180,
       lng: (Math.random() - 0.5) * 360,
       name: item.name || item.label || `Point ${index + 1}`,
@@ -191,12 +212,6 @@ const LeafletPreview: React.FC<LeafletPreviewProps> = ({
   return (
     <div className="h-full w-full">
       <div ref={containerRef} className="w-full h-full" style={{ height: '400px' }}></div>
-      <div className="mt-4 text-center">
-        <div className="text-sm text-gray-500">
-          Leaflet Map Preview
-        </div>
-
-      </div>
     </div>
   );
 };

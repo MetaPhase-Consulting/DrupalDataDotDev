@@ -43,10 +43,31 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
 
   // Transform data for map
   const transformData = () => {
-    if (!data || data.length === 0) return null;
+    // Handle different data formats
+    let processedData: any[] = [];
+    
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      if (data.data && data.data.datasets) {
+        // Nested data structure (like sample data)
+        processedData = data.data.datasets.flatMap((dataset: any) => dataset.data || []);
+      } else if (data.datasets && !data.labels) {
+        // Datasets-only format (like scatter charts)
+        processedData = data.datasets.flatMap((dataset: any) => dataset.data || []);
+      } else if (Array.isArray(data)) {
+        processedData = data;
+      } else {
+        return null;
+      }
+    } else if (Array.isArray(data)) {
+      processedData = data;
+    } else {
+      return null;
+    }
+    
+    if (processedData.length === 0) return null;
 
     // Handle different data structures
-    const firstItem = data[0];
+    const firstItem = processedData[0];
     const keys = Object.keys(firstItem);
     
     // Try to identify coordinate fields
@@ -65,7 +86,7 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
 
     // If we have lat/lng fields, use them
     if (latField && lngField) {
-      return data.map(item => ({
+      return processedData.map(item => ({
         lat: Number(item[latField]) || 0,
         lng: Number(item[lngField]) || 0,
         name: item.name || item.label || 'Point',
@@ -79,7 +100,7 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
     );
 
     if (numericFields.length >= 2) {
-      return data.map(item => ({
+      return processedData.map(item => ({
         lat: Number(item[numericFields[0]]) || 0,
         lng: Number(item[numericFields[1]]) || 0,
         name: item.name || item.label || 'Point',
@@ -88,7 +109,7 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
     }
 
     // Default: create sample points around the world
-    return data.map((item, index) => ({
+    return processedData.map((item, index) => ({
       lat: (Math.random() - 0.5) * 180,
       lng: (Math.random() - 0.5) * 360,
       name: item.name || item.label || `Point ${index + 1}`,
@@ -106,86 +127,150 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
     const theme = getThemeColors();
     const transformedData = transformData();
 
-    // Load OpenLayers dynamically
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/dist/ol.js';
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/ol.css';
-    
-    script.onload = () => {
-      if (typeof (window as any).ol !== 'undefined') {
-        const ol = (window as any).ol;
+    // Check if OpenLayers is already loaded
+    if (typeof (window as any).ol !== 'undefined') {
+      const ol = (window as any).ol;
         
-        // Create map
-        const map = new ol.Map({
-          target: containerRef.current,
-          layers: [
-            new ol.layer.Tile({
-              source: new ol.source.OSM()
+      // Create map
+      const map = new ol.Map({
+        target: containerRef.current,
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([0, 0]),
+          zoom: 2
+        })
+      });
+
+      // Add markers for each data point
+      if (transformedData && transformedData.length > 0) {
+        const features = transformedData.map(point => {
+          const feature = new ol.Feature({
+            geometry: new ol.geom.Point(ol.proj.fromLonLat([point.lng, point.lat]))
+          });
+
+          // Create a style for the marker
+          const style = new ol.style.Style({
+            image: new ol.style.Circle({
+              radius: Math.min(Math.max(point.value * 2, 5), 20),
+              fill: new ol.style.Fill({
+                color: theme.colors[0] + '80'
+              }),
+              stroke: new ol.style.Stroke({
+                color: theme.colors[0],
+                width: 2
+              })
             })
-          ],
-          view: new ol.View({
-            center: ol.proj.fromLonLat([0, 0]),
-            zoom: 2
+          });
+
+          feature.setStyle(style);
+          return feature;
+        });
+
+        // Create a vector layer for the markers
+        const vectorLayer = new ol.layer.Vector({
+          source: new ol.source.Vector({
+            features: features
           })
         });
 
-        // Add markers for each data point
-        if (transformedData && transformedData.length > 0) {
-          const features = transformedData.map(point => {
-            const feature = new ol.Feature({
-              geometry: new ol.geom.Point(ol.proj.fromLonLat([point.lng, point.lat]))
-            });
+        map.addLayer(vectorLayer);
 
-            // Create a style for the marker
-            const style = new ol.style.Style({
-              image: new ol.style.Circle({
-                radius: Math.min(Math.max(point.value * 2, 5), 20),
-                fill: new ol.style.Fill({
-                  color: theme.colors[0] + '80'
-                }),
-                stroke: new ol.style.Stroke({
-                  color: theme.colors[0],
-                  width: 2
-                })
-              })
-            });
-
-            feature.setStyle(style);
-            return feature;
+        // Fit the map to show all markers
+        const extent = vectorLayer.getSource().getExtent();
+        if (extent[0] !== Infinity) {
+          map.getView().fit(extent, {
+            padding: [20, 20, 20, 20],
+            duration: 1000
           });
-
-          // Create a vector layer for the markers
-          const vectorLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({
-              features: features
+        }
+      }
+    } else {
+      // Load OpenLayers dynamically if not already loaded
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/dist/ol.js';
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/ol.css';
+      
+      script.onload = () => {
+        // Re-run the map creation after OpenLayers loads
+        if (containerRef.current && typeof (window as any).ol !== 'undefined') {
+          // Clear container and recreate map
+          containerRef.current.innerHTML = '';
+          const ol = (window as any).ol;
+          
+          // Create map
+          const map = new ol.Map({
+            target: containerRef.current,
+            layers: [
+              new ol.layer.Tile({
+                source: new ol.source.OSM()
+              })
+            ],
+            view: new ol.View({
+              center: ol.proj.fromLonLat([0, 0]),
+              zoom: 2
             })
           });
 
-          map.addLayer(vectorLayer);
+          // Add markers for each data point
+          if (transformedData && transformedData.length > 0) {
+            const features = transformedData.map(point => {
+              const feature = new ol.Feature({
+                geometry: new ol.geom.Point(ol.proj.fromLonLat([point.lng, point.lat]))
+              });
 
-          // Fit the map to show all markers
-          const extent = vectorLayer.getSource().getExtent();
-          if (extent[0] !== Infinity) {
-            map.getView().fit(extent, {
-              padding: [20, 20, 20, 20],
-              duration: 1000
+              // Create a style for the marker
+              const style = new ol.style.Style({
+                image: new ol.style.Circle({
+                  radius: Math.min(Math.max(point.value * 2, 5), 20),
+                  fill: new ol.style.Fill({
+                    color: theme.colors[0] + '80'
+                  }),
+                  stroke: new ol.style.Stroke({
+                    color: theme.colors[0],
+                    width: 2
+                  })
+                })
+              });
+
+              feature.setStyle(style);
+              return feature;
             });
+
+            // Create a vector layer for the markers
+            const vectorLayer = new ol.layer.Vector({
+              source: new ol.source.Vector({
+                features: features
+              })
+            });
+
+            map.addLayer(vectorLayer);
+
+            // Fit the map to show all markers
+            const extent = vectorLayer.getSource().getExtent();
+            if (extent[0] !== Infinity) {
+              map.getView().fit(extent, {
+                padding: [20, 20, 20, 20],
+                duration: 1000
+              });
+            }
           }
         }
-      }
-    };
-    
-    document.head.appendChild(link);
-    document.head.appendChild(script);
+      };
+      
+      document.head.appendChild(link);
+      document.head.appendChild(script);
+    }
 
     return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-      if (link.parentNode) {
-        link.parentNode.removeChild(link);
+      // Clear the container on cleanup
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
       }
     };
   }, [selectedTheme, data, options]);
@@ -206,12 +291,6 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
   return (
     <div className="h-full w-full">
       <div ref={containerRef} className="w-full h-full" style={{ height: '400px' }}></div>
-      <div className="mt-4 text-center">
-        <div className="text-sm text-gray-500">
-          OpenLayers Map Preview
-        </div>
-
-      </div>
     </div>
   );
 };

@@ -1,11 +1,14 @@
 {
   "name": "Map Chart Data",
-  "description": "Geographic coordinate data",
+  "description": "US Cities with population-based marker sizes",
   "data": [
-    { "lat": 40.7128, "lng": -74.0060, "value": 100, "label": "Point A" },
-    { "lat": 34.0522, "lng": -118.2437, "value": 85, "label": "Point B" },
-    { "lat": 41.8781, "lng": -87.6298, "value": 75, "label": "Point C" },
-    { "lat": 29.7604, "lng": -95.3698, "value": 90, "label": "Point D" },
-    { "lat": 33.4484, "lng": -112.0740, "value": 65, "label": "Point E" }
+    { "lat": 40.7128, "lng": -74.0060, "value": 8336817, "label": "New York City", "population": 8336817 },
+    { "lat": 34.0522, "lng": -118.2437, "value": 3898747, "label": "Los Angeles", "population": 3898747 },
+    { "lat": 41.8781, "lng": -87.6298, "value": 2746388, "label": "Chicago", "population": 2746388 },
+    { "lat": 29.7604, "lng": -95.3698, "value": 2304580, "label": "Houston", "population": 2304580 },
+    { "lat": 33.4484, "lng": -112.0740, "value": 1608139, "label": "Phoenix", "population": 1608139 },
+    { "lat": 39.9526, "lng": -75.1652, "value": 1584064, "label": "Philadelphia", "population": 1584064 },
+    { "lat": 29.4241, "lng": -98.4936, "value": 1547253, "label": "San Antonio", "population": 1547253 },
+    { "lat": 32.7767, "lng": -96.7970, "value": 1341075, "label": "Dallas", "population": 1341075 }
   ]
 }

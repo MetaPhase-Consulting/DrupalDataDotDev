@@ -75,16 +75,6 @@ export class DefaultConfigService {
         quartileMethod: 'inclusive',
         confidenceInterval: 0.95
       }
-    },
-    mini: {
-      subtype: 'sparkline',
-      library: 'chartjs',
-      options: {
-        heightPx: 30,
-        labelVisible: false,
-        threshold: 50,
-        tooltip: true
-      }
     }
   };
 

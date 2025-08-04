@@ -89,15 +89,84 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
     if (data.labels && data.datasets) {
       chartData = {
         labels: data.labels,
-        datasets: data.datasets.map((dataset: any, index: number) => ({
-          ...dataset,
-          backgroundColor: dataset.backgroundColor || theme.colors[index % theme.colors.length] + '80',
-          borderColor: dataset.borderColor || theme.colors[index % theme.colors.length],
-          borderWidth: dataset.borderWidth || 2,
-          fill: selectedType === 'line' && selectedSubtype === 'area'
-        }))
+        datasets: data.datasets.map((dataset: any, index: number) => {
+          let backgroundColor, borderColor;
+          
+          // For pie charts, use different colors for each slice
+          if (selectedType === 'pie') {
+            backgroundColor = data.labels.map((_: any, labelIndex: number) => 
+              theme.colors[labelIndex % theme.colors.length] + '80'
+            );
+            borderColor = data.labels.map((_: any, labelIndex: number) => 
+              theme.colors[labelIndex % theme.colors.length]
+            );
+          } else {
+            // For other chart types, use one color per dataset
+            backgroundColor = dataset.backgroundColor || theme.colors[index % theme.colors.length] + '80';
+            borderColor = dataset.borderColor || theme.colors[index % theme.colors.length];
+          }
+          
+          return {
+            ...dataset,
+            backgroundColor,
+            borderColor,
+            borderWidth: dataset.borderWidth || 2,
+            fill: selectedType === 'line' && selectedSubtype === 'area'
+          };
+        })
       };
-    } else {
+    } else if (data.data && data.data.datasets) {
+      // Handle nested data structure (like sample data)
+      const chartDataFromNested = data.data;
+      chartData = {
+        labels: chartDataFromNested.labels || [],
+        datasets: chartDataFromNested.datasets.map((dataset: any, index: number) => {
+          let backgroundColor, borderColor;
+          
+          // For pie charts, use different colors for each slice
+          if (selectedType === 'pie') {
+            backgroundColor = (chartDataFromNested.labels || []).map((_: any, labelIndex: number) => 
+              theme.colors[labelIndex % theme.colors.length] + '80'
+            );
+            borderColor = (chartDataFromNested.labels || []).map((_: any, labelIndex: number) => 
+              theme.colors[labelIndex % theme.colors.length]
+            );
+          } else {
+            // For other chart types, use one color per dataset
+            backgroundColor = dataset.backgroundColor || theme.colors[index % theme.colors.length] + '80';
+            borderColor = dataset.borderColor || theme.colors[index % theme.colors.length];
+          }
+          
+          return {
+            ...dataset,
+            backgroundColor,
+            borderColor,
+            borderWidth: dataset.borderWidth || 2,
+            fill: selectedType === 'line' && selectedSubtype === 'area'
+          };
+        })
+      };
+    } else if (data.datasets && !data.labels) {
+      // Handle datasets-only format (like scatter charts)
+      chartData = {
+        labels: [], // Scatter charts don't need labels
+        datasets: data.datasets.map((dataset: any, index: number) => {
+          let backgroundColor, borderColor;
+          
+          // For scatter charts, use one color per dataset
+          backgroundColor = dataset.backgroundColor || theme.colors[index % theme.colors.length] + '80';
+          borderColor = dataset.borderColor || theme.colors[index % theme.colors.length];
+          
+          return {
+            ...dataset,
+            backgroundColor,
+            borderColor,
+            borderWidth: dataset.borderWidth || 2,
+            fill: selectedType === 'line' && selectedSubtype === 'area'
+          };
+        })
+      };
+    } else if (Array.isArray(data)) {
       // Fallback for array data (legacy support)
       const labels = data.map((item: any, index: number) => 
         item.category || item.label || item.axis || item.month || item.x || `Item ${index}`
@@ -114,6 +183,10 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
           borderWidth: 2
         }]
       };
+    } else {
+      // If data is not in expected format, show error
+      console.error('Data is not in expected format:', data);
+      return;
     }
 
     chartRef.current = new Chart(ctx, {
