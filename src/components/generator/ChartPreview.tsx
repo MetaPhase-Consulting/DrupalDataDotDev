@@ -1,35 +1,15 @@
-import React, { useRef } from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-  RadialLinearScale,
-} from 'chart.js';
-import { Bar, Line, Pie, Doughnut, PolarArea, Radar } from 'react-chartjs-2';
+import React from 'react';
+
+// Import separate preview components
+import ChartJSPreview from './previews/ChartJSPreview';
+import D3Preview from './previews/D3Preview';
+import HighchartsPreview from './previews/HighchartsPreview';
+import EChartsPreview from './previews/EChartsPreview';
+import OpenLayersPreview from './previews/OpenLayersPreview';
+import LeafletPreview from './previews/LeafletPreview';
 
 // Import theme data
 import chartStylesData from '../../data/chartStyles.json';
-
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-  RadialLinearScale
-);
 
 interface ChartPreviewProps {
   selectedType: string;
@@ -48,37 +28,6 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
   data,
   options
 }) => {
-  const chartRef = useRef<any>(null);
-
-  // Only render Chart.js previews
-  if (selectedLibrary !== 'chartjs') {
-    return (
-      <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
-        <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
-          <div className="text-lg font-semibold mb-2">Preview Available for Chart.js</div>
-          <div className="text-sm">
-            Live preview is currently available for Chart.js library only.<br/>
-            Support for {selectedLibrary} coming soon!
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // If no data, show placeholder
-  if (!data || data.length === 0) {
-    return (
-      <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
-        <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
-          <div className="text-lg font-semibold mb-2">No Data Available</div>
-          <div className="text-sm">
-            Add data in Step 5 to see your chart preview
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Get theme colors from actual theme data
   const getThemeColors = () => {
     const theme = chartStylesData.find(t => t.id === selectedTheme);
@@ -100,164 +49,103 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
       secondary: theme.colors.secondary,
       accent: theme.colors.text,
       background: theme.colors.background,
-      colors: theme.palette
+      colors: theme.colors
     };
   };
 
-  // Transform data for Chart.js
-  const transformData = () => {
-    const theme = getThemeColors();
-    
-    if (!data || data.length === 0) return null;
-
-    // Handle different data structures
-    const firstItem = data[0];
-    const keys = Object.keys(firstItem);
-    
-    // Try to identify label and value fields
-    const labelField = keys.find(k => 
-      k.toLowerCase().includes('label') || 
-      k.toLowerCase().includes('name') || 
-      k.toLowerCase().includes('category') ||
-      k === keys[0] // fallback to first field
-    ) || keys[0];
-    
-    const valueFields = keys.filter(k => 
-      k !== labelField && 
-      (typeof firstItem[k] === 'number' || !isNaN(Number(firstItem[k])))
-    );
-
-    const labels = data.map(item => item[labelField]);
-    
-    // For pie/doughnut charts, use single dataset
-    if (selectedType === 'pie') {
-      const values = data.map(item => Number(item[valueFields[0]]) || 0);
-      return {
-        labels,
-        datasets: [{
-          data: values,
-          backgroundColor: theme.colors.slice(0, labels.length),
-          borderColor: theme.colors.slice(0, labels.length).map(color => color + '80'),
-          borderWidth: 2,
-        }]
-      };
-    }
-
-    // For other chart types, support multiple datasets
-    const datasets = valueFields.map((field, index) => {
-      const values = data.map(item => Number(item[field]) || 0);
-      
-      return {
-        label: field.charAt(0).toUpperCase() + field.slice(1),
-        data: values,
-        backgroundColor: selectedType === 'bar' ? theme.colors[index % theme.colors.length] + '80' : theme.colors[index % theme.colors.length] + '20',
-        borderColor: theme.colors[index % theme.colors.length],
-        borderWidth: 2,
-        fill: selectedType === 'line' ? false : undefined,
-        tension: selectedType === 'line' ? 0.4 : undefined,
-      };
-    });
-
-    return { labels, datasets };
-  };
-
-  // Get chart options
-  const getChartOptions = () => {
-    const theme = getThemeColors();
-    
-    const baseOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top' as const,
-          labels: {
-            color: theme.accent,
-            font: {
-              size: 12
-            }
-          }
-        },
-        title: {
-          display: true,
-          text: `${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Chart Preview`,
-          color: theme.accent,
-          font: {
-            size: 16,
-            weight: 'bold'
-          }
-        },
-      },
-      scales: {}
-    };
-
-    // Add scales for non-pie charts
-    if (selectedType !== 'pie') {
-      baseOptions.scales = {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            color: theme.accent + '80',
-          },
-          grid: {
-            color: theme.accent + '20',
-          }
-        },
-        x: {
-          ticks: {
-            color: theme.accent + '80',
-          },
-          grid: {
-            color: theme.accent + '20',
-          }
-        }
-      };
-    }
-
-    return baseOptions;
-  };
-
-  // Get the appropriate Chart component
-  const getChartComponent = () => {
-    const chartData = transformData();
-    const chartOptions = getChartOptions();
-    
-    if (!chartData) return null;
-
-    switch (selectedType) {
-      case 'bar':
-        return <Bar ref={chartRef} data={chartData} options={chartOptions} />;
-      case 'line':
-        return <Line ref={chartRef} data={chartData} options={chartOptions} />;
-      case 'pie':
-        if (selectedSubtype === 'doughnut') {
-          return <Doughnut ref={chartRef} data={chartData} options={chartOptions} />;
-        } else if (selectedSubtype === 'polar') {
-          return <PolarArea ref={chartRef} data={chartData} options={chartOptions} />;
-        }
-        return <Pie ref={chartRef} data={chartData} options={chartOptions} />;
-      case 'radar':
-        return <Radar ref={chartRef} data={chartData} options={chartOptions} />;
-      default:
-        return <Bar ref={chartRef} data={chartData} options={chartOptions} />;
-    }
-  };
-
-  const chartComponent = getChartComponent();
-
-  if (!chartComponent) {
-    return (
-      <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
-        <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
-          <div className="text-lg font-semibold mb-2">Unable to Render Chart</div>
-          <div className="text-sm">
-            Please check your data format and selected chart type
+  // Get the appropriate preview component
+  const getPreviewComponent = () => {
+    if (!data || data.length === 0) {
+      return (
+        <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
+          <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
+            <div className="text-lg font-semibold mb-2">No Data Available</div>
+            <div className="text-sm">
+              Add data in Step 5 to see your chart preview
+            </div>
           </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
+    // Handle map libraries
+    if (selectedLibrary === 'openlayers') {
+      return (
+        <OpenLayersPreview
+          selectedTheme={selectedTheme}
+          data={data}
+          options={options}
+        />
+      );
+    }
+
+    if (selectedLibrary === 'leaflet') {
+      return (
+        <LeafletPreview
+          selectedTheme={selectedTheme}
+          data={data}
+          options={options}
+        />
+      );
+    }
+
+    // Handle chart libraries
+    switch (selectedLibrary) {
+      case 'chartjs':
+        return (
+          <ChartJSPreview
+            selectedType={selectedType}
+            selectedSubtype={selectedSubtype}
+            selectedTheme={selectedTheme}
+            data={data}
+            options={options}
+          />
+        );
+      case 'd3':
+        return (
+          <D3Preview
+            selectedType={selectedType}
+            selectedSubtype={selectedSubtype}
+            selectedTheme={selectedTheme}
+            data={data}
+            options={options}
+          />
+        );
+      case 'highcharts':
+        return (
+          <HighchartsPreview
+            selectedType={selectedType}
+            selectedSubtype={selectedSubtype}
+            selectedTheme={selectedTheme}
+            data={data}
+            options={options}
+          />
+        );
+      case 'echarts':
+        return (
+          <EChartsPreview
+            selectedType={selectedType}
+            selectedSubtype={selectedSubtype}
+            selectedTheme={selectedTheme}
+            data={data}
+            options={options}
+          />
+        );
+      default:
+        return (
+          <div className="bg-[#1F2937]/20 dark:bg-[#1F2937]/20 bg-gray-50 rounded-lg p-8 text-center border-2 border-dashed border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300">
+            <div className="text-[#E5F1FF]/60 dark:text-[#E5F1FF]/60 text-gray-400 mb-4">
+              <div className="text-lg font-semibold mb-2">Library Not Supported</div>
+              <div className="text-sm">
+                Preview not available for {selectedLibrary}. Chart will render in final output.
+              </div>
+            </div>
+          </div>
+        );
+    }
+  };
+
+  const previewComponent = getPreviewComponent();
   const theme = getThemeColors();
   
   return (
@@ -271,15 +159,7 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
         }}
       >
         <div className="h-96 w-full">
-          {chartComponent}
-        </div>
-        <div className="mt-4 text-center">
-          <p 
-            className="text-sm"
-            style={{ color: theme.accent + '80' }}
-          >
-            Live preview using Chart.js • {data.length} data points • <span style={{ color: theme.primary }}>{selectedTheme}</span> theme
-          </p>
+          {previewComponent}
         </div>
       </div>
     </div>

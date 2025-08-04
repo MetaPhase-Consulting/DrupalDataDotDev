@@ -1,6 +1,6 @@
 {
   "type": "line",
-  "label": "Line Visualization",
+  "label": "Line Chart",
   "description": "Display continuous data trends",
   "subtypes": [
     { "id": "basic",        "label": "Basic Line" },

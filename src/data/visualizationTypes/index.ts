@@ -4,10 +4,6 @@ import pie from './pie.json';
 import radar from './radar.json';
 import scatter from './scatter.json';
 import map from './map.json';
-import statistical from './statistical.json';
-import mini from './mini.json';
-import timeline from './timeline.json';
-import hierarchical from './hierarchical.json';
 
 export const visualizationTypes = [
   bar,
@@ -15,11 +11,7 @@ export const visualizationTypes = [
   pie,
   radar,
   scatter,
-  map,
-  statistical,
-  mini,
-  timeline,
-  hierarchical
+  map
 ];
 
 export default visualizationTypes; 

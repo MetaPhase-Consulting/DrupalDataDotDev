@@ -1,6 +1,6 @@
 {
   "type": "radar",
-  "label": "Radar / Spider Visualization",
+  "label": "Radar Chart",
   "description": "Multi-dimension comparison on radial axes",
   "subtypes": [
     { "id": "standard", "label": "Standard Radar" },

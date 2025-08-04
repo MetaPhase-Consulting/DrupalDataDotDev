@@ -1,6 +1,6 @@
 {
   "type": "bar",
-  "label": "Bar Visualization",
+  "label": "Bar Chart",
   "description": "Compare discrete values across categories",
   "subtypes": [
     { "id": "vertical",   "label": "Vertical Bar" },

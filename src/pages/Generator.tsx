@@ -25,13 +25,7 @@ import chartStylesData from '../data/chartStyles.json';
 // Import types
 import { Theme } from '../types/Theme';
 
-interface VisualizationType {
-  type: string;
-  label: string;
-  description: string;
-  subtypes: { id: string; label: string }[];
-  options: Record<string, any>;
-}
+
 
 interface Library {
   id: string;
@@ -56,10 +50,10 @@ const Generator: React.FC = () => {
   const [selectedLibrary, setSelectedLibrary] = useState<string>('');
   const [selectedTheme, setSelectedTheme] = useState<string>('drupal-night');
   const [selectedOutputFormat, setSelectedOutputFormat] = useState<string>('javascript-embed');
-  const [dataInputTab, setDataInputTab] = useState<string>('sample');
+  // Removed dataInputTab since we only have JSON input now
   const [csvData, setCsvData] = useState<unknown[]>([]);
   const [jsonData, setJsonData] = useState<string>('');
-  const [sampleData, setSampleData] = useState<unknown[]>([]);
+  const [sampleData, setSampleData] = useState<any>({});
   const [copied, setCopied] = useState(false);
 
   const libraries: Library[] = librariesData;
@@ -201,13 +195,17 @@ const Generator: React.FC = () => {
       const dataset = await getSampleDataForVisualizationType(visualizationType);
       if (dataset && dataset.data) {
         setSampleData(dataset.data);
+        // Pre-populate JSON input with sample data
+        setJsonData(JSON.stringify(dataset.data, null, 2));
       } else {
         console.warn(`No valid data found for visualization type: ${visualizationType}`);
-        setSampleData([]);
+        setSampleData({});
+        setJsonData('');
       }
     } catch (error) {
       console.error(`Failed to load sample data for ${visualizationType}:`, error);
-      setSampleData([]);
+      setSampleData({});
+      setJsonData('');
     }
   };
 
@@ -217,7 +215,6 @@ const Generator: React.FC = () => {
       return '// Please select a visualization type first';
     }
     
-    const selectedVisualization = visualizationTypes.find(v => v.type === selectedType);
     const selectedThemeObj = themes.find(t => t.id === selectedTheme);
     
     // Sanitize data before including in code
@@ -236,18 +233,15 @@ const Generator: React.FC = () => {
   };
 
   const getCurrentData = () => {
-    let data;
-    if (dataInputTab === 'csv' && csvData.length > 0) return csvData;
-    if (dataInputTab === 'json' && jsonData) {
+    if (jsonData) {
       try {
-        data = JSON.parse(jsonData);
+        const data = JSON.parse(jsonData);
         return data;
       } catch {
         console.error('Invalid JSON data');
         return [];
       }
     }
-    if (dataInputTab === 'sample' && sampleData.length > 0) return sampleData;
     return [];
   };
 
@@ -279,18 +273,7 @@ const Generator: React.FC = () => {
     }
   };
 
-  const downloadFile = () => {
-    const code = generateCode();
-    const blob = new Blob([code], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `drupal-visualization-${selectedType}-${Date.now()}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+
 
   // Initialize defaults on component mount
   useEffect(() => {
@@ -382,12 +365,12 @@ const Generator: React.FC = () => {
             onToggle={() => toggleAccordion('input-data')}
           >
             <DataInput
-              dataInputTab={dataInputTab}
+              dataInputTab=""
               csvData={csvData}
               jsonData={jsonData}
               sampleData={sampleData}
               selectedType={selectedType}
-              onTabChange={setDataInputTab}
+              onTabChange={() => {}}
               onFileUpload={handleFileUpload}
               onJsonInput={handleJsonInput}
             />

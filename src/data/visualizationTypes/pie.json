@@ -1,6 +1,6 @@
 {
   "type": "pie",
-  "label": "Pie / Donut Visualization",
+  "label": "Pie Chart",
   "description": "Show proportional breakdown of a whole",
   "subtypes": [
     { "id": "pie",      "label": "Pie" },

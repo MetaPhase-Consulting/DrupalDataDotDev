@@ -68,40 +68,12 @@ export class DefaultConfigService {
     },
     statistical: {
       subtype: 'boxplot',
-      library: 'plotly',
+      library: 'd3',
       options: {
         showOutliers: true,
         binSize: 10,
         quartileMethod: 'inclusive',
         confidenceInterval: 0.95
-      }
-    },
-    mini: {
-      subtype: 'sparkline',
-      library: 'apexcharts',
-      options: {
-        heightPx: 30,
-        labelVisible: false,
-        threshold: 50,
-        tooltip: true
-      }
-    },
-    timeline: {
-      subtype: 'gantt',
-      library: 'd3',
-      options: {
-        dateGranularity: 'day',
-        zoomable: true,
-        taskColorBy: 'status'
-      }
-    },
-    hierarchical: {
-      subtype: 'treemap',
-      library: 'd3',
-      options: {
-        labelStyle: 'inside',
-        colorBy: 'value',
-        depth: 3
       }
     }
   };

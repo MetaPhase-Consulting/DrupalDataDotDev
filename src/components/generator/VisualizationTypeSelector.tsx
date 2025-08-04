@@ -29,7 +29,6 @@ const VisualizationTypeSelector: React.FC<VisualizationTypeSelectorProps> = ({
       scatter: Scatter,
       map: Map,
       statistical: BarChart3,
-      mini: LineChart,
       timeline: BarChart3,
       hierarchical: PieChart
     };

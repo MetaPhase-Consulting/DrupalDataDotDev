@@ -1,6 +1,6 @@
 {
   "type": "map",
-  "label": "Map / Geo Visualization",
+  "label": "Map",
   "description": "Spatial data visualization",
   "subtypes": [
     { "id": "choropleth","label": "Choropleth Map" },

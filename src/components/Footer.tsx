@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
@@ -21,15 +21,12 @@ const Footer: React.FC = () => {
           <div className="text-center md:text-right">
             <p className="text-gray-600 dark:text-[#E5F1FF]/80 text-sm mb-4">
               <span className="inline-flex items-center gap-4">
-                <a
-                  href="https://github.com/username/DrupalDataDotDev"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to="/license"
                   className="inline-flex items-center gap-1 text-gray-600 dark:text-[#E5F1FF]/80 hover:text-[#0074BD] dark:hover:text-[#00C9FF] hover:underline transition-colors duration-200"
                 >
-                  <Github size={16} />
                   Open Source
-                </a>
+                </Link>
                 <span className="text-gray-600 dark:text-[#E5F1FF]/80">|</span>
                 <span>
                   Built by{' '}
