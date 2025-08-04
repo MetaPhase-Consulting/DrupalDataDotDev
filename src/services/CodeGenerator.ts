@@ -37,12 +37,14 @@ export class CodeGenerator {
         return this.generateChartJSJavaScriptEmbed(config);
       case 'd3':
         return this.generateD3JavaScriptEmbed(config);
-      case 'plotly':
-        return this.generatePlotlyJavaScriptEmbed(config);
       case 'highcharts':
         return this.generateHighchartsJavaScriptEmbed(config);
-      case 'apexcharts':
-        return this.generateApexChartsJavaScriptEmbed(config);
+      case 'echarts':
+        return this.generateEChartsJavaScriptEmbed(config);
+      case 'openlayers':
+        return this.generateOpenLayersJavaScriptEmbed(config);
+      case 'leaflet':
+        return this.generateLeafletJavaScriptEmbed(config);
       default:
         return this.generateGenericJavaScriptEmbed(config);
     }
@@ -56,12 +58,14 @@ export class CodeGenerator {
         return this.generateChartJSStaticHTML(config);
       case 'd3':
         return this.generateD3StaticHTML(config);
-      case 'plotly':
-        return this.generatePlotlyStaticHTML(config);
       case 'highcharts':
         return this.generateHighchartsStaticHTML(config);
-      case 'apexcharts':
-        return this.generateApexChartsStaticHTML(config);
+      case 'echarts':
+        return this.generateEChartsStaticHTML(config);
+      case 'openlayers':
+        return this.generateOpenLayersStaticHTML(config);
+      case 'leaflet':
+        return this.generateLeafletStaticHTML(config);
       default:
         return this.generateGenericStaticHTML(config);
     }
@@ -374,26 +378,8 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 </html>`;
   }
 
-  private static generateGenericJavaScriptEmbed(config: CodeGeneratorConfig): string {
-    const { selectedType, selectedLibrary, data, selectedOptions, selectedTheme } = config;
-    
-    return `<div id="chart-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
-  <div id="chart-placeholder">Chart will be rendered here</div>
-</div>
-
-<script>
-  // Generic JavaScript Embed for ${selectedLibrary}
-  const chartData = ${JSON.stringify(data, null, 2)};
-  const chartOptions = ${JSON.stringify(selectedOptions, null, 2)};
-  const theme = '${selectedTheme.id}';
-  
-  console.log('Chart configuration:', { chartData, chartOptions, theme });
-  // Implementation for ${selectedLibrary} would go here
-</script>`;
-  }
-
   private static generateD3JavaScriptEmbed(config: CodeGeneratorConfig): string {
-    const { data, selectedOptions, selectedTheme } = config;
+    const { selectedType, data, selectedOptions, selectedTheme } = config;
     const labels = data.map(item => item.category || item.label || item.name);
     const values = data.map(item => item.value || item.data || 0);
     
@@ -447,58 +433,6 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
     .attr('width', x.bandwidth())
     .attr('height', d => height - y(d))
     .attr('fill', (d, i) => colors[i % colors.length]);
-</script>`;
-  }
-
-  private static generatePlotlyJavaScriptEmbed(config: CodeGeneratorConfig): string {
-    const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
-    
-    const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
-    const chartType = this.getPlotlyChartType(selectedType, selectedSubtype);
-    
-    return `<div id="chart-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
-  <div id="plotly-chart"></div>
-</div>
-
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script>
-  // Plotly.js JavaScript Embed
-  const data = ${JSON.stringify(data)};
-  const labels = ${JSON.stringify(labels)};
-  const values = ${JSON.stringify(values)};
-  const colors = ${JSON.stringify(themeColors.slice(0, values.length))};
-  
-  const trace = {
-    x: labels,
-    y: values,
-    type: '${chartType}',
-    marker: {
-      color: colors,
-      line: {
-        color: colors,
-        width: 1
-      }
-    }
-  };
-  
-  const layout = {
-    title: 'Chart Visualization',
-    xaxis: {
-      title: 'Categories'
-    },
-    yaxis: {
-      title: 'Values'
-    },
-    plot_bgcolor: '${selectedTheme?.colors?.surface || '#1F2937'}',
-    paper_bgcolor: '${selectedTheme?.colors?.background || '#0E1B2A'}',
-    font: {
-      color: '${selectedTheme?.colors?.text || '#E5F1FF'}'
-    }
-  };
-  
-  Plotly.newPlot('plotly-chart', [trace], layout);
 </script>`;
   }
 
@@ -566,51 +500,136 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 </script>`;
   }
 
-  private static generateApexChartsJavaScriptEmbed(config: CodeGeneratorConfig): string {
+  private static generateEChartsJavaScriptEmbed(config: CodeGeneratorConfig): string {
     const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
     const labels = data.map(item => item.category || item.label || item.name);
     const values = data.map(item => item.value || item.data || 0);
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
-    const chartType = this.getApexChartsChartType(selectedType, selectedSubtype);
+    const chartType = this.getEChartsChartType(selectedType, selectedSubtype);
     
     return `<div id="chart-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
-  <div id="apexcharts-chart"></div>
+  <div id="echarts-chart" style="width: 100%; height: 400px;"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script>
-  // ApexCharts JavaScript Embed
+  // Apache ECharts JavaScript Embed
   const data = ${JSON.stringify(data)};
   const labels = ${JSON.stringify(labels)};
   const values = ${JSON.stringify(values)};
   const colors = ${JSON.stringify(themeColors.slice(0, values.length))};
   
-  const options = {
-    series: [{
-      name: 'Values',
-      data: values
-    }],
-    chart: {
-      type: '${chartType}',
-      height: 350,
-      background: '${selectedTheme?.colors?.surface || '#1F2937'}',
-      foreColor: '${selectedTheme?.colors?.text || '#E5F1FF'}'
-    },
-    colors: colors,
-    xaxis: {
-      categories: labels
-    },
+  const chartDom = document.getElementById('echarts-chart');
+  const myChart = echarts.init(chartDom);
+  
+  const option = {
     title: {
       text: 'Chart Visualization',
-      style: {
+      textStyle: {
         color: '${selectedTheme?.colors?.text || '#E5F1FF'}'
       }
-    }
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      data: labels,
+      axisLabel: {
+        color: '${selectedTheme?.colors?.text || '#E5F1FF'}'
+      }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        color: '${selectedTheme?.colors?.text || '#E5F1FF'}'
+      }
+    },
+    series: [{
+      data: values,
+      type: '${chartType}',
+      itemStyle: {
+        color: colors[0]
+      }
+    }],
+    backgroundColor: '${selectedTheme?.colors?.surface || '#1F2937'}'
   };
   
-  const chart = new ApexCharts(document.querySelector('#apexcharts-chart'), options);
-  chart.render();
+  myChart.setOption(option);
+</script>`;
+  }
+
+  private static generateOpenLayersJavaScriptEmbed(config: CodeGeneratorConfig): string {
+    const { data, selectedOptions, selectedTheme } = config;
+    
+    return `<div id="chart-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+  <div id="openlayers-map" style="width: 100%; height: 400px;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ol@7.4.0/dist/ol.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.4.0/ol.css">
+<script>
+  // OpenLayers JavaScript Embed
+  const data = ${JSON.stringify(data)};
+  
+  const map = new ol.Map({
+    target: 'openlayers-map',
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM()
+      })
+    ],
+    view: new ol.View({
+      center: ol.proj.fromLonLat([0, 0]),
+      zoom: 2
+    })
+  });
+  
+  // Add markers or other map features based on data
+  console.log('Map data:', data);
+</script>`;
+  }
+
+  private static generateLeafletJavaScriptEmbed(config: CodeGeneratorConfig): string {
+    const { data, selectedOptions, selectedTheme } = config;
+    
+    return `<div id="chart-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+  <div id="leaflet-map" style="width: 100%; height: 400px;"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script>
+  // Leaflet JavaScript Embed
+  const data = ${JSON.stringify(data)};
+  
+  const map = L.map('leaflet-map').setView([0, 0], 2);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+  
+  // Add markers or other map features based on data
+  console.log('Map data:', data);
+</script>`;
+  }
+
+  private static generateGenericJavaScriptEmbed(config: CodeGeneratorConfig): string {
+    const { selectedType, selectedLibrary, data, selectedOptions, selectedTheme } = config;
+    
+    return `<div id="chart-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+  <div id="chart-placeholder">Chart will be rendered here</div>
+</div>
+
+<script>
+  // Generic JavaScript Embed for ${selectedLibrary}
+  const chartData = ${JSON.stringify(data, null, 2)};
+  const chartOptions = ${JSON.stringify(selectedOptions, null, 2)};
+  const theme = '${selectedTheme.id}';
+  
+  console.log('Chart configuration:', { chartData, chartOptions, theme });
+  // Implementation for ${selectedLibrary} would go here
 </script>`;
   }
 
@@ -695,86 +714,6 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
           .attr('width', x.bandwidth())
           .attr('height', d => height - y(d))
           .attr('fill', (d, i) => colors[i % colors.length]);
-    </script>
-</body>
-</html>`;
-  }
-
-  private static generatePlotlyStaticHTML(config: CodeGeneratorConfig): string {
-    const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
-    const labels = data.map(item => item.category || item.label || item.name);
-    const values = data.map(item => item.value || item.data || 0);
-    
-    const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
-    const chartType = this.getPlotlyChartType(selectedType, selectedSubtype);
-    
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drupal Data Visualization - Plotly.js</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-        body {
-            font-family: '${selectedTheme?.fonts?.[0] || 'Inter'}', system-ui, sans-serif;
-            background-color: ${selectedTheme?.colors?.background || '#0E1B2A'};
-            color: ${selectedTheme?.colors?.text || '#E5F1FF'};
-            margin: 0;
-            padding: 20px;
-        }
-        .chart-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: ${selectedTheme?.colors?.surface || '#1F2937'};
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-    </style>
-</head>
-<body>
-    <div class="chart-container">
-        <h1 class="chart-title">Chart Visualization</h1>
-        <div id="plotly-chart"></div>
-    </div>
-
-    <script>
-        // Plotly.js Static HTML
-        const data = ${JSON.stringify(data)};
-        const labels = ${JSON.stringify(labels)};
-        const values = ${JSON.stringify(values)};
-        const colors = ${JSON.stringify(themeColors.slice(0, values.length))};
-        
-        const trace = {
-          x: labels,
-          y: values,
-          type: '${chartType}',
-          marker: {
-            color: colors,
-            line: {
-              color: colors,
-              width: 1
-            }
-          }
-        };
-        
-        const layout = {
-          title: 'Chart Visualization',
-          xaxis: {
-            title: 'Categories'
-          },
-          yaxis: {
-            title: 'Values'
-          },
-          plot_bgcolor: '${selectedTheme?.colors?.surface || '#1F2937'}',
-          paper_bgcolor: '${selectedTheme?.colors?.background || '#0E1B2A'}',
-          font: {
-            color: '${selectedTheme?.colors?.text || '#E5F1FF'}'
-          }
-        };
-        
-        Plotly.newPlot('plotly-chart', [trace], layout);
     </script>
 </body>
 </html>`;
@@ -872,21 +811,21 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 </html>`;
   }
 
-  private static generateApexChartsStaticHTML(config: CodeGeneratorConfig): string {
+  private static generateEChartsStaticHTML(config: CodeGeneratorConfig): string {
     const { selectedType, selectedSubtype, data, selectedOptions, selectedTheme } = config;
     const labels = data.map(item => item.category || item.label || item.name);
     const values = data.map(item => item.value || item.data || 0);
     
     const themeColors = selectedTheme?.palette || ['#0074BD', '#00C9FF', '#E5F1FF', '#1F2937', '#4A90C2', '#B3D9FF'];
-    const chartType = this.getApexChartsChartType(selectedType, selectedSubtype);
+    const chartType = this.getEChartsChartType(selectedType, selectedSubtype);
     
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drupal Data Visualization - ApexCharts</title>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <title>Drupal Data Visualization - Apache ECharts</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         body {
             font-family: '${selectedTheme?.fonts?.[0] || 'Inter'}', system-ui, sans-serif;
@@ -908,41 +847,164 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
 <body>
     <div class="chart-container">
         <h1 class="chart-title">Chart Visualization</h1>
-        <div id="apexcharts-chart"></div>
+        <div id="echarts-chart" style="width: 100%; height: 400px;"></div>
     </div>
 
     <script>
-        // ApexCharts Static HTML
+        // Apache ECharts Static HTML
         const data = ${JSON.stringify(data)};
         const labels = ${JSON.stringify(labels)};
         const values = ${JSON.stringify(values)};
         const colors = ${JSON.stringify(themeColors.slice(0, values.length))};
         
-        const options = {
-          series: [{
-            name: 'Values',
-            data: values
-          }],
-          chart: {
-            type: '${chartType}',
-            height: 350,
-            background: '${selectedTheme?.colors?.surface || '#1F2937'}',
-            foreColor: '${selectedTheme?.colors?.text || '#E5F1FF'}'
-          },
-          colors: colors,
-          xaxis: {
-            categories: labels
-          },
+        const chartDom = document.getElementById('echarts-chart');
+        const myChart = echarts.init(chartDom);
+        
+        const option = {
           title: {
             text: 'Chart Visualization',
-            style: {
+            textStyle: {
               color: '${selectedTheme?.colors?.text || '#E5F1FF'}'
             }
-          }
+          },
+          tooltip: {
+            trigger: 'axis'
+          },
+          xAxis: {
+            type: 'category',
+            data: labels,
+            axisLabel: {
+              color: '${selectedTheme?.colors?.text || '#E5F1FF'}'
+            }
+          },
+          yAxis: {
+            type: 'value',
+            axisLabel: {
+              color: '${selectedTheme?.colors?.text || '#E5F1FF'}'
+            }
+          },
+          series: [{
+            data: values,
+            type: '${chartType}',
+            itemStyle: {
+              color: colors[0]
+            }
+          }],
+          backgroundColor: '${selectedTheme?.colors?.surface || '#1F2937'}'
         };
         
-        const chart = new ApexCharts(document.querySelector('#apexcharts-chart'), options);
-        chart.render();
+        myChart.setOption(option);
+    </script>
+</body>
+</html>`;
+  }
+
+  private static generateOpenLayersStaticHTML(config: CodeGeneratorConfig): string {
+    const { data, selectedOptions, selectedTheme } = config;
+    
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drupal Data Visualization - OpenLayers</title>
+    <script src="https://cdn.jsdelivr.net/npm/ol@7.4.0/dist/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.4.0/ol.css">
+    <style>
+        body {
+            font-family: '${selectedTheme?.fonts?.[0] || 'Inter'}', system-ui, sans-serif;
+            background-color: ${selectedTheme?.colors?.background || '#0E1B2A'};
+            color: ${selectedTheme?.colors?.text || '#E5F1FF'};
+            margin: 0;
+            padding: 20px;
+        }
+        .chart-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: ${selectedTheme?.colors?.surface || '#1F2937'};
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <h1 class="chart-title">Chart Visualization</h1>
+        <div id="openlayers-map" style="width: 100%; height: 400px;"></div>
+    </div>
+
+    <script>
+        // OpenLayers Static HTML
+        const data = ${JSON.stringify(data)};
+        
+        const map = new ol.Map({
+          target: 'openlayers-map',
+          layers: [
+            new ol.layer.Tile({
+              source: new ol.source.OSM()
+            })
+          ],
+          view: new ol.View({
+            center: ol.proj.fromLonLat([0, 0]),
+            zoom: 2
+          })
+        });
+        
+        // Add markers or other map features based on data
+        console.log('Map data:', data);
+    </script>
+</body>
+</html>`;
+  }
+
+  private static generateLeafletStaticHTML(config: CodeGeneratorConfig): string {
+    const { data, selectedOptions, selectedTheme } = config;
+    
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drupal Data Visualization - Leaflet</title>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        body {
+            font-family: '${selectedTheme?.fonts?.[0] || 'Inter'}', system-ui, sans-serif;
+            background-color: ${selectedTheme?.colors?.background || '#0E1B2A'};
+            color: ${selectedTheme?.colors?.text || '#E5F1FF'};
+            margin: 0;
+            padding: 20px;
+        }
+        .chart-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: ${selectedTheme?.colors?.surface || '#1F2937'};
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <h1 class="chart-title">Chart Visualization</h1>
+        <div id="leaflet-map" style="width: 100%; height: 400px;"></div>
+    </div>
+
+    <script>
+        // Leaflet Static HTML
+        const data = ${JSON.stringify(data)};
+        
+        const map = L.map('leaflet-map').setView([0, 0], 2);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Add markers or other map features based on data
+        console.log('Map data:', data);
     </script>
 </body>
 </html>`;
@@ -1026,24 +1088,6 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
     }
   }
 
-  private static getPlotlyChartType(selectedType: string, selectedSubtype: string): string {
-    // Map visualization types to Plotly chart types
-    switch (selectedType) {
-      case 'bar':
-        return 'bar';
-      case 'line':
-        return 'scatter';
-      case 'pie':
-        return 'pie';
-      case 'scatter':
-        return 'scatter';
-      case 'bubble':
-        return 'scatter';
-      default:
-        return 'bar'; // Default fallback
-    }
-  }
-
   private static getHighchartsChartType(selectedType: string, selectedSubtype: string): string {
     // Map visualization types to Highcharts chart types
     switch (selectedType) {
@@ -1062,8 +1106,8 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
     }
   }
 
-  private static getApexChartsChartType(selectedType: string, selectedSubtype: string): string {
-    // Map visualization types to ApexCharts chart types
+  private static getEChartsChartType(selectedType: string, selectedSubtype: string): string {
+    // Map visualization types to ECharts chart types
     switch (selectedType) {
       case 'bar':
         return 'bar';
@@ -1074,7 +1118,7 @@ class ${this.getClassName(selectedType, selectedLibrary)}Controller extends Cont
       case 'scatter':
         return 'scatter';
       case 'bubble':
-        return 'bubble';
+        return 'scatter';
       default:
         return 'bar'; // Default fallback
     }

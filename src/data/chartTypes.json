@@ -147,37 +147,5 @@
       "threshold":   { "min": 0, "max": 100 },
       "tooltip":     [true, false]
     }
-  },
-  {
-    "type": "timeline",
-    "label": "Timeline / Gantt",
-    "description": "Visualize time-bound events and tasks",
-    "subtypes": [
-      { "id": "gantt",     "label": "Gantt Chart" },
-      { "id": "eventBand", "label": "Timeline Band" },
-      { "id": "strip",     "label": "Event Strip" }
-    ],
-    "options": {
-      "dateGranularity": ["day", "week", "month"],
-      "zoomable":        [true, false],
-      "taskColorBy":     ["status", "owner", "custom"]
-    }
-  },
-  {
-    "type": "hierarchical",
-    "label": "Hierarchical / Flow",
-    "description": "Part-to-whole and flow diagrams",
-    "subtypes": [
-      { "id": "treemap", "label": "Treemap" },
-      { "id": "sunburst","label": "Sunburst" },
-      { "id": "sankey",  "label": "Sankey Diagram" },
-      { "id": "chord",   "label": "Chord Diagram" },
-      { "id": "alluvial","label": "Alluvial Flow" }
-    ],
-    "options": {
-      "labelStyle": ["inside", "outside", "none"],
-      "colorBy":    ["value", "category", "level"],
-      "depth":      { "min": 1, "max": 5 }
-    }
   }
 ]

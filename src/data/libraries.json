@@ -5,39 +5,7 @@
     "license": "MIT",
     "homepage": "https://www.chartjs.org/",
     "bestFor": "Simple 2-D charts, quick dashboards",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "statistical", "mini"]
-  },
-  {
-    "id": "apexcharts",
-    "name": "ApexCharts",
-    "license": "MIT",
-    "homepage": "https://apexcharts.com/",
-    "bestFor": "Animated dashboards, sparkline mode built-in",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "statistical", "mini"]
-  },
-  {
-    "id": "highcharts",
-    "name": "Highcharts",
-    "license": "Free for non-commercial / paid commercial",
-    "homepage": "https://www.highcharts.com/",
-    "bestFor": "Huge feature set incl. 3-D, maps, box-plots, gauges",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "map", "statistical", "timeline", "mini"]
-  },
-  {
-    "id": "echarts",
-    "name": "Apache ECharts",
-    "license": "Apache-2.0",
-    "homepage": "https://echarts.apache.org/",
-    "bestFor": "Enterprise-grade charts & maps, large datasets",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "map", "statistical", "timeline", "hierarchical"]
-  },
-  {
-    "id": "plotly",
-    "name": "Plotly.js",
-    "license": "MIT",
-    "homepage": "https://plotly.com/javascript/",
-    "bestFor": "Scientific, 3-D, box plots, surfaces",
-    "supports": ["bar", "line", "pie", "scatter", "statistical", "map", "timeline", "hierarchical"]
+    "supports": ["bar", "line", "pie", "radar", "scatter", "mini"]
   },
   {
     "id": "d3",
@@ -45,54 +13,38 @@
     "license": "BSD",
     "homepage": "https://d3js.org/",
     "bestFor": "Custom/low-level SVG & canvas; builds RAWGraphs, Vega, Nivo",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "map", "statistical", "timeline", "hierarchical", "mini"]
+    "supports": ["bar", "line", "pie", "radar", "scatter", "map", "statistical", "mini"]
   },
   {
-    "id": "vega",
-    "name": "Vega / Vega-Lite",
-    "license": "BSD",
-    "homepage": "https://vega.github.io/",
-    "bestFor": "Declarative JSON grammar; quick prototypes",
-    "supports": ["bar", "line", "pie", "scatter", "map", "statistical", "timeline", "hierarchical"]
+    "id": "highcharts",
+    "name": "Highcharts",
+    "license": "Free for non-commercial / paid commercial",
+    "homepage": "https://www.highcharts.com/",
+    "bestFor": "Huge feature set incl. 3-D, maps, box-plots, gauges",
+    "supports": ["bar", "line", "pie", "radar", "scatter", "map", "statistical", "mini"]
   },
   {
-    "id": "leaflet",
-    "name": "Leaflet",
-    "license": "BSD",
-    "homepage": "https://leafletjs.com/",
-    "bestFor": "Interactive 2-D web maps with tile layers",
-    "supports": ["map"]
+    "id": "echarts",
+    "name": "Apache ECharts",
+    "license": "Apache-2.0",
+    "homepage": "https://echarts.apache.org/",
+    "bestFor": "Enterprise-grade charts & maps, large datasets",
+    "supports": ["bar", "line", "pie", "radar", "scatter", "map", "statistical"]
   },
   {
     "id": "openlayers",
     "name": "OpenLayers",
     "license": "BSD",
     "homepage": "https://openlayers.org/",
-    "bestFor": "Advanced GIS maps, projections, vector tiles",
+    "bestFor": "Advanced GIS maps, tile layers, vector tiles, projections",
     "supports": ["map"]
   },
   {
-    "id": "cytoscape",
-    "name": "Cytoscape.js",
-    "license": "MIT",
-    "homepage": "https://js.cytoscape.org/",
-    "bestFor": "Network / graph / flow diagrams",
-    "supports": ["hierarchical"]
-  },
-  {
-    "id": "rawgraphs",
-    "name": "RAWGraphs core",
-    "license": "AGPL",
-    "homepage": "https://rawgraphs.io/",
-    "bestFor": "Niche charts (alluvial, bump, waffle)",
-    "supports": ["hierarchical", "statistical", "mini"]
-  },
-  {
-    "id": "peity",
-    "name": "Peity.js",
-    "license": "MIT",
-    "homepage": "https://benpickles.github.io/peity/",
-    "bestFor": "Ultra-lightweight sparklines & mini bars",
-    "supports": ["mini"]
+    "id": "leaflet",
+    "name": "Leaflet",
+    "license": "BSD",
+    "homepage": "https://leafletjs.com/",
+    "bestFor": "Lightweight interactive maps, tiles, markers, clusters",
+    "supports": ["map"]
   }
 ]
