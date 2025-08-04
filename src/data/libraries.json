@@ -13,23 +13,23 @@
     "license": "BSD",
     "homepage": "https://d3js.org/",
     "bestFor": "Custom/low-level SVG & canvas; builds RAWGraphs, Vega, Nivo",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "map", "statistical", "mini"]
+    "supports": ["bar", "line", "pie", "radar", "scatter", "statistical", "mini"]
   },
   {
     "id": "highcharts",
     "name": "Highcharts",
     "license": "Free for non-commercial / paid commercial",
     "homepage": "https://www.highcharts.com/",
-    "bestFor": "Huge feature set incl. 3-D, maps, box-plots, gauges",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "map", "statistical", "mini"]
+    "bestFor": "Huge feature set incl. 3-D, charts, box-plots, gauges",
+    "supports": ["bar", "line", "pie", "scatter", "statistical", "mini"]
   },
   {
     "id": "echarts",
     "name": "Apache ECharts",
     "license": "Apache-2.0",
     "homepage": "https://echarts.apache.org/",
-    "bestFor": "Enterprise-grade charts & maps, large datasets",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "map", "statistical"]
+    "bestFor": "Enterprise-grade charts & large datasets",
+    "supports": ["bar", "line", "pie", "radar", "scatter", "statistical"]
   },
   {
     "id": "openlayers",
