@@ -8,37 +8,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Initial release of DrupalData.dev
-- Support for multiple charting libraries (Chart.js, Highcharts, ECharts)
-- Multiple visualization types: bar, line, pie, maps, radar, statistical
-- CSV and JSON data input support
-- Built-in sample datasets
-- Theme system with multiple styling options
-- Code generation for multiple output formats:
-  - Raw JavaScript
-  - Drupal block plugins
-  - Drupal controllers with routes
-  - Complete Drupal modules (ZIP)
-  - Standalone HTML files
-- Responsive design with dark/light mode
-- Accessibility features (WCAG 2.1 AA)
-- Input sanitization and XSS protection
-- File upload validation
+- Initial release with core functionality
+- Multiple visualization types: bar, line, pie, maps, radar, scatter
+- Support for multiple charting libraries: Chart.js, D3.js, Highcharts, ECharts, OpenLayers, Leaflet
+- Multiple output formats: JavaScript embed, static HTML, Drupal block plugins, Drupal controllers
+- Theme support with dark and light modes
+- Data input via JSON with sample datasets
+- Export options: single file or complete ZIP packages
+- Responsive design with mobile support
+- Accessibility features
+- TypeScript support
+- ESLint configuration
+- Comprehensive documentation
 
-### Security
-- Implemented input sanitization for all user inputs
-- Added file upload validation and size limits
-- XSS protection for generated code
-- Secure handling of user data
+### Changed
+- Refactored code generator into modular architecture
+- Improved maintainability and extensibility
+- Enhanced type safety with shared interfaces
+- Better separation of concerns
 
-## [1.0.0] - 2024-01-XX
+### Removed
+- Hierarchical, timeline, and statistical visualization types (not being used)
+
+### Fixed
+- Library-specific Drupal block generation
+- Enhanced ZIP download functionality
+- Proper Drupal module structure
+- Chart type mapping for all visualization types
+- Data normalization across all libraries
+
+## [0.0.1] - 2024-01-01
 
 ### Added
-- Initial stable release
-- Complete documentation
-- Security policy
-- Contributing guidelines
-- Code of conduct
+- Initial project setup
+- Basic React application structure
+- TypeScript configuration
+- Vite build system
+- Tailwind CSS styling
+- Component architecture
+- Service layer for code generation
+- Data management system
 
 ---
 

@@ -21,7 +21,7 @@
 
 - **Multiple Chart Libraries**: Support for Chart.js, Highcharts, ECharts, D3.js, and more
 - **Flexible Data Input**: Upload CSV files, paste JSON data, or use built-in sample datasets
-- **Visualization Types**: Bar charts, line charts, pie charts, maps, radar charts, statistical plots, and more
+- **Visualization Types**: Bar charts, line charts, pie charts, maps, radar charts, scatter plots, and more
 - **Multiple Output Formats**: 
   - Raw JavaScript code
   - Drupal block plugins

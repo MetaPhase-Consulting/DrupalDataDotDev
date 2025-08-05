@@ -65,16 +65,6 @@ export class DefaultConfigService {
         zoomEnabled: true,
         colorScale: 'sequential'
       }
-    },
-    statistical: {
-      subtype: 'boxplot',
-      library: 'd3',
-      options: {
-        showOutliers: true,
-        binSize: 10,
-        quartileMethod: 'inclusive',
-        confidenceInterval: 0.95
-      }
     }
   };
 
