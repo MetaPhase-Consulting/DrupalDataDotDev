@@ -7,10 +7,10 @@
   "homepage": "https://www.drupaldata.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bfunk/DrupalDataDotDev.git"
+    "url": "https://github.com/MetaPhase-Consulting/DrupalDataDotDev.git"
   },
   "bugs": {
-    "url": "https://github.com/bfunk/DrupalDataDotDev/issues"
+    "url": "https://github.com/MetaPhase-Consulting/DrupalDataDotDev/issues"
   },
   "keywords": [
     "drupal",
@@ -34,7 +34,6 @@
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
-  "main": "dist/index.js",
   "files": [
     "dist",
     "public"

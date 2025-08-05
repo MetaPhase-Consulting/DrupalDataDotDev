@@ -81,7 +81,7 @@ We welcome code contributions! Here are some areas where help is especially appr
    ```
 3. **Add upstream** remote:
    ```bash
-   git remote add upstream https://github.com/brianfunk/DrupalDataDotDev.git
+   git remote add upstream https://github.com/MetaPhase-Consulting/DrupalDataDotDev.git
    ```
 
 ### Install Dependencies

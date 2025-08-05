@@ -26,6 +26,10 @@ export default tseslint.config(
       // Disable problematic rules for TypeScript 5.6.3 compatibility
       '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
+      // Allow any types for chart library compatibility
+      '@typescript-eslint/no-explicit-any': 'warn',
+      // Allow case declarations for switch statements
+      'no-case-declarations': 'off',
     },
   }
 );

@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 💬 GitHub Discussions
-    url: https://github.com/brianfunk/DrupalDataDotDev/discussions
+    url: https://github.com/MetaPhase-Consulting/DrupalDataDotDev/discussions
     about: Ask questions and discuss ideas with the community
   - name: 📚 Documentation
-    url: https://github.com/brianfunk/DrupalDataDotDev/wiki
+    url: https://github.com/MetaPhase-Consulting/DrupalDataDotDev/wiki
     about: Check our documentation and guides
   - name: 🔒 Security Issues
-    url: https://github.com/brianfunk/DrupalDataDotDev/security/advisories/new
+    url: https://github.com/MetaPhase-Consulting/DrupalDataDotDev/security/advisories/new
     about: Report security vulnerabilities privately
