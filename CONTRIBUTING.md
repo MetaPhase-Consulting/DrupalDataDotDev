@@ -16,7 +16,7 @@ Thank you for your interest in contributing to DrupalData.dev! We welcome contri
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to conduct@drupaldata.dev.
+This project and everyone participating in it is governed by our [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior through GitHub Issues.
 
 ## How Can I Contribute?
 
@@ -267,7 +267,7 @@ We encourage adding tests for new features:
 
 - **GitHub Discussions** for questions and ideas
 - **GitHub Issues** for bugs and feature requests
-- **Email** support@drupaldata.dev for private inquiries
+- **GitHub Discussions** for questions and support
 
 ### Recognition
 
@@ -315,6 +315,6 @@ Don't hesitate to ask questions! We're here to help:
 
 - **GitHub Discussions** for public questions
 - **GitHub Issues** for bug reports
-- **Email** contribute@drupaldata.dev for contribution questions
+- **GitHub Discussions** for contribution questions
 
 Thank you for contributing to DrupalData.dev! 🎉

@@ -219,16 +219,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: Check our [Wiki](../../wiki) for detailed guides
 - **Issues**: Report bugs or request features via [GitHub Issues](../../issues)
 - **Discussions**: Join conversations in [GitHub Discussions](../../discussions)
-- **Email**: For private inquiries, contact [support@drupaldatadotdev](mailto:support@drupaldatadotdev)
-
-## 🗺 Roadmap
-
-- [ ] Add more visualization libraries (Plotly, Observable Plot)
-- [ ] Implement real-time data preview
-- [ ] Add collaboration features
-- [ ] Create VS Code extension
-- [ ] Add API for programmatic access
-- [ ] Mobile app for on-the-go chart creation
 
 ---
 
