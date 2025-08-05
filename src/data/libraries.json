@@ -13,7 +13,7 @@
     "license": "BSD",
     "homepage": "https://d3js.org/",
     "bestFor": "Custom/low-level SVG & canvas; builds RAWGraphs, Vega, Nivo",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "statistical", "mini"]
+    "supports": ["bar", "line", "pie", "radar", "scatter", "mini"]
   },
   {
     "id": "highcharts",
@@ -21,7 +21,7 @@
     "license": "Free for non-commercial / paid commercial",
     "homepage": "https://www.highcharts.com/",
     "bestFor": "Huge feature set incl. 3-D, charts, box-plots, gauges",
-    "supports": ["bar", "line", "pie", "scatter", "statistical", "mini"]
+    "supports": ["bar", "line", "pie", "scatter", "mini"]
   },
   {
     "id": "echarts",
@@ -29,7 +29,7 @@
     "license": "Apache-2.0",
     "homepage": "https://echarts.apache.org/",
     "bestFor": "Enterprise-grade charts & large datasets",
-    "supports": ["bar", "line", "pie", "radar", "scatter", "statistical"]
+    "supports": ["bar", "line", "pie", "radar", "scatter"]
   },
   {
     "id": "openlayers",

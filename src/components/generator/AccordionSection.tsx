@@ -32,7 +32,7 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
         )}
       </button>
       {isActive && (
-        <div className="px-6 pb-6 border-t border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200">
+        <div className="px-6 pt-6 pb-6 border-t border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200">
           {children}
         </div>
       )}

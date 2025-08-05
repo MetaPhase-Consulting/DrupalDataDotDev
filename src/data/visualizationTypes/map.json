@@ -5,16 +5,11 @@
   "subtypes": [
     { "id": "choropleth","label": "Choropleth Map" },
     { "id": "bubbleMap", "label": "Bubble Map" },
-    { "id": "point",     "label": "Point / Marker Map" },
-    { "id": "heatmap",   "label": "Heatmap Map" },
-    { "id": "tile",      "label": "Tile Map" },
-    { "id": "cluster",   "label": "Clustered Points" },
-    { "id": "vector",    "label": "Vector / GeoJSON" },
-    { "id": "globe",     "label": "3D Globe" }
+    { "id": "point",     "label": "Point / Marker Map" }
   ],
   "options": {
-    "projection":  ["mercator", "albers", "geojsonNative"],
-    "tileSource":  ["osm", "carto", "custom"],
+    "projection":  ["mercator", "albers"],
+    "tileSource":  ["osm", "carto"],
     "zoomEnabled": [true, false],
     "colorScale":  ["sequential", "diverging", "categorical"]
   }

@@ -72,6 +72,8 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
     if (selectedLibrary === 'openlayers') {
       return (
         <OpenLayersPreview
+          selectedType={selectedType}
+          selectedSubtype={selectedSubtype}
           selectedTheme={selectedTheme}
           data={data}
           options={options}
@@ -82,6 +84,8 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
     if (selectedLibrary === 'leaflet') {
       return (
         <LeafletPreview
+          selectedType={selectedType}
+          selectedSubtype={selectedSubtype}
           selectedTheme={selectedTheme}
           data={data}
           options={options}

@@ -5,9 +5,7 @@
   "subtypes": [
     { "id": "pie",      "label": "Pie" },
     { "id": "donut",    "label": "Donut" },
-    { "id": "semi",     "label": "Semi-Circle Pie" },
-    { "id": "polarArea","label": "Polar Area" },
-    { "id": "rose",     "label": "Rose / Coxcomb" }
+    { "id": "exploded", "label": "Exploded Pie" }
   ],
   "options": {
     "innerRadiusPercent": { "min": 0, "max": 90 },
