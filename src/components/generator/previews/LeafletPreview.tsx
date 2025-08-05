@@ -4,12 +4,16 @@ import React, { useRef, useEffect } from 'react';
 import chartStylesData from '../../../data/chartStyles.json';
 
 interface LeafletPreviewProps {
+  selectedType: string;
+  selectedSubtype: string;
   selectedTheme: string;
-  data: any[];
+  data: any;
   options: Record<string, any>;
 }
 
 const LeafletPreview: React.FC<LeafletPreviewProps> = ({
+  selectedType,
+  selectedSubtype,
   selectedTheme,
   data,
   options

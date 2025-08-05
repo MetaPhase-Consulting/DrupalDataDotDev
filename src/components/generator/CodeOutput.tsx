@@ -1,6 +1,5 @@
 import React from 'react';
 import { Copy, Check, FileText, Archive } from 'lucide-react';
-//@ts-expect-error - JSZip types not available in current TypeScript version
 import JSZip from 'jszip';
 
 interface CodeOutputProps {
@@ -93,8 +92,36 @@ https://www.drupaldata.dev
 
     zip.file('README.md', readmeContent);
     
-    // Add package.json for Drupal formats
+    // Add Drupal module files for Drupal formats
     if (selectedOutputFormat === 'drupal-block' || selectedOutputFormat === 'drupal-controller') {
+      const moduleName = `drupal_${selectedType}_${selectedLibrary}`.replace(/[^a-zA-Z0-9_]/g, '_');
+      
+      // Add info.yml file
+      const infoYml = `name: '${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Chart (${selectedLibrary})'
+type: module
+description: 'Generated ${selectedType} chart using ${selectedLibrary}'
+core_version_requirement: ^9 || ^10 || ^11
+package: 'Charts'
+dependencies:
+  - drupal:system
+`;
+      zip.file(`${moduleName}.info.yml`, infoYml);
+      
+      // Add libraries.yml file
+      const librariesYml = generateLibrariesYml(selectedLibrary, moduleName);
+      zip.file(`${moduleName}.libraries.yml`, librariesYml);
+      
+      // Add JavaScript file
+      const jsFile = generateJavaScriptFile(selectedLibrary, selectedType, selectedSubtype, moduleName);
+      zip.file(`js/${moduleName}.js`, jsFile);
+      
+      // Add routing.yml file for Drupal Controller format
+      if (selectedOutputFormat === 'drupal-controller') {
+        const routingYml = generateRoutingYml(selectedType, selectedLibrary, moduleName);
+        zip.file(`${moduleName}.routing.yml`, routingYml);
+      }
+      
+      // Add package.json for Drupal formats
       const packageJson = {
         name: `drupal_${baseName.replace(/-/g, '_')}`,
         type: "drupal-module",
@@ -116,6 +143,572 @@ https://www.drupaldata.dev
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const generateLibrariesYml = (library: string, moduleName: string): string => {
+    switch (library) {
+      case 'chartjs':
+        return `${moduleName}-chart-js:
+  version: VERSION
+  css:
+    theme:
+      css/${moduleName}.css: {}
+  js:
+    js/${moduleName}.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/drupalSettings
+  remote: https://cdn.jsdelivr.net/npm/chart.js`;
+
+      case 'd3':
+        return `${moduleName}-d3-js:
+  version: VERSION
+  css:
+    theme:
+      css/${moduleName}.css: {}
+  js:
+    js/${moduleName}.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/drupalSettings
+  remote: https://d3js.org/d3.v7.min.js`;
+
+      case 'highcharts':
+        return `${moduleName}-highcharts:
+  version: VERSION
+  css:
+    theme:
+      css/${moduleName}.css: {}
+  js:
+    js/${moduleName}.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/drupalSettings
+  remote: https://code.highcharts.com/highcharts.js`;
+
+      case 'echarts':
+        return `${moduleName}-echarts:
+  version: VERSION
+  css:
+    theme:
+      css/${moduleName}.css: {}
+  js:
+    js/${moduleName}.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/drupalSettings
+  remote: https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js`;
+
+      case 'openlayers':
+        return `${moduleName}-openlayers:
+  version: VERSION
+  css:
+    theme:
+      css/${moduleName}.css: {}
+  js:
+    js/${moduleName}.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/drupalSettings
+  remote: https://cdn.jsdelivr.net/npm/ol@7.4.0/dist/ol.js`;
+
+      case 'leaflet':
+        return `${moduleName}-leaflet:
+  version: VERSION
+  css:
+    theme:
+      css/${moduleName}.css: {}
+  js:
+    js/${moduleName}.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/drupalSettings
+  remote: https://unpkg.com/leaflet@1.9.4/dist/leaflet.js`;
+
+      default:
+        return `${moduleName}-${library}:
+  version: VERSION
+  css:
+    theme:
+      css/${moduleName}.css: {}
+  js:
+    js/${moduleName}.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/drupalSettings`;
+    }
+  };
+
+  const generateJavaScriptFile = (library: string, chartType: string, subtype: string, moduleName: string): string => {
+    const chartTypeMap: Record<string, string> = {
+      'bar': 'bar',
+      'line': 'line',
+      'pie': 'pie',
+      'doughnut': 'doughnut',
+      'radar': 'radar',
+      'scatter': 'scatter',
+      'bubble': 'bubble',
+      'polarArea': 'polarArea'
+    };
+
+    const actualChartType = chartTypeMap[chartType] || 'bar';
+
+    switch (library) {
+      case 'chartjs':
+        return `(function ($, Drupal, drupalSettings) {
+  'use strict';
+
+  Drupal.behaviors.${moduleName}Chart = {
+    attach: function (context, settings) {
+      if (settings.${moduleName}) {
+        const chartData = settings.${moduleName}.chartData;
+        const chartOptions = settings.${moduleName}.chartOptions;
+        const theme = settings.${moduleName}.theme;
+        const chartType = settings.${moduleName}.chartType || '${actualChartType}';
+        const themeColors = settings.${moduleName}.themeColors || ['#0074BD', '#00C9FF', '#E5F1FF'];
+
+        // Load Chart.js from CDN if not already loaded
+        if (typeof Chart === 'undefined') {
+          const script = document.createElement('script');
+          script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+          script.onload = function() {
+            initializeChart();
+          };
+          document.head.appendChild(script);
+        } else {
+          initializeChart();
+        }
+
+        function initializeChart() {
+          const ctx = document.getElementById('${moduleName}-chart');
+          if (ctx) {
+            const canvas = ctx.querySelector('canvas') || document.createElement('canvas');
+            if (!ctx.querySelector('canvas')) {
+              ctx.appendChild(canvas);
+            }
+
+            new Chart(canvas.getContext('2d'), {
+              type: chartType,
+              data: chartData,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: false
+                  },
+                  title: {
+                    display: true,
+                    text: 'Chart Visualization',
+                    color: '#E5F1FF',
+                    font: {
+                      size: 16,
+                      weight: 'bold'
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    grid: {
+                      color: '#B3D9FF20'
+                    },
+                    ticks: {
+                      color: '#B3D9FF'
+                    }
+                  },
+                  x: {
+                    grid: {
+                      color: '#B3D9FF20'
+                    },
+                    ticks: {
+                      color: '#B3D9FF'
+                    }
+                  }
+                }
+              }
+            });
+          }
+        }
+      }
+    }
+  };
+})(jQuery, Drupal, drupalSettings);`;
+
+      case 'd3':
+        return `(function ($, Drupal, drupalSettings) {
+  'use strict';
+
+  Drupal.behaviors.${moduleName}Chart = {
+    attach: function (context, settings) {
+      if (settings.${moduleName}) {
+        const chartData = settings.${moduleName}.chartData;
+        const chartOptions = settings.${moduleName}.chartOptions;
+        const theme = settings.${moduleName}.theme;
+        const themeColors = settings.${moduleName}.themeColors || ['#0074BD', '#00C9FF', '#E5F1FF'];
+
+        // Load D3.js from CDN if not already loaded
+        if (typeof d3 === 'undefined') {
+          const script = document.createElement('script');
+          script.src = 'https://d3js.org/d3.v7.min.js';
+          script.onload = function() {
+            initializeChart();
+          };
+          document.head.appendChild(script);
+        } else {
+          initializeChart();
+        }
+
+        function initializeChart() {
+          const container = document.getElementById('${moduleName}-chart');
+          if (container) {
+            const labels = chartData.labels || [];
+            const values = chartData.datasets?.[0]?.data || [];
+            
+            const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+            const width = 800 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+            
+            const svg = d3.select(container)
+              .append('svg')
+              .attr('width', width + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom)
+              .append('g')
+              .attr('transform', \`translate(\${margin.left},\${margin.top})\`);
+            
+            const x = d3.scaleBand()
+              .range([0, width])
+              .domain(labels)
+              .padding(0.1);
+            
+            const y = d3.scaleLinear()
+              .domain([0, d3.max(values)])
+              .range([height, 0]);
+            
+            svg.append('g')
+              .attr('transform', \`translate(0,\${height})\`)
+              .call(d3.axisBottom(x));
+            
+            svg.append('g')
+              .call(d3.axisLeft(y));
+            
+            svg.selectAll('rect')
+              .data(values)
+              .enter()
+              .append('rect')
+              .attr('x', (d, i) => x(labels[i]))
+              .attr('y', d => y(d))
+              .attr('width', x.bandwidth())
+              .attr('height', d => height - y(d))
+              .attr('fill', (d, i) => themeColors[i % themeColors.length]);
+          }
+        }
+      }
+    }
+  };
+})(jQuery, Drupal, drupalSettings);`;
+
+      case 'highcharts':
+        return `(function ($, Drupal, drupalSettings) {
+  'use strict';
+
+  Drupal.behaviors.${moduleName}Chart = {
+    attach: function (context, settings) {
+      if (settings.${moduleName}) {
+        const chartData = settings.${moduleName}.chartData;
+        const chartOptions = settings.${moduleName}.chartOptions;
+        const theme = settings.${moduleName}.theme;
+        const chartType = settings.${moduleName}.chartType || '${actualChartType}';
+        const themeColors = settings.${moduleName}.themeColors || ['#0074BD', '#00C9FF', '#E5F1FF'];
+
+        // Load Highcharts from CDN if not already loaded
+        if (typeof Highcharts === 'undefined') {
+          const script = document.createElement('script');
+          script.src = 'https://code.highcharts.com/highcharts.js';
+          script.onload = function() {
+            initializeChart();
+          };
+          document.head.appendChild(script);
+        } else {
+          initializeChart();
+        }
+
+        function initializeChart() {
+          const container = document.getElementById('${moduleName}-chart');
+          if (container) {
+            const labels = chartData.labels || [];
+            const values = chartData.datasets?.[0]?.data || [];
+            
+            Highcharts.chart(container, {
+              chart: {
+                type: chartType,
+                backgroundColor: '#1F2937'
+              },
+              title: {
+                text: 'Chart Visualization',
+                style: {
+                  color: '#E5F1FF'
+                }
+              },
+              xAxis: {
+                categories: labels,
+                labels: {
+                  style: {
+                    color: '#E5F1FF'
+                  }
+                }
+              },
+              yAxis: {
+                title: {
+                  text: 'Values',
+                  style: {
+                    color: '#E5F1FF'
+                  }
+                },
+                labels: {
+                  style: {
+                    color: '#E5F1FF'
+                  }
+                }
+              },
+              series: [{
+                name: 'Values',
+                data: values,
+                color: themeColors[0]
+              }],
+              credits: {
+                enabled: false
+              }
+            });
+          }
+        }
+      }
+    }
+  };
+})(jQuery, Drupal, drupalSettings);`;
+
+      case 'echarts':
+        return `(function ($, Drupal, drupalSettings) {
+  'use strict';
+
+  Drupal.behaviors.${moduleName}Chart = {
+    attach: function (context, settings) {
+      if (settings.${moduleName}) {
+        const chartData = settings.${moduleName}.chartData;
+        const chartOptions = settings.${moduleName}.chartOptions;
+        const theme = settings.${moduleName}.theme;
+        const chartType = settings.${moduleName}.chartType || '${actualChartType}';
+        const themeColors = settings.${moduleName}.themeColors || ['#0074BD', '#00C9FF', '#E5F1FF'];
+
+        // Load ECharts from CDN if not already loaded
+        if (typeof echarts === 'undefined') {
+          const script = document.createElement('script');
+          script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
+          script.onload = function() {
+            initializeChart();
+          };
+          document.head.appendChild(script);
+        } else {
+          initializeChart();
+        }
+
+        function initializeChart() {
+          const container = document.getElementById('${moduleName}-chart');
+          if (container) {
+            const labels = chartData.labels || [];
+            const values = chartData.datasets?.[0]?.data || [];
+            
+            const myChart = echarts.init(container);
+            
+            const option = {
+              title: {
+                text: 'Chart Visualization',
+                textStyle: {
+                  color: '#E5F1FF'
+                }
+              },
+              tooltip: {
+                trigger: 'axis'
+              },
+              xAxis: {
+                type: 'category',
+                data: labels,
+                axisLabel: {
+                  color: '#E5F1FF'
+                }
+              },
+              yAxis: {
+                type: 'value',
+                axisLabel: {
+                  color: '#E5F1FF'
+                }
+              },
+              series: [{
+                data: values,
+                type: chartType,
+                itemStyle: {
+                  color: themeColors[0]
+                }
+              }],
+              backgroundColor: '#1F2937'
+            };
+            
+            myChart.setOption(option);
+          }
+        }
+      }
+    }
+  };
+})(jQuery, Drupal, drupalSettings);`;
+
+      case 'openlayers':
+        return `(function ($, Drupal, drupalSettings) {
+  'use strict';
+
+  Drupal.behaviors.${moduleName}Map = {
+    attach: function (context, settings) {
+      if (settings.${moduleName}) {
+        const mapData = settings.${moduleName}.mapData;
+        const mapOptions = settings.${moduleName}.mapOptions;
+        const theme = settings.${moduleName}.theme;
+
+        // Load OpenLayers from CDN if not already loaded
+        if (typeof ol === 'undefined') {
+          const script = document.createElement('script');
+          script.src = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/dist/ol.js';
+          script.onload = function() {
+            initializeMap();
+          };
+          document.head.appendChild(script);
+          
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/ol.css';
+          document.head.appendChild(link);
+        } else {
+          initializeMap();
+        }
+
+        function initializeMap() {
+          const container = document.getElementById('${moduleName}-map');
+          if (container) {
+            const map = new ol.Map({
+              target: container,
+              layers: [
+                new ol.layer.Tile({
+                  source: new ol.source.OSM()
+                })
+              ],
+              view: new ol.View({
+                center: ol.proj.fromLonLat([0, 0]),
+                zoom: 2
+              })
+            });
+            
+            // Add markers or other map features based on data
+            console.log('Map data:', mapData);
+          }
+        }
+      }
+    }
+  };
+})(jQuery, Drupal, drupalSettings);`;
+
+      case 'leaflet':
+        return `(function ($, Drupal, drupalSettings) {
+  'use strict';
+
+  Drupal.behaviors.${moduleName}Map = {
+    attach: function (context, settings) {
+      if (settings.${moduleName}) {
+        const mapData = settings.${moduleName}.mapData;
+        const mapOptions = settings.${moduleName}.mapOptions;
+        const theme = settings.${moduleName}.theme;
+
+        // Load Leaflet from CDN if not already loaded
+        if (typeof L === 'undefined') {
+          const script = document.createElement('script');
+          script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          script.onload = function() {
+            initializeMap();
+          };
+          document.head.appendChild(script);
+          
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+          document.head.appendChild(link);
+        } else {
+          initializeMap();
+        }
+
+        function initializeMap() {
+          const container = document.getElementById('${moduleName}-map');
+          if (container) {
+            const map = L.map(container).setView([0, 0], 2);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Add markers or other map features based on data
+            console.log('Map data:', mapData);
+          }
+        }
+      }
+    }
+  };
+})(jQuery, Drupal, drupalSettings);`;
+
+      default:
+        return `(function ($, Drupal, drupalSettings) {
+  'use strict';
+
+  Drupal.behaviors.${moduleName}Chart = {
+    attach: function (context, settings) {
+      if (settings.${moduleName}) {
+        const chartData = settings.${moduleName}.chartData;
+        const chartOptions = settings.${moduleName}.chartOptions;
+        const theme = settings.${moduleName}.theme;
+
+        console.log('Chart configuration:', { chartData, chartOptions, theme });
+        // Implementation for ${library} would go here
+      }
+    }
+  };
+})(jQuery, Drupal, drupalSettings);`;
+    }
+  };
+
+  const generateRoutingYml = (chartType: string, library: string, moduleName: string): string => {
+    const controllerClass = `${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)}Controller`;
+    const isMap = chartType === 'map';
+    const pageMethod = isMap ? 'mapPage' : 'chartPage';
+    const dataMethod = isMap ? 'mapData' : 'chartData';
+    
+    return `${moduleName}.${chartType}_page:
+  path: '/charts/${moduleName}'
+  defaults:
+    _controller: 'Drupal\\\\${moduleName}\\\\Controller\\\\${controllerClass}::${pageMethod}'
+    _title: '${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart'
+  requirements:
+    _permission: 'access content'
+
+${moduleName}.${chartType}_data:
+  path: '/charts/${moduleName}/data'
+  defaults:
+    _controller: 'Drupal\\\\${moduleName}\\\\Controller\\\\${controllerClass}::${dataMethod}'
+  requirements:
+    _permission: 'access content'
+  options:
+    _format: json`;
   };
 
   return (
