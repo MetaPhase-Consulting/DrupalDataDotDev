@@ -4,7 +4,7 @@
     {
       "rel": "self",
       "type": "application/activity+json",
-      "href": "https://github.com/brianfunk/DrupalDataDotDev"
+      "href": "https://github.com/MetaPhase-Consulting/DrupalDataDotDev"
     },
     {
       "rel": "http://webfinger.net/rel/profile-page",
