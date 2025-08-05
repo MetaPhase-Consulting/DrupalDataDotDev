@@ -613,7 +613,7 @@ dependencies:
             });
             
             // Add markers or other map features based on data
-            console.log('Map data:', mapData);
+            // Map data processed
           }
         }
       }
@@ -659,7 +659,7 @@ dependencies:
             }).addTo(map);
             
             // Add markers or other map features based on data
-            console.log('Map data:', mapData);
+            // Map data processed
           }
         }
       }
@@ -678,7 +678,7 @@ dependencies:
         const chartOptions = settings.${moduleName}.chartOptions;
         const theme = settings.${moduleName}.theme;
 
-        console.log('Chart configuration:', { chartData, chartOptions, theme });
+        // Chart configuration processed
         // Implementation for ${library} would go here
       }
     }

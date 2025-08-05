@@ -192,7 +192,10 @@ const Generator: React.FC = () => {
         // Basic validation - ensure it's an object or array
         if (typeof parsed !== 'object' || parsed === null) {
           console.warn('JSON should be an object or array');
+          return;
         }
+        // Additional validation for deep objects to prevent circular references
+        JSON.stringify(parsed); // This will throw if there are circular references
       } catch (error) {
         console.error('Invalid JSON format:', error);
       }
