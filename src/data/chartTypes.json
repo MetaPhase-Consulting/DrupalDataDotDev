@@ -7,10 +7,7 @@
     "subtypes": [
       { "id": "vertical", "label": "Vertical Bar" },
       { "id": "horizontal", "label": "Horizontal Bar" },
-      { "id": "grouped", "label": "Grouped Bar" },
-      { "id": "stacked", "label": "Stacked Bar" },
-      { "id": "stacked100", "label": "100% Stacked Bar" },
-      { "id": "3d", "label": "3D Bar" }
+      { "id": "grouped", "label": "Grouped Bar" }
     ]
   },
   {
@@ -21,9 +18,7 @@
     "subtypes": [
       { "id": "basic", "label": "Basic Line" },
       { "id": "area", "label": "Area Chart" },
-      { "id": "smooth", "label": "Smooth Line" },
-      { "id": "stepped", "label": "Stepped Line" },
-      { "id": "multi", "label": "Multi-Series" }
+      { "id": "smooth", "label": "Smooth Line" }
     ]
   },
   {
@@ -33,9 +28,8 @@
     "icon": "PieChart",
     "subtypes": [
       { "id": "pie", "label": "Pie" },
-      { "id": "doughnut", "label": "Doughnut" },
-      { "id": "exploded", "label": "Exploded" },
-      { "id": "3d", "label": "3D Pie" }
+      { "id": "donut", "label": "Donut" },
+      { "id": "exploded", "label": "Exploded Pie" }
     ]
   },
   {
@@ -44,9 +38,9 @@
     "description": "Compare multiple variables",
     "icon": "Zap",
     "subtypes": [
-      { "id": "standard", "label": "Standard" },
-      { "id": "filled", "label": "Filled" },
-      { "id": "multi", "label": "Multi-Series" }
+      { "id": "standard", "label": "Standard Radar" },
+      { "id": "filled", "label": "Filled Radar" },
+      { "id": "markers", "label": "Radar with Markers" }
     ]
   },
   {
@@ -55,9 +49,9 @@
     "description": "Show correlation between variables",
     "icon": "ScatterChart",
     "subtypes": [
-      { "id": "scatter", "label": "Scatter" },
+      { "id": "scatter", "label": "Basic Scatter" },
       { "id": "bubble", "label": "Bubble" },
-      { "id": "3d", "label": "3D Scatter" }
+      { "id": "time", "label": "Time Series" }
     ]
   },
   {
@@ -67,9 +61,8 @@
     "icon": "Map",
     "subtypes": [
       { "id": "choropleth", "label": "Choropleth" },
-      { "id": "markers", "label": "Markers" },
-      { "id": "heatmap", "label": "Heatmap" },
-      { "id": "3d", "label": "3D Map" }
+      { "id": "bubbleMap", "label": "Bubble Map" },
+      { "id": "point", "label": "Point / Marker" }
     ]
   }
 ]

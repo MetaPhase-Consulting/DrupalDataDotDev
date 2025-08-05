@@ -5,8 +5,7 @@
   "subtypes": [
     { "id": "standard", "label": "Standard Radar" },
     { "id": "filled",   "label": "Filled Radar" },
-    { "id": "markers",  "label": "Radar with Markers" },
-    { "id": "circular", "label": "Circular Axis Radar" }
+    { "id": "markers",  "label": "Radar with Markers" }
   ],
   "options": {
     "axisShape":   ["polygon", "circle"],

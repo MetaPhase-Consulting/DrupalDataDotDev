@@ -53,11 +53,11 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
   const getChartType = () => {
     switch (selectedType) {
       case 'bar':
-        return selectedSubtype === 'horizontal' ? 'horizontalBar' : 'bar';
+        return 'bar'; // Chart.js uses 'bar' for both vertical and horizontal
       case 'line':
-        return selectedSubtype === 'area' ? 'line' : 'line';
+        return 'line'; // All line subtypes use 'line' type in Chart.js
       case 'pie':
-        return selectedSubtype === 'doughnut' ? 'doughnut' : 'pie';
+        return selectedSubtype === 'donut' ? 'doughnut' : 'pie';
       case 'radar':
         return 'radar';
       case 'scatter':
@@ -111,7 +111,17 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
             backgroundColor,
             borderColor,
             borderWidth: dataset.borderWidth || 2,
-            fill: selectedType === 'line' && selectedSubtype === 'area'
+            fill: selectedType === 'line' && selectedSubtype === 'area',
+            tension: selectedType === 'line' && selectedSubtype === 'smooth' ? 0.4 : 0,
+            // Radar chart specific properties
+            ...(selectedType === 'radar' && {
+              fill: selectedSubtype === 'filled',
+              pointRadius: selectedSubtype === 'markers' ? 4 : 0
+            }),
+            // Scatter chart specific properties
+            ...(selectedType === 'scatter' && {
+              pointRadius: selectedSubtype === 'bubble' ? 8 : 4
+            })
           };
         })
       };
@@ -142,7 +152,17 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
             backgroundColor,
             borderColor,
             borderWidth: dataset.borderWidth || 2,
-            fill: selectedType === 'line' && selectedSubtype === 'area'
+            fill: selectedType === 'line' && selectedSubtype === 'area',
+            tension: selectedType === 'line' && selectedSubtype === 'smooth' ? 0.4 : 0,
+            // Radar chart specific properties
+            ...(selectedType === 'radar' && {
+              fill: selectedSubtype === 'filled',
+              pointRadius: selectedSubtype === 'markers' ? 4 : 0
+            }),
+            // Scatter chart specific properties
+            ...(selectedType === 'scatter' && {
+              pointRadius: selectedSubtype === 'bubble' ? 8 : 4
+            })
           };
         })
       };
@@ -162,7 +182,17 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
             backgroundColor,
             borderColor,
             borderWidth: dataset.borderWidth || 2,
-            fill: selectedType === 'line' && selectedSubtype === 'area'
+            fill: selectedType === 'line' && selectedSubtype === 'area',
+            tension: selectedType === 'line' && selectedSubtype === 'smooth' ? 0.4 : 0,
+            // Radar chart specific properties
+            ...(selectedType === 'radar' && {
+              fill: selectedSubtype === 'filled',
+              pointRadius: selectedSubtype === 'markers' ? 4 : 0
+            }),
+            // Scatter chart specific properties
+            ...(selectedType === 'scatter' && {
+              pointRadius: selectedSubtype === 'bubble' ? 8 : 4
+            })
           };
         })
       };
@@ -232,12 +262,33 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
             }
           }
         } : undefined,
+        indexAxis: selectedType === 'bar' && selectedSubtype === 'horizontal' ? 'y' : 'x',
         elements: {
           point: {
             backgroundColor: theme.colors[0],
             borderColor: theme.colors[0]
           }
-        }
+        },
+        // Radar chart specific options
+        ...(chartType === 'radar' && {
+          elements: {
+            line: {
+              fill: selectedSubtype === 'filled' ? true : false
+            },
+            point: {
+              radius: selectedSubtype === 'markers' ? 4 : 0
+            }
+          }
+        }),
+        // Scatter chart specific options
+        ...(chartType === 'scatter' && {
+          elements: {
+            point: {
+              radius: selectedSubtype === 'bubble' ? 8 : 4,
+              hoverRadius: selectedSubtype === 'bubble' ? 12 : 6
+            }
+          }
+        })
       }
     });
 

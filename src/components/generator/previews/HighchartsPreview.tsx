@@ -53,9 +53,11 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
       case 'line':
         return 'line';
       case 'pie':
-        return 'pie';
+        return selectedSubtype === 'donut' ? 'pie' : 'pie'; // Highcharts doesn't have donut, use pie
+      case 'radar':
+        return 'area'; // Highcharts uses 'area' for radar charts
       case 'scatter':
-        return 'scatter';
+        return selectedSubtype === 'bubble' ? 'bubble' : 'scatter';
       default:
         return 'column';
     }

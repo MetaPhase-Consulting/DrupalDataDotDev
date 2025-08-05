@@ -214,7 +214,7 @@ const D3Preview: React.FC<D3PreviewProps> = ({
           .value((d: number) => d);
 
         const arc = d3.arc()
-          .innerRadius(selectedSubtype === 'doughnut' ? radius * 0.5 : 0)
+          .innerRadius(selectedSubtype === 'donut' ? radius * 0.5 : 0)
           .outerRadius(radius);
 
         g.selectAll('path')

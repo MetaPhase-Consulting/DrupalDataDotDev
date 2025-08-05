@@ -49,15 +49,15 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
   const getChartType = () => {
     switch (selectedType) {
       case 'bar':
-        return 'bar';
+        return selectedSubtype === 'horizontal' ? 'bar' : 'bar';
       case 'line':
         return 'line';
       case 'pie':
-        return 'pie';
+        return selectedSubtype === 'donut' ? 'pie' : 'pie'; // ECharts uses pie for both
       case 'radar':
         return 'radar';
       case 'scatter':
-        return 'scatter';
+        return selectedSubtype === 'bubble' ? 'scatter' : 'scatter'; // ECharts uses scatter for both
       default:
         return 'bar';
     }
@@ -161,7 +161,7 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
             ...option,
             series: [{
               type: 'pie',
-              radius: selectedSubtype === 'doughnut' ? ['40%', '70%'] : '50%',
+              radius: selectedSubtype === 'donut' ? ['40%', '70%'] : '50%',
               data: xAxis.map((name: string, index: number) => ({
                 name,
                 value: series[0].data[index]

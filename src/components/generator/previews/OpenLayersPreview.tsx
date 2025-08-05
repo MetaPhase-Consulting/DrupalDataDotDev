@@ -4,12 +4,16 @@ import React, { useRef, useEffect } from 'react';
 import chartStylesData from '../../../data/chartStyles.json';
 
 interface OpenLayersPreviewProps {
+  selectedType: string;
+  selectedSubtype: string;
   selectedTheme: string;
-  data: any[];
+  data: any;
   options: Record<string, any>;
 }
 
 const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
+  selectedType,
+  selectedSubtype,
   selectedTheme,
   data,
   options
@@ -37,7 +41,7 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
       secondary: theme.colors.secondary,
       accent: theme.colors.text,
       background: theme.colors.background,
-      colors: theme.colors
+      colors: theme.palette || [theme.colors.primary, theme.colors.secondary, theme.colors.accent]
     };
   };
 

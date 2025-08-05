@@ -60,13 +60,11 @@ export abstract class BaseGenerator {
       case 'line':
         return 'line';
       case 'pie':
-        return 'pie';
-      case 'doughnut':
-        return 'doughnut';
+        return selectedSubtype === 'donut' ? 'doughnut' : 'pie';
       case 'radar':
         return 'radar';
       case 'scatter':
-        return 'scatter';
+        return selectedSubtype === 'bubble' ? 'scatter' : 'scatter';
       case 'bubble':
         return 'bubble';
       case 'polarArea':
@@ -87,8 +85,10 @@ export abstract class BaseGenerator {
         return 'line';
       case 'pie':
         return 'pie';
+      case 'radar':
+        return 'area'; // Highcharts uses 'area' for radar charts
       case 'scatter':
-        return 'scatter';
+        return selectedSubtype === 'bubble' ? 'bubble' : 'scatter';
       case 'bubble':
         return 'bubble';
       case 'map':
@@ -107,8 +107,10 @@ export abstract class BaseGenerator {
         return 'line';
       case 'pie':
         return 'pie';
+      case 'radar':
+        return 'radar';
       case 'scatter':
-        return 'scatter';
+        return selectedSubtype === 'bubble' ? 'scatter' : 'scatter';
       case 'bubble':
         return 'scatter';
       case 'map':
