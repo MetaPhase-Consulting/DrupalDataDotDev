@@ -1,15 +1,15 @@
 {
-  "subject": "acct:brian@metaphase.dev",
+  "subject": "acct:drupaldata@github.com",
   "links": [
     {
       "rel": "self",
       "type": "application/activity+json",
-      "href": "https://metaphase.dev/brian"
+      "href": "https://github.com/brianfunk/DrupalDataDotDev"
     },
     {
       "rel": "http://webfinger.net/rel/profile-page",
       "type": "text/html",
-      "href": "https://metaphase.dev"
+      "href": "https://www.drupaldata.dev"
     }
   ]
 } 

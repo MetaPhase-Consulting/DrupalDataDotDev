@@ -18,7 +18,7 @@ The DrupalData.dev team takes security seriously. We appreciate your efforts to 
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please report security vulnerabilities by emailing security@drupaldata.dev or by using GitHub's private vulnerability reporting feature.
+Instead, please report security vulnerabilities by using GitHub's private vulnerability reporting feature.
 
 ### What to Include
 
@@ -94,8 +94,6 @@ We maintain transparency about resolved security issues:
 
 ### Contact Information
 
-- **Security Email**: security@drupaldata.dev
-- **General Contact**: support@drupaldata.dev
 - **GitHub Security**: Use GitHub's private vulnerability reporting feature
 
 Thank you for helping keep DrupalData.dev and our users safe!
