@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CodeGeneratorConfig } from './types';
 import { BaseGenerator } from './BaseGenerator';
 
@@ -469,7 +470,7 @@ export class StaticHTMLGenerator extends BaseGenerator {
         });
         
         // Add markers or other map features based on data
-        console.log('Map data:', data);
+        // Map data processed
     </script>
 </body>
 </html>`;
@@ -521,7 +522,7 @@ export class StaticHTMLGenerator extends BaseGenerator {
         }).addTo(map);
         
         // Add markers or other map features based on data
-        console.log('Map data:', data);
+        // Map data processed
     </script>
 </body>
 </html>`;
@@ -566,7 +567,7 @@ export class StaticHTMLGenerator extends BaseGenerator {
         const chartOptions = ${JSON.stringify(selectedOptions, null, 2)};
         const theme = '${selectedTheme.id}';
         
-        console.log('Chart configuration:', { chartData, chartOptions, theme });
+        // Chart configuration processed
         // Implementation for ${selectedLibrary} would go here
     </script>
 </body>

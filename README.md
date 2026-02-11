@@ -9,7 +9,7 @@
 [![Accessibility](https://img.shields.io/badge/Accessibility-WCAG%202.1%20AA-green)](https://www.w3.org/WAI/WCAG21/quickref/)
 [![Security](https://img.shields.io/badge/Security-SOC%202-blue)](https://netlify.com/security)
 [![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://www.drupaldata.dev/)
-[![CivicTech](https://img.shields.io/badge/Civic-Tech-1f7a8c)](https://github.com/brianfunk/DrupalDataDotDev)
+[![CivicTech](https://img.shields.io/badge/Civic-Tech-1f7a8c)](https://github.com/MetaPhase-Consulting/DrupalDataDotDev)
 [![LinkedIn](https://img.shields.io/badge/Linked-In-0077b5)](https://www.linkedin.com/company/metaphase-consulting-llc/)
 [![Built by MetaPhase](https://img.shields.io/badge/Built%20by-MetaPhase-fb641f)](https://metaphase.tech)
 
@@ -45,7 +45,7 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/brianfunk/DrupalDataDotDev.git
+   git clone https://github.com/MetaPhase-Consulting/DrupalDataDotDev.git
    cd DrupalDataDotDev
    ```
 

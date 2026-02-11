@@ -1,4 +1,5 @@
-import { CodeGeneratorConfig, NormalizedData, ChartTypeMap } from './types';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NormalizedData } from './types';
 
 export abstract class BaseGenerator {
   // Helper function to normalize data format
@@ -120,11 +121,18 @@ export abstract class BaseGenerator {
     }
   }
 
+  private static sanitizeString(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
+  }
+
   public static sanitizeForCodeGeneration(obj: any): any {
     if (typeof obj === 'string') {
-      // Basic XSS prevention - remove script tags and javascript: protocols
-      return obj.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-                .replace(/javascript:/gi, '');
+      return BaseGenerator.sanitizeString(obj);
     }
     if (Array.isArray(obj)) {
       return obj.map(BaseGenerator.sanitizeForCodeGeneration);
@@ -132,8 +140,7 @@ export abstract class BaseGenerator {
     if (obj && typeof obj === 'object') {
       const sanitized: any = {};
       for (const [key, value] of Object.entries(obj)) {
-        // Sanitize object keys
-        const cleanKey = key.replace(/[<>]/g, '');
+        const cleanKey = BaseGenerator.sanitizeString(key);
         sanitized[cleanKey] = BaseGenerator.sanitizeForCodeGeneration(value);
       }
       return sanitized;

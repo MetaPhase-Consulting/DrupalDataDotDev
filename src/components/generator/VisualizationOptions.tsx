@@ -5,17 +5,31 @@ interface VisualizationType {
   label: string;
   description: string;
   subtypes: { id: string; label: string }[];
-  options: Record<string, any>;
+  options: Record<string, unknown>;
 }
 
 interface VisualizationOptionsProps {
   selectedType: string;
   selectedSubtype: string;
-  selectedOptions: Record<string, any>;
+  selectedOptions: Record<string, unknown>;
   visualizationTypes: VisualizationType[];
   onSubtypeSelect: (subtype: string) => void;
-  onOptionChange: (optionKey: string, value: any) => void;
+  onOptionChange: (optionKey: string, value: unknown) => void;
 }
+
+interface RangeOption {
+  min: number;
+  max: number;
+  step?: number;
+}
+
+const isRangeOption = (value: unknown): value is RangeOption => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+
+  return 'min' in value && 'max' in value;
+};
 
 const VisualizationOptions: React.FC<VisualizationOptionsProps> = ({
   selectedType,
@@ -86,13 +100,13 @@ const VisualizationOptions: React.FC<VisualizationOptionsProps> = ({
                   className="w-full p-2 bg-[#0E1B2A] dark:bg-[#0E1B2A] bg-white border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-300 rounded-lg text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 text-sm focus:border-[#0074BD] dark:focus:border-[#00C9FF] focus:outline-none"
                 >
                   <option value="">Select {optionKey}...</option>
-                  {optionValue.map((value) => (
+                  {(optionValue as unknown[]).map((value) => (
                     <option key={String(value)} value={String(value)}>
                       {String(value)}
                     </option>
                   ))}
                 </select>
-              ) : typeof optionValue === 'object' && optionValue.min !== undefined && optionValue.max !== undefined ? (
+              ) : isRangeOption(optionValue) ? (
                 <div className="space-y-1">
                   <input
                     type="range"
