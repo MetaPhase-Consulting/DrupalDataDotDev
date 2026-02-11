@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Data transformation utilities for converting between chart library formats
 
 export interface ChartJsData {

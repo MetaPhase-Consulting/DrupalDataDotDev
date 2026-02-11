@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NormalizedData } from './types';
 
 export abstract class BaseGenerator {

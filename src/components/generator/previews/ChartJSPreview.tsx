@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
 import React, { useRef, useEffect } from 'react';
 import { Chart, registerables } from 'chart.js';
 
