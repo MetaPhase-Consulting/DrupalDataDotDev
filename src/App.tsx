@@ -42,8 +42,14 @@ function App() {
       <Router>
         <ScrollToTop />
         <div className="min-h-screen bg-white dark:bg-[#0E1B2A] text-gray-900 dark:text-[#E5F1FF] font-['Roboto',system-ui,sans-serif] transition-colors duration-300">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-3 focus:py-2 focus:rounded focus:bg-[#0074BD] focus:text-white"
+          >
+            Skip to main content
+          </a>
           <Header />
-          <main>
+          <main id="main-content" tabIndex={-1}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/generator" element={<Generator />} />

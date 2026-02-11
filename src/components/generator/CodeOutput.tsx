@@ -248,7 +248,7 @@ const CodeOutput: React.FC<CodeOutputProps> = ({
         </h4>
 
         {downloadError ? (
-          <div className="mb-4 flex items-start gap-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-700/50 dark:bg-red-900/20 dark:text-red-200">
+          <div role="alert" className="mb-4 flex items-start gap-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-700/50 dark:bg-red-900/20 dark:text-red-200">
             <AlertCircle size={16} className="mt-0.5" />
             <span>{downloadError}</span>
           </div>

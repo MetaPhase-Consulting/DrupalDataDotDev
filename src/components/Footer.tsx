@@ -9,10 +9,10 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="text-center md:text-left">
             <div className="text-2xl font-bold font-['Inter','Segoe_UI',sans-serif] mb-2">
-              <span className="text-[#0074BD] dark:text-[#0074BD]">Drupal</span>
-              <span className="text-[#003D5C] dark:text-[#B3D9FF]">Data</span>
-              <span className="text-[#B3D9FF] dark:text-[#4A90C2]">Dot</span>
-              <span className="text-[#00C9FF] dark:text-[#00C9FF]">Dev</span>
+              <span className="text-[#005a94] dark:text-[#66C2FF]">Drupal</span>
+              <span className="text-[#003D5C] dark:text-[#CFE8FF]">Data</span>
+              <span className="text-[#0F4F74] dark:text-[#8CCCF2]">Dot</span>
+              <span className="text-[#00507F] dark:text-[#00C9FF]">Dev</span>
             </div>
             <p className="text-gray-600 dark:text-[#E5F1FF]/80 text-sm">
               Free, fast, Drupal data visualization generator

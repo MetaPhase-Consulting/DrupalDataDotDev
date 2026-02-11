@@ -87,9 +87,12 @@ const DataInput: React.FC<DataInputProps> = ({
 
   return (
     <div className="mt-4 space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Data input mode">
         <button
           onClick={() => onInputModeChange('json')}
+          role="tab"
+          aria-selected={inputMode === 'json'}
+          aria-controls="data-input-json-panel"
           className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
             inputMode === 'json'
               ? 'bg-[#0074BD] text-white'
@@ -100,6 +103,9 @@ const DataInput: React.FC<DataInputProps> = ({
         </button>
         <button
           onClick={() => onInputModeChange('csv')}
+          role="tab"
+          aria-selected={inputMode === 'csv'}
+          aria-controls="data-input-csv-panel"
           className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
             inputMode === 'csv'
               ? 'bg-[#0074BD] text-white'
@@ -110,6 +116,9 @@ const DataInput: React.FC<DataInputProps> = ({
         </button>
         <button
           onClick={() => onInputModeChange('manual')}
+          role="tab"
+          aria-selected={inputMode === 'manual'}
+          aria-controls="data-input-manual-panel"
           className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
             inputMode === 'manual'
               ? 'bg-[#0074BD] text-white'
@@ -121,21 +130,21 @@ const DataInput: React.FC<DataInputProps> = ({
       </div>
 
       {errorMessage ? (
-        <div className="flex items-start gap-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-700/50 dark:bg-red-900/20 dark:text-red-200">
+        <div role="alert" className="flex items-start gap-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-700/50 dark:bg-red-900/20 dark:text-red-200">
           <AlertCircle size={16} className="mt-0.5" />
           <span>{errorMessage}</span>
         </div>
       ) : null}
 
       {!errorMessage && statusMessage ? (
-        <div className="flex items-start gap-2 rounded-md border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-700/50 dark:bg-green-900/20 dark:text-green-200">
+        <div role="status" aria-live="polite" className="flex items-start gap-2 rounded-md border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-700/50 dark:bg-green-900/20 dark:text-green-200">
           <CheckCircle2 size={16} className="mt-0.5" />
           <span>{statusMessage}</span>
         </div>
       ) : null}
 
       {inputMode === 'json' ? (
-        <div className="bg-[#1e1e1e] rounded-lg border border-[#3e3e3e] overflow-hidden">
+        <div id="data-input-json-panel" role="tabpanel" className="bg-[#1e1e1e] rounded-lg border border-[#3e3e3e] overflow-hidden">
           <div className="bg-[#2d2d30] border-b border-[#3e3e3e] px-4 py-2 flex items-center justify-between">
             <span className="text-[#cccccc] text-sm font-medium">Input Data (JSON)</span>
             <div className="flex items-center gap-2">
@@ -174,6 +183,7 @@ const DataInput: React.FC<DataInputProps> = ({
             <textarea
               value={jsonData}
               onChange={(event) => onJsonInput(event.target.value)}
+              aria-label="JSON data input"
               placeholder="Enter your JSON data here..."
               maxLength={120000}
               rows={12}
@@ -189,11 +199,12 @@ const DataInput: React.FC<DataInputProps> = ({
       ) : null}
 
       {inputMode === 'csv' ? (
-        <div className="rounded-lg border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 p-4 space-y-3">
-          <label className="block text-sm font-medium text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-700">
+        <div id="data-input-csv-panel" role="tabpanel" className="rounded-lg border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 p-4 space-y-3">
+          <label htmlFor="csv-input-file" className="block text-sm font-medium text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-700">
             Upload a CSV file (max 10MB)
           </label>
           <input
+            id="csv-input-file"
             type="file"
             accept=".csv,text/csv"
             onChange={onFileUpload}
@@ -209,7 +220,7 @@ const DataInput: React.FC<DataInputProps> = ({
       ) : null}
 
       {inputMode === 'manual' ? (
-        <div className="rounded-lg border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 p-4 space-y-3">
+        <div id="data-input-manual-panel" role="tabpanel" className="rounded-lg border border-[#3E4C5E] dark:border-[#3E4C5E] border-gray-200 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
               {selectedType === 'map' ? 'Manual map rows' : 'Manual chart rows'}
@@ -311,6 +322,7 @@ const DataInput: React.FC<DataInputProps> = ({
                     <td className="py-2 text-right">
                       <button
                         onClick={() => removeManualRow(index)}
+                        aria-label={`Remove row ${index + 1}`}
                         className="inline-flex items-center justify-center rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-red-600 dark:text-[#E5F1FF]/70 dark:hover:bg-[#1F2937]"
                         title="Remove row"
                       >

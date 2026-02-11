@@ -24,9 +24,9 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
         aria-expanded={isActive}
         className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#1F2937]/20 dark:hover:bg-[#1F2937]/20 hover:bg-gray-50 transition-colors duration-200"
       >
-        <h3 className="text-xl font-semibold font-['Inter','Segoe_UI',sans-serif] text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900">
+        <h2 className="text-xl font-semibold font-['Inter','Segoe_UI',sans-serif] text-gray-900 dark:text-[#E5F1FF]">
           {title}
-        </h3>
+        </h2>
         {isActive ? (
           <ChevronDown className="text-[#00C9FF] dark:text-[#00C9FF] text-blue-600" size={20} />
         ) : (

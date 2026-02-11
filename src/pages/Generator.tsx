@@ -593,13 +593,13 @@ const Generator: React.FC = () => {
         </div>
 
         {errorMessage ? (
-          <div className="max-w-4xl mx-auto mb-4 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-red-700 dark:border-red-700/50 dark:bg-red-900/20 dark:text-red-200">
+          <div role="alert" className="max-w-4xl mx-auto mb-4 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-red-700 dark:border-red-700/50 dark:bg-red-900/20 dark:text-red-200">
             {errorMessage}
           </div>
         ) : null}
 
         {!errorMessage && statusMessage ? (
-          <div className="max-w-4xl mx-auto mb-4 rounded-md border border-green-300 bg-green-50 px-4 py-3 text-green-700 dark:border-green-700/50 dark:bg-green-900/20 dark:text-green-200">
+          <div role="status" aria-live="polite" className="max-w-4xl mx-auto mb-4 rounded-md border border-green-300 bg-green-50 px-4 py-3 text-green-700 dark:border-green-700/50 dark:bg-green-900/20 dark:text-green-200">
             {statusMessage}
           </div>
         ) : null}
