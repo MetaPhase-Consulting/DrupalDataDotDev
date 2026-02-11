@@ -77,6 +77,12 @@ const EChartsPreview: React.FC<EChartsPreviewProps> = ({
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
     
+    script.onerror = () => {
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '<p style="color:red;text-align:center;">Failed to load ECharts library</p>';
+      }
+    };
+
     script.onload = () => {
       if (typeof (window as any).echarts !== 'undefined') {
         const echarts = (window as any).echarts;

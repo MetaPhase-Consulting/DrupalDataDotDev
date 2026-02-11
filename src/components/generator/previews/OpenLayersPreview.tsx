@@ -135,6 +135,9 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
     const theme = getThemeColors();
     const transformedData = transformData();
 
+    let script: HTMLScriptElement | null = null;
+    let link: HTMLLinkElement | null = null;
+
     // Check if OpenLayers is already loaded
     if (typeof (window as any).ol !== 'undefined') {
       const ol = (window as any).ol;
@@ -203,12 +206,18 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
       }
     } else {
       // Load OpenLayers dynamically if not already loaded
-      const script = document.createElement('script');
+      script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/dist/ol.js';
-      const link = document.createElement('link');
+      link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/ol.css';
       
+      script.onerror = () => {
+        if (containerRef.current) {
+          containerRef.current.innerHTML = '<p style="color:red;text-align:center;">Failed to load OpenLayers library</p>';
+        }
+      };
+
       script.onload = () => {
         // Re-run the map creation after OpenLayers loads
         if (containerRef.current && typeof (window as any).ol !== 'undefined') {
@@ -286,7 +295,12 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
     }
 
     return () => {
-      // Clear the container on cleanup
+      if (script?.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      if (link?.parentNode) {
+        link.parentNode.removeChild(link);
+      }
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
       }

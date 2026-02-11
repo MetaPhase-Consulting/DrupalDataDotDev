@@ -54,6 +54,7 @@ const D3Preview: React.FC<D3PreviewProps> = ({
     containerRef.current.innerHTML = '';
 
     const theme = getThemeColors();
+    let script: HTMLScriptElement | null = null;
 
     // Check if D3 is already loaded
     if (typeof (window as any).d3 !== 'undefined') {
@@ -291,9 +292,15 @@ const D3Preview: React.FC<D3PreviewProps> = ({
       }
     } else {
       // Load D3.js dynamically if not already loaded
-      const script = document.createElement('script');
+      script = document.createElement('script');
       script.src = 'https://d3js.org/d3.v7.min.js';
       
+      script.onerror = () => {
+        if (containerRef.current) {
+          containerRef.current.innerHTML = '<p style="color:red;text-align:center;">Failed to load D3.js library</p>';
+        }
+      };
+
       script.onload = () => {
         // Re-run the chart creation after D3 loads
         if (containerRef.current && typeof (window as any).d3 !== 'undefined') {
@@ -539,7 +546,9 @@ const D3Preview: React.FC<D3PreviewProps> = ({
     }
 
     return () => {
-      // Clear the container on cleanup
+      if (script?.parentNode) {
+        script.parentNode.removeChild(script);
+      }
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
       }
