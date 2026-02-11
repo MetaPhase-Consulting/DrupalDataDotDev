@@ -209,6 +209,12 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
       link.rel = 'stylesheet';
       link.href = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/ol.css';
       
+      script.onerror = () => {
+        if (containerRef.current) {
+          containerRef.current.innerHTML = '<p style="color:red;text-align:center;">Failed to load OpenLayers library</p>';
+        }
+      };
+
       script.onload = () => {
         // Re-run the map creation after OpenLayers loads
         if (containerRef.current && typeof (window as any).ol !== 'undefined') {
@@ -286,7 +292,8 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
     }
 
     return () => {
-      // Clear the container on cleanup
+      // Don't remove script/link elements — OpenLayers stays on window and
+      // subsequent renders take the fast path without re-adding the CSS link.
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
       }

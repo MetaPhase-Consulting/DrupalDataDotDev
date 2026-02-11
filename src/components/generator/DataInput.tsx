@@ -69,9 +69,9 @@ const DataInput: React.FC<DataInputProps> = ({
   };
 
   const addManualRow = () => {
-    const base = selectedType === 'map'
-      ? { label: '', lat: '', lng: '', value: '' }
-      : { label: '', value: '', secondaryValue: '' };
+    const base: ManualInputRow = selectedType === 'map'
+      ? { id: crypto.randomUUID(), label: '', lat: '', lng: '', value: '' }
+      : { id: crypto.randomUUID(), label: '', value: '', secondaryValue: '' };
 
     onManualRowsChange([...manualRows, base]);
   };
@@ -263,7 +263,7 @@ const DataInput: React.FC<DataInputProps> = ({
               </thead>
               <tbody>
                 {manualRows.map((row, index) => (
-                  <tr key={index} className="border-b border-gray-100 dark:border-[#1F2937]">
+                  <tr key={row.id} className="border-b border-gray-100 dark:border-[#1F2937]">
                     <td className="py-2 pr-2">
                       <input
                         value={row.label}
@@ -358,10 +358,10 @@ const DataInput: React.FC<DataInputProps> = ({
 
 function getDefaultManualRows(selectedType: string): ManualInputRow[] {
   if (selectedType === 'map') {
-    return [{ label: '', lat: '', lng: '', value: '' }];
+    return [{ id: crypto.randomUUID(), label: '', lat: '', lng: '', value: '' }];
   }
 
-  return [{ label: '', value: '', secondaryValue: '' }];
+  return [{ id: crypto.randomUUID(), label: '', value: '', secondaryValue: '' }];
 }
 
 export default DataInput;

@@ -77,6 +77,12 @@ const HighchartsPreview: React.FC<HighchartsPreviewProps> = ({
     const script = document.createElement('script');
     script.src = 'https://code.highcharts.com/highcharts.js';
     
+    script.onerror = () => {
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '<p style="color:red;text-align:center;">Failed to load Highcharts library</p>';
+      }
+    };
+
     script.onload = () => {
       if (typeof (window as any).Highcharts !== 'undefined') {
         const Highcharts = (window as any).Highcharts;

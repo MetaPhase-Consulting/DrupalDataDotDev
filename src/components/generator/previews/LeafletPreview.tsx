@@ -139,6 +139,12 @@ const LeafletPreview: React.FC<LeafletPreviewProps> = ({
     link.rel = 'stylesheet';
     link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
     
+    script.onerror = () => {
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '<p style="color:red;text-align:center;">Failed to load Leaflet library</p>';
+      }
+    };
+
     script.onload = () => {
       if (typeof (window as any).L !== 'undefined') {
         const L = (window as any).L;

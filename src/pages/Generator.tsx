@@ -46,10 +46,10 @@ const STATUS_TIMEOUT_MS = 2500;
 
 const getDefaultManualRows = (selectedType: string): ManualInputRow[] => {
   if (selectedType === 'map') {
-    return [{ label: '', lat: '', lng: '', value: '' }];
+    return [{ id: crypto.randomUUID(), label: '', lat: '', lng: '', value: '' }];
   }
 
-  return [{ label: '', value: '', secondaryValue: '' }];
+  return [{ id: crypto.randomUUID(), label: '', value: '', secondaryValue: '' }];
 };
 
 const toNumber = (value: string | number | undefined): number | null => {
@@ -106,6 +106,10 @@ const normalizeMapRows = (rows: TabularRow[]): GeoPoint[] => {
       const lng = toNumber(String(row.lng ?? row.lon ?? row.longitude ?? ''));
 
       if (lat === null || lng === null) {
+        return null;
+      }
+
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
         return null;
       }
 

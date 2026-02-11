@@ -33,6 +33,7 @@ export interface GeoPoint {
 }
 
 export interface ManualInputRow {
+  id: string;
   label: string;
   value: string;
   secondaryValue?: string;

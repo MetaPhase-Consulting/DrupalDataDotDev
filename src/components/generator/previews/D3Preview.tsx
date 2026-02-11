@@ -294,6 +294,12 @@ const D3Preview: React.FC<D3PreviewProps> = ({
       const script = document.createElement('script');
       script.src = 'https://d3js.org/d3.v7.min.js';
       
+      script.onerror = () => {
+        if (containerRef.current) {
+          containerRef.current.innerHTML = '<p style="color:red;text-align:center;">Failed to load D3.js library</p>';
+        }
+      };
+
       script.onload = () => {
         // Re-run the chart creation after D3 loads
         if (containerRef.current && typeof (window as any).d3 !== 'undefined') {
@@ -539,7 +545,8 @@ const D3Preview: React.FC<D3PreviewProps> = ({
     }
 
     return () => {
-      // Clear the container on cleanup
+      // Don't remove script element — D3 stays on window and subsequent
+      // renders take the fast path without re-adding the script tag.
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
       }
