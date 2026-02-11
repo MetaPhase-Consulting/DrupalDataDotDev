@@ -171,11 +171,9 @@ const ChartJSPreview: React.FC<ChartJSPreviewProps> = ({
       chartData = {
         labels: [], // Scatter charts don't need labels
         datasets: data.datasets.map((dataset: any, index: number) => {
-          let backgroundColor, borderColor;
-          
           // For scatter charts, use one color per dataset
-          backgroundColor = dataset.backgroundColor || theme.colors[index % theme.colors.length] + '80';
-          borderColor = dataset.borderColor || theme.colors[index % theme.colors.length];
+          const backgroundColor = dataset.backgroundColor || theme.colors[index % theme.colors.length] + '80';
+          const borderColor = dataset.borderColor || theme.colors[index % theme.colors.length];
           
           return {
             ...dataset,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
@@ -9,14 +9,31 @@ import Generator from './pages/Generator';
 import About from './pages/About';
 import License from './pages/License';
 
-// 404 Component
-const NotFound = () => {
-  React.useEffect(() => {
-    // Redirect to the static 404.html page
-    window.location.href = '/404.html';
-  }, []);
-  
-  return null;
+const NotFound: React.FC = () => {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center px-6 py-12">
+      <div className="max-w-lg text-center">
+        <h1 className="text-4xl font-bold text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-900 mb-4">Page not found</h1>
+        <p className="text-[#E5F1FF]/80 dark:text-[#E5F1FF]/80 text-gray-600 mb-6">
+          The page you requested does not exist. You can return home or open the generator.
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          <Link
+            to="/"
+            className="px-4 py-2 rounded-md bg-[#0074BD] text-white hover:bg-[#005a94] transition-colors"
+          >
+            Go Home
+          </Link>
+          <Link
+            to="/generator"
+            className="px-4 py-2 rounded-md border border-[#3E4C5E] text-[#E5F1FF] dark:text-[#E5F1FF] text-gray-800 hover:bg-gray-100 dark:hover:bg-[#1F2937] transition-colors"
+          >
+            Open Generator
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 function App() {

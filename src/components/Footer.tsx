@@ -1,6 +1,8 @@
 import React from 'react';
 
 const Footer: React.FC = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-white dark:bg-[#0E1B2A] border-t border-gray-200 dark:border-[#1F2937] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,7 +18,7 @@ const Footer: React.FC = () => {
               Free, fast, Drupal data visualization generator
             </p>
           </div>
-          
+
           <div className="text-center md:text-right">
             <p className="text-gray-600 dark:text-[#E5F1FF]/80 text-sm mb-4">
               <span className="inline-flex items-center gap-4">
@@ -45,9 +47,7 @@ const Footer: React.FC = () => {
                 </span>
               </span>
             </p>
-            <p className="text-gray-600 dark:text-[#E5F1FF]/80 text-sm">
-              © 2025 DrupalDataDotDev
-            </p>
+            <p className="text-gray-600 dark:text-[#E5F1FF]/80 text-sm">© {currentYear} DrupalDataDotDev</p>
           </div>
         </div>
       </div>

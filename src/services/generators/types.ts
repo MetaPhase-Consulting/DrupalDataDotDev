@@ -1,4 +1,5 @@
 import { Theme } from '../../types/Theme';
+import { VisualizationData } from '../../types/data';
 
 export interface CodeGeneratorConfig {
   selectedType: string;
@@ -6,13 +7,13 @@ export interface CodeGeneratorConfig {
   selectedLibrary: string;
   selectedOutputFormat: string;
   selectedTheme: Theme;
-  selectedOptions: Record<string, any>;
-  data: any[];
+  selectedOptions: Record<string, unknown>;
+  data: VisualizationData;
 }
 
 export interface NormalizedData {
   labels: string[];
-  datasets: any[];
+  datasets: unknown[];
 }
 
 export interface ChartTypeMap {

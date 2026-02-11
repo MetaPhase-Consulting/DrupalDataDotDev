@@ -17,12 +17,14 @@ interface VisualizationTypeSelectorProps {
   onTypeSelect: (type: string) => void;
 }
 
+type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
+
 const VisualizationTypeSelector: React.FC<VisualizationTypeSelectorProps> = ({
   visualizationTypes,
   selectedType,
   onTypeSelect
 }) => {
-  const iconMap: Record<string, React.ComponentType<any>> = {
+  const iconMap: Record<string, IconComponent> = {
     bar: BarChart3,
     line: TrendingUp,
     pie: PieChart,

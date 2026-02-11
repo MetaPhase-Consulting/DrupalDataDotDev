@@ -1,4 +1,4 @@
-import { CodeGeneratorConfig, NormalizedData, ChartTypeMap } from './types';
+import { NormalizedData } from './types';
 
 export abstract class BaseGenerator {
   // Helper function to normalize data format

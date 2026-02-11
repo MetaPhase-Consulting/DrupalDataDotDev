@@ -1,7 +1,7 @@
 export interface DefaultConfig {
   subtype: string;
   library: string;
-  options: Record<string, any>;
+  options: Record<string, unknown>;
 }
 
 export class DefaultConfigService {
