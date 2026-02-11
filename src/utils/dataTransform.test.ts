@@ -43,7 +43,11 @@ describe('dataTransform validation helpers', () => {
   it('rejects invalid Chart.js format', () => {
     expect(isValidChartJsData({ labels: ['Jan'], datasets: [] })).toBe(false);
     expect(isValidChartJsData({ labels: ['Jan'], datasets: [{ label: 'A', data: [1, 2] }] })).toBe(false);
-    expect(isValidChartJsData({ datasets: [{ label: 'A', data: [1] }] })).toBe(false);
+  });
+
+  it('accepts datasets-only JSON for scatter/bubble charts', () => {
+    expect(isValidChartJsData({ datasets: [{ label: 'A', data: [1] }] })).toBe(true);
+    expect(isValidChartJsData({ datasets: [{ label: 'Scatter', data: [{ x: 1, y: 2 }, { x: 3, y: 4 }] }] })).toBe(true);
   });
 });
 

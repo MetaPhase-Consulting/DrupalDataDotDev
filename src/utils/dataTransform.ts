@@ -54,27 +54,27 @@ export function isValidGeoJSON(data: any): boolean {
 
 export function isValidChartJsData(data: any): boolean {
   if (!data || typeof data !== 'object') return false;
-  
-  // Check for required Chart.js structure
-  if (!Array.isArray(data.labels) || !Array.isArray(data.datasets)) {
+
+  // datasets array is always required
+  if (!Array.isArray(data.datasets) || data.datasets.length === 0) {
     return false;
   }
-  
-  // Ensure datasets is not empty
-  if (data.datasets.length === 0) return false;
-  
+
+  // labels are optional (scatter/bubble charts use {x,y} points without labels)
+  const hasLabels = Array.isArray(data.labels);
+
   // Check each dataset has required properties
   for (const dataset of data.datasets) {
     if (!dataset.label || !Array.isArray(dataset.data)) {
       return false;
     }
-    
-    // Ensure data array length matches labels length
-    if (dataset.data.length !== data.labels.length) {
+
+    // Only enforce labels/data length match when labels are present
+    if (hasLabels && dataset.data.length !== data.labels.length) {
       return false;
     }
   }
-  
+
   return true;
 }
 

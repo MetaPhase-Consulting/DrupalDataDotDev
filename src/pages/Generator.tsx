@@ -69,11 +69,18 @@ const decodeState = (value: string): unknown => {
   return JSON.parse(decodeURIComponent(atob(value)));
 };
 
+const sanitizeString = (value: string): string => {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+};
+
 const sanitizeForCodeGeneration = (obj: unknown): unknown => {
   if (typeof obj === 'string') {
-    return obj
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/javascript:/gi, '');
+    return sanitizeString(obj);
   }
 
   if (Array.isArray(obj)) {
@@ -83,7 +90,7 @@ const sanitizeForCodeGeneration = (obj: unknown): unknown => {
   if (obj && typeof obj === 'object') {
     const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
-      const cleanKey = key.replace(/[<>]/g, '');
+      const cleanKey = sanitizeString(key);
       sanitized[cleanKey] = sanitizeForCodeGeneration(value);
     }
     return sanitized;
