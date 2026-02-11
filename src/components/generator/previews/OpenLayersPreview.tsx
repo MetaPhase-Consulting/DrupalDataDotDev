@@ -135,9 +135,6 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
     const theme = getThemeColors();
     const transformedData = transformData();
 
-    let script: HTMLScriptElement | null = null;
-    let link: HTMLLinkElement | null = null;
-
     // Check if OpenLayers is already loaded
     if (typeof (window as any).ol !== 'undefined') {
       const ol = (window as any).ol;
@@ -206,9 +203,9 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
       }
     } else {
       // Load OpenLayers dynamically if not already loaded
-      script = document.createElement('script');
+      const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/dist/ol.js';
-      link = document.createElement('link');
+      const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = 'https://cdn.jsdelivr.net/npm/ol@7.4.0/ol.css';
       
@@ -295,12 +292,8 @@ const OpenLayersPreview: React.FC<OpenLayersPreviewProps> = ({
     }
 
     return () => {
-      if (script?.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-      if (link?.parentNode) {
-        link.parentNode.removeChild(link);
-      }
+      // Don't remove script/link elements — OpenLayers stays on window and
+      // subsequent renders take the fast path without re-adding the CSS link.
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
       }

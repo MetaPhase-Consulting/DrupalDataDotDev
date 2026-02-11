@@ -54,7 +54,6 @@ const D3Preview: React.FC<D3PreviewProps> = ({
     containerRef.current.innerHTML = '';
 
     const theme = getThemeColors();
-    let script: HTMLScriptElement | null = null;
 
     // Check if D3 is already loaded
     if (typeof (window as any).d3 !== 'undefined') {
@@ -292,7 +291,7 @@ const D3Preview: React.FC<D3PreviewProps> = ({
       }
     } else {
       // Load D3.js dynamically if not already loaded
-      script = document.createElement('script');
+      const script = document.createElement('script');
       script.src = 'https://d3js.org/d3.v7.min.js';
       
       script.onerror = () => {
@@ -546,9 +545,8 @@ const D3Preview: React.FC<D3PreviewProps> = ({
     }
 
     return () => {
-      if (script?.parentNode) {
-        script.parentNode.removeChild(script);
-      }
+      // Don't remove script element — D3 stays on window and subsequent
+      // renders take the fast path without re-adding the script tag.
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
       }
