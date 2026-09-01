@@ -1,0 +1,110 @@
+# Machine-readable declaration of what this system is held to.
+#
+# This is the one file in .challengeai/ that describes THIS system. The tool
+# files beside it are technology and repository agnostic on purpose; anything
+# specific belongs here, in a tool file's "In this repository" section, or in
+# the repository's own documentation.
+#
+# Read by tooling and by agents that need to branch on the profile rather than
+# parse prose.
+
+challengeai:
+  suite_version: "1.0"
+  built_with: true
+
+project:
+  name: "DrupalDataDotDev"
+  slug: "drupaldatadotdev"
+  tagline: "Free Drupal data visualization generator — charts and maps from CSV/JSON, exported as Drupal modules, blocks, or standalone HTML"
+
+  # A free, public developer tool MetaPhase builds and operates for the
+  # Drupal community. Not built for or operated on behalf of any specific
+  # agency; no agency has accepted operational risk for it.
+  operator: "MetaPhase"
+  # Generates code referencing third-party libraries (Chart.js, Highcharts,
+  # ECharts, D3.js, OpenLayers, Leaflet) — doesn't republish any dataset of
+  # its own, government or otherwise.
+
+stack:
+  id: netlify-static-spa-client-only
+  frontend: react-vite
+  # No backend of any kind — a fully client-side SPA. Code generation,
+  # sanitization, and CSV/JSON parsing all run in the browser.
+  backend: none
+  database: none
+  hosting: netlify
+  # Only Chart.js (via react-chartjs-2) is actually npm-bundled AND used for
+  # live preview. Every other preview library — D3, Highcharts, ECharts,
+  # OpenLayers, Leaflet — is dynamically loaded and EXECUTED at runtime via
+  # a CDN <script> tag injected by its own preview component
+  # (src/components/generator/previews/*.tsx), not via an npm package. The
+  # `d3` npm dependency in package.json is unused entirely — no `from 'd3'`
+  # import exists anywhere in src/; D3Preview.tsx loads its own copy from
+  # d3js.org at runtime instead. LeafletPreview.tsx additionally fetches
+  # map tiles from tile.openstreetmap.org. All six libraries in
+  # src/data/libraries.json are real, live, third-party runtime
+  # dependencies of this app when their preview is shown — none of them is
+  # "code-generation only."
+  live_preview_libraries:
+    npm_bundled:
+      - chart.js
+    cdn_loaded_at_runtime:
+      - d3 (d3js.org)
+      - highcharts (code.highcharts.com)
+      - echarts (cdn.jsdelivr.net)
+      - openlayers (cdn.jsdelivr.net)
+      - leaflet (unpkg.com) — also loads map tiles from tile.openstreetmap.org
+    unused_npm_dependency:
+      - d3 (and @types/d3) — listed in package.json, never imported in src/
+
+standards:
+  # Not a federal information system — no agency operates it, no federal
+  # data is carried on an agency's behalf, no categorization performed.
+  # `null` records "not pursued," not "unknown."
+  control_baseline: null
+  impact_level: null
+  # README badges "Accessibility: WCAG 2.1 AA" as if conformance were
+  # established. No automated accessibility scan, no jsx-a11y lint rule, and
+  # no measured contrast/reflow check exist anywhere in this repository —
+  # real ARIA usage exists in 6 components, but unverified by tooling. `null`
+  # records the actual, unverified state rather than repeating the badge's
+  # claim. See challenge-ui.md.
+  accessibility: null
+  accessibility_authority: null
+  # No accounts, no server-side persistence of any kind. But the "Copy
+  # Share Link" feature (Generator.tsx) encodes the full current dataset
+  # into a URL query parameter, which leaves the browser the moment it's
+  # shared or loaded — real user data (potentially including personal
+  # information, since the input is arbitrary CSV/JSON) moving outside the
+  # client. `true` records that this is actually warranted, not that a PIA
+  # exists. See ChallengeSQL, ChallengeATO.
+  privacy_assessment_required: true
+
+gates:
+  # .github/workflows/ci.yml, on push/PR to main and dev. Two jobs, both
+  # with no continue-on-error on any step, so both fail their own workflow
+  # run on a red result: "test" (lint, unit tests via vitest, build — run
+  # across Node 20.x and 22.x) and "security" (npm audit at
+  # --audit-level=moderate, then again at --audit-level=high --production).
+  # Unlike most repos in this suite, the security check here is not itself
+  # configured as advisory within the workflow. But "fails its own run" and
+  # "required to merge" are different facts — no branch-protection setting
+  # was found confirming either job is actually required (see
+  # documented_but_unverified_branch_protection below), so don't read this
+  # list as confirmed merge gates.
+  workflow_checks_enforcement_unverified:
+    - Lint (npm run lint)
+    - Unit tests (npm test — vitest)
+    - Build (npm run build)
+    - Security audit (npm audit, two levels)
+
+  advisory: []
+
+  # No GitHub branch-protection setting was checked/confirmed for this
+  # repository as of this writing.
+  documented_but_unverified_branch_protection: []
+
+branches:
+  default: dev
+  release: main
+  protected_unverified: [dev, main]
