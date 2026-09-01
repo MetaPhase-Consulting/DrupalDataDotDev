@@ -50,15 +50,21 @@ controls.
 the generated code output itself** — what the app hands back to the user as
 a download or copy-paste, rather than a network response:
 
-- **Validated at the edge:** real. Uploaded CSV is checked for file
-  type/extension and a 10MB size cap (`Generator.tsx`) before it's parsed at
-  all. Every string value in the user's data and options is HTML-escaped
-  (`BaseGenerator.sanitizeForCodeGeneration`, `Generator.tsx`'s own parallel
-  copy of the same logic — see ChallengeEA's note on the two implementations)
-  before it's interpolated into generated code — real, deliberate XSS
-  prevention on the one thing this app produces that could carry an
-  injection risk into whatever page or Drupal site the generated code ends
-  up embedded in.
+- **Validated at the edge:** partial, and narrower than it looks. Uploaded
+  CSV gets a real size cap (10MB, strictly enforced) but a weaker type
+  check than "strict" — `text/plain` is accepted as a valid MIME type
+  regardless of extension, and any `.csv`-named file is accepted
+  regardless of its actual MIME type (see ChallengeATO's corrected table).
+  Sanitization is real but *narrower than "every string value"*:
+  `CodeGenerator.ts` only calls `sanitizeForCodeGeneration` on `data` and
+  `selectedOptions` — every other config field, including
+  `selectedLibrary`, is spread through untouched. `selectedLibrary` can be
+  set directly from a URL query parameter with no validation
+  (`Generator.tsx`'s `initializeFromUrl`) and gets interpolated unescaped
+  into `StaticHTMLGenerator`'s generic-fallback `<title>` tag and script
+  comments — a real, working XSS path via a crafted share link, not a
+  theoretical gap. See ChallengeATO for the full writeup and ChallengeEA
+  for the duplicated-sanitizer angle.
 - **Versioning:** not applicable — there's no published contract to version.
   The generated code's shape can change between releases with no
   compatibility guarantee to anyone who saved output from an earlier version.
@@ -91,8 +97,12 @@ specifically.
 - Does a change alter the shape of an existing response? That is a breaking
   change to a published contract, and it belongs behind a new version.
 - Is anything personal placed in a URL, where it reaches logs and history?
-- **This repository-specific:** does a new code-output generator (a fifth
-  format alongside the existing four — see ChallengeEA) route every
-  user-supplied string through `sanitizeForCodeGeneration` before
-  interpolating it into generated code? Skipping that reintroduces the
-  exact XSS risk this system's one real security control exists to close.
+  **This repository already does this** — "Copy Share Link" puts the
+  entire dataset in the URL query string (see ChallengeSQL, ChallengeATO).
+- **This repository-specific:** does every config field that reaches a
+  generator's template output — not just `data` and `selectedOptions`, but
+  `selectedLibrary`, `selectedOutputFormat`, and any field added later —
+  get routed through `sanitizeForCodeGeneration` before interpolation? The
+  current gap (`selectedLibrary` bypassing it entirely, reachable via a URL
+  parameter) shows that "sanitize before generating" isn't yet a rule
+  applied to the whole config object, just to two fields of it.

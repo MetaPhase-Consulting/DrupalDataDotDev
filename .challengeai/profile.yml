@@ -33,14 +33,29 @@ stack:
   backend: none
   database: none
   hosting: netlify
-  # Only chart.js/react-chartjs-2 and d3 are actual npm dependencies, used
-  # for in-app live preview rendering. Highcharts, ECharts, OpenLayers, and
-  # Leaflet (src/data/libraries.json) are code-generation targets only —
-  # the app emits template code referencing them (typically via CDN in the
-  # generated output) without installing or executing them itself.
+  # Only Chart.js (via react-chartjs-2) is actually npm-bundled AND used for
+  # live preview. Every other preview library — D3, Highcharts, ECharts,
+  # OpenLayers, Leaflet — is dynamically loaded and EXECUTED at runtime via
+  # a CDN <script> tag injected by its own preview component
+  # (src/components/generator/previews/*.tsx), not via an npm package. The
+  # `d3` npm dependency in package.json is unused entirely — no `from 'd3'`
+  # import exists anywhere in src/; D3Preview.tsx loads its own copy from
+  # d3js.org at runtime instead. LeafletPreview.tsx additionally fetches
+  # map tiles from tile.openstreetmap.org. All six libraries in
+  # src/data/libraries.json are real, live, third-party runtime
+  # dependencies of this app when their preview is shown — none of them is
+  # "code-generation only."
   live_preview_libraries:
-    - chart.js
-    - d3
+    npm_bundled:
+      - chart.js
+    cdn_loaded_at_runtime:
+      - d3 (d3js.org)
+      - highcharts (code.highcharts.com)
+      - echarts (cdn.jsdelivr.net)
+      - openlayers (cdn.jsdelivr.net)
+      - leaflet (unpkg.com) — also loads map tiles from tile.openstreetmap.org
+    unused_npm_dependency:
+      - d3 (and @types/d3) — listed in package.json, never imported in src/
 
 standards:
   # Not a federal information system — no agency operates it, no federal
@@ -56,10 +71,14 @@ standards:
   # claim. See challenge-ui.md.
   accessibility: null
   accessibility_authority: null
-  # No accounts, no stored user data of any kind — confirmed via
-  # ChallengeSQL's review and a direct search for any persistence layer
-  # (found none).
-  privacy_assessment_required: false
+  # No accounts, no server-side persistence of any kind. But the "Copy
+  # Share Link" feature (Generator.tsx) encodes the full current dataset
+  # into a URL query parameter, which leaves the browser the moment it's
+  # shared or loaded — real user data (potentially including personal
+  # information, since the input is arbitrary CSV/JSON) moving outside the
+  # client. `true` records that this is actually warranted, not that a PIA
+  # exists. See ChallengeSQL, ChallengeATO.
+  privacy_assessment_required: true
 
 gates:
   # .github/workflows/ci.yml, on push/PR to main and dev. Two jobs, both

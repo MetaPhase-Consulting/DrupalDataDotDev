@@ -93,11 +93,13 @@ Notice published in the Federal Register.
 The PIA is written from what the system actually does with personal
 information, so a data model that quietly starts storing an identifier changes
 the privacy posture whether or not anyone updates the document. This
-repository collects no personal information — no accounts, no stored user
-data of any kind (see ChallengeSQL) — so `profile.yml` records
-`privacy_assessment_required: false`. That's a statement about what exists
-today; it changes the moment the system starts persisting anything about a
-person.
+repository has no accounts and no server-side persistence of any kind (see
+ChallengeSQL) — but it does have a "Copy Share Link" feature that encodes
+a user's full dataset into a URL, which leaves the browser the moment it's
+shared or loaded. Since arbitrary user-supplied CSV/JSON can carry personal
+information, `profile.yml` records `privacy_assessment_required: true` —
+not because a PIA exists, but because this mechanism makes one actually
+warranted. See ChallengeSQL, ChallengeATO.
 
 ## Retention and disposition
 

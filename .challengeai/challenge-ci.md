@@ -56,10 +56,15 @@ push and PR to `main` and `dev`:
 Against this tool's gate list: compile/conform/behave is covered (lint,
 test, build). No end-to-end test exists (see ChallengeTDD). No accessibility
 check runs despite the README's WCAG badge (see ChallengeUI). The
-dependency scan is real and blocking, which covers the "no dependency
-carries a high or critical advisory" gate better than most sibling repos.
-No secret-scanning tool (gitleaks, trufflehog, GitHub secret scanning
-verification) was found configured in this workflow.
+dependency scan fails its own workflow run on a moderate-or-worse advisory
+(no `continue-on-error`), which is a stronger *workflow-level* posture than
+most sibling repos have — but "fails the workflow run" and "required to
+merge" are different facts, and no branch-protection setting was found
+confirming this job actually blocks a merge (see
+`profile.yml`'s `documented_but_unverified_branch_protection`). Described
+as a failing check, not a confirmed merge gate. No secret-scanning tool
+(gitleaks, trufflehog, GitHub secret scanning verification) was found
+configured in this workflow.
 
 There is no deploy step in this workflow at all — deployment is Netlify's
 own GitHub-integration auto-deploy, entirely outside GitHub Actions (see

@@ -51,9 +51,23 @@ anywhere in the code.
 The only "data" this system handles:
 
 - **User-supplied CSV/JSON**, uploaded or pasted directly in the browser,
-  parsed client-side (`papaparse`), held only in React component state
-  (`Generator.tsx`), and never sent anywhere — the app has no server to send
-  it to. It disappears when the tab closes or the page reloads.
+  parsed client-side (`papaparse`), held in React component state
+  (`Generator.tsx`). **One real exception to "never sent anywhere":**
+  `Generator.tsx`'s "Copy Share Link" feature (`copyShareLink` /
+  `buildSearchParams(true)`) encodes the entire current dataset into a
+  `data` query parameter and produces a full URL containing it. That URL —
+  data included — leaves the browser the moment it's shared through any
+  channel (email, chat, a ticket) and again the moment anyone loads it,
+  since the full request line including the query string reaches whatever
+  serves the page (Netlify, in this case) and can land in access logs,
+  browser history, and any intermediary the link passes through. Outside
+  that one flow, data does stay client-side and disappears when the tab
+  closes or the page reloads — but the share-link path means "never sent
+  anywhere" was wrong as a blanket claim. Since arbitrary user-supplied
+  CSV/JSON can contain personal information, and this mechanism actively
+  moves it outside the browser, `profile.yml`'s
+  `privacy_assessment_required` is corrected from `false` to `true` — see
+  ChallengeATO.
 - **Static configuration files committed to the repo**
   (`src/data/chartStyles.json`, `chartTypes.json`, `libraries.json`,
   `sampleData/`, `visualizationTypes/`) — read-only, shipped with the
@@ -82,8 +96,8 @@ schema — not before.
 - Does the application role get the narrowest grant that works?
 - Does a new query have a plan that uses the index it was written for?
 - Does a new column hold personal information the PIA does not mention?
-- **This repository-specific:** if a future version of this tool adds
-  server-side persistence (saved visualizations, user accounts, anything),
-  does `profile.yml`'s `privacy_assessment_required: false` get revisited
-  in the same change, rather than left stale? Today it's accurate because
-  nothing is stored anywhere.
+- **This repository-specific:** does a new feature that touches user data
+  (the share-link mechanism above, or anything like it added later) get
+  checked against whether it moves that data outside the browser? That's
+  what already flipped `privacy_assessment_required` to `true` once; a
+  feature added without that check is how it would go stale again.

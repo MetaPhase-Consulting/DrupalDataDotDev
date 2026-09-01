@@ -42,20 +42,26 @@ The actual shape: a fully client-side React SPA with no backend of any kind
 `src/services/CodeGenerator.ts` dispatching to one of four output-format
 generators (`JavaScriptEmbedGenerator`, `StaticHTMLGenerator`,
 `DrupalBlockGenerator`, `DrupalControllerGenerator`), all extending a shared
-`BaseGenerator` that centralizes HTML-entity sanitization (see ChallengeUI's
-sanitization note, ChallengeAPI). A distinct, worth-naming architectural
-fact: `src/data/libraries.json` lists six charting/mapping libraries the
+`BaseGenerator` that centralizes HTML-entity sanitization (see ChallengeAPI
+for where that sanitization does and doesn't reach). A distinct,
+worth-naming architectural fact, corrected after an initial read got this
+wrong: `src/data/libraries.json` lists six charting/mapping libraries the
 generator can target (Chart.js, D3.js, Highcharts, Apache ECharts,
-OpenLayers, Leaflet), but only two of them — Chart.js and D3 — are actual
-npm dependencies used for the in-app live preview. The other four are
-code-generation targets only: the app emits template code referencing them
-(typically loaded via CDN in the generated output) without installing,
-bundling, or executing them itself. That's a real, deliberate design choice
-— it's why `package.json` doesn't list Highcharts/ECharts/OpenLayers/Leaflet
-as dependencies despite the README and this system's own `libraries.json`
-naming all six as "supported" — but it isn't written down anywhere as a
-decision with its reasoning; this file is the first place it's stated
-explicitly.
+OpenLayers, Leaflet). Only Chart.js is npm-bundled — every other one,
+**D3 included**, is dynamically loaded and *executed* at runtime via a
+CDN `<script>` tag injected by its own live-preview component
+(`src/components/generator/previews/*.tsx`) when a user selects it, not
+installed as an npm package at all. The `d3` npm dependency in
+`package.json` is unused entirely — no `from 'd3'` import exists anywhere
+in `src/`; `D3Preview.tsx` fetches its own copy from `d3js.org` instead.
+`LeafletPreview.tsx` additionally pulls map tiles from
+`tile.openstreetmap.org`. None of the six is "code-generation only" — all
+six are real, live, third-party runtime dependencies of this app whenever
+their preview renders, which is a meaningfully different security and
+supply-chain posture than a tool that merely emits template code
+referencing them. This isn't written down as a deliberate decision
+anywhere in the repository; this file is the first place the actual shape
+is stated explicitly.
 
 **One specific duplication worth naming as a "reasoning travels with the
 component" case study:** the sanitization logic that closes the XSS risk in
